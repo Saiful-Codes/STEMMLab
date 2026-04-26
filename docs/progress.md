@@ -1,35 +1,36 @@
 # STEMM Lab – Progress
 
 ## Current Status
-Phase 0 completed successfully.
+Phase 1 completed successfully.
 
 ## Completed Work
-- Expo project initialized
-- Converted to TypeScript (App.tsx, tsconfig.json)
-- Git repository setup
-- main branch created
-- dev branch created and pushed
-- Clean project base verified (Expo app running)
+- Phase 0: Expo + TypeScript project initialised, git set up (main + dev branches)
+- Phase 1: Navigation and App Shell
+  - Installed React Navigation (native, native-stack, bottom-tabs) + react-native-screens + react-native-safe-area-context
+  - Created `src/` folder structure (navigation, screens, data, types)
+  - Onboarding stack: Welcome → TeamSetup
+  - Bottom tabs: Home, Leaderboard, Profile, Settings
+  - Placeholder screens only (no logic, no storage)
+  - Activity data file with all 7 STEMM activities
+  - `App.tsx` wired with SafeAreaProvider + NavigationContainer + RootNavigator
+  - TypeScript type-check passes
 
 ## Current Phase
-Phase 1 – Navigation and App Shell
+Phase 2 – First Activity (Sound Pollution Hunter)
 
 ## Next Tasks
-- Set up React Navigation
-- Create src/ folder structure
-- Implement:
-  - Onboarding stack (Welcome, Team Setup)
-  - Bottom tab navigation (Home, Leaderboard, Profile, Settings)
-- Create placeholder screens only
-- Add activity data file (7 activities)
+- Build the Activity Catalogue UI on HomeScreen (cards from `src/data/activities.ts`)
+- Add activity Stack inside Home tab (Detail / Run / Results)
+- Microphone / dB meter hook
+- Data entry table for Sound Pollution Hunter
+- Local persistence of attempts (introduce AsyncStorage)
 
 ## Rules (IMPORTANT)
 - Build step-by-step
 - Do NOT over-engineer
 - Do NOT add backend
-- Do NOT add sensors yet
 - Keep code simple and clean
 
 ## Notes
 - Using Claude Code for guided development
-- Local-first app (AsyncStorage later)
+- Local-first app (AsyncStorage starts in Phase 2)
