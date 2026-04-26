@@ -42,3 +42,9 @@ yarn-error.*
 
 #claude
 .claude/
+
+# Local planning / AI workflow files
+docs/CLAUDE.md
+docs/project-spec.md
+docs/plan.md
+docs/progress.md
