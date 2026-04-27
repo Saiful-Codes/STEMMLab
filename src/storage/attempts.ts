@@ -14,7 +14,16 @@ export type ReactionEntry = {
   reactionMs: number;
 };
 
-export type AttemptEntry = SoundEntry | ReactionEntry;
+export type EarthquakeEntry = {
+  id: string;
+  attemptNumber: number;
+  durationMs: number;
+  peakMagnitude: number;
+  avgMagnitude: number;
+  samples: number;
+};
+
+export type AttemptEntry = SoundEntry | ReactionEntry | EarthquakeEntry;
 
 export type ActivityAttempt<E extends AttemptEntry = AttemptEntry> = {
   id: string;

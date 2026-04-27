@@ -3,6 +3,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../navigation/ActivityStack';
 import SoundRunScreen from './sound/SoundRunScreen';
 import ReactionRunScreen from './reaction/ReactionRunScreen';
+import EarthquakeRunScreen from './earthquake/EarthquakeRunScreen';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -14,6 +15,8 @@ export default function ActivityRunScreen(props: Props) {
       return <SoundRunScreen {...props} />;
     case 'reaction':
       return <ReactionRunScreen {...props} />;
+    case 'earthquake':
+      return <EarthquakeRunScreen {...props} />;
     default:
       return (
         <View style={styles.center}>
