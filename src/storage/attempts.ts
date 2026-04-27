@@ -8,24 +8,36 @@ export type SoundEntry = {
   decibels: number;
 };
 
-export type ActivityAttempt = {
+export type ReactionEntry = {
+  id: string;
+  attemptNumber: number;
+  reactionMs: number;
+};
+
+export type AttemptEntry = SoundEntry | ReactionEntry;
+
+export type ActivityAttempt<E extends AttemptEntry = AttemptEntry> = {
   id: string;
   activityId: string;
   finishedAt: number;
-  entries: SoundEntry[];
+  entries: E[];
 };
 
-export async function saveAttempt(attempt: ActivityAttempt): Promise<void> {
-  const existing = await loadAttempts(attempt.activityId);
+export async function saveAttempt<E extends AttemptEntry>(
+  attempt: ActivityAttempt<E>
+): Promise<void> {
+  const existing = await loadAttempts<E>(attempt.activityId);
   const updated = [attempt, ...existing];
   await AsyncStorage.setItem(KEY_PREFIX + attempt.activityId, JSON.stringify(updated));
 }
 
-export async function loadAttempts(activityId: string): Promise<ActivityAttempt[]> {
+export async function loadAttempts<E extends AttemptEntry = AttemptEntry>(
+  activityId: string
+): Promise<ActivityAttempt<E>[]> {
   const raw = await AsyncStorage.getItem(KEY_PREFIX + activityId);
   if (!raw) return [];
   try {
-    return JSON.parse(raw) as ActivityAttempt[];
+    return JSON.parse(raw) as ActivityAttempt<E>[];
   } catch {
     return [];
   }

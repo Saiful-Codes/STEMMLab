@@ -5,7 +5,7 @@ import { activities } from '../../data/activities';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityDetail'>;
 
-const IMPLEMENTED_ACTIVITY_IDS = ['sound'];
+const IMPLEMENTED_ACTIVITY_IDS = ['sound', 'reaction'];
 
 export default function ActivityDetailScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
