@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Button,
@@ -9,40 +9,106 @@ import {
   View,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import {
+  AudioModule,
+  RecordingPresets,
+  setAudioModeAsync,
+  useAudioRecorder,
+  useAudioRecorderState,
+} from 'expo-audio';
 import { ActivityStackParamList } from '../../navigation/ActivityStack';
 import { saveAttempt, SoundEntry } from '../../storage/attempts';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
+// Approximate SPL dB from dBFS metering. Not a real calibrated reading —
+// good enough for the activity (quiet room ~30, loud talk ~70, shout ~95).
+function meteringToApproxDb(metering: number | null | undefined): number | null {
+  if (metering == null || !Number.isFinite(metering)) return null;
+  const value = Math.round(metering + 100);
+  if (value < 0) return 0;
+  if (value > 120) return 120;
+  return value;
+}
+
 export default function ActivityRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
 
+  const audioRecorder = useAudioRecorder({
+    ...RecordingPresets.HIGH_QUALITY,
+    isMeteringEnabled: true,
+  });
+  const recorderState = useAudioRecorderState(audioRecorder, 200);
+
+  const [permissionGranted, setPermissionGranted] = useState<boolean | null>(null);
   const [action, setAction] = useState('');
-  const [decibels, setDecibels] = useState('');
+  const [capturedDb, setCapturedDb] = useState<number | null>(null);
   const [entries, setEntries] = useState<SoundEntry[]>([]);
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    (async () => {
+      const status = await AudioModule.requestRecordingPermissionsAsync();
+      setPermissionGranted(status.granted);
+      if (!status.granted) {
+        Alert.alert(
+          'Microphone permission denied',
+          'You need to allow microphone access to measure sound levels.'
+        );
+        return;
+      }
+      await setAudioModeAsync({
+        playsInSilentMode: true,
+        allowsRecording: true,
+      });
+    })();
+  }, []);
+
+  const liveDb = meteringToApproxDb(recorderState.metering);
+
+  const startRecording = async () => {
+    if (permissionGranted === false) {
+      Alert.alert('No permission', 'Microphone permission is required.');
+      return;
+    }
+    try {
+      setCapturedDb(null);
+      await audioRecorder.prepareToRecordAsync();
+      audioRecorder.record();
+    } catch (err) {
+      Alert.alert('Could not start recording', 'Please try again.');
+    }
+  };
+
+  const stopRecording = async () => {
+    try {
+      const finalDb = liveDb;
+      await audioRecorder.stop();
+      if (finalDb != null) setCapturedDb(finalDb);
+    } catch (err) {
+      Alert.alert('Could not stop recording', 'Please try again.');
+    }
+  };
+
   const handleAddEntry = () => {
     const trimmedAction = action.trim();
-    const dbValue = Number(decibels);
-
     if (!trimmedAction) {
       Alert.alert('Missing action', 'Please enter what you were measuring.');
       return;
     }
-    if (!Number.isFinite(dbValue) || dbValue < 0) {
-      Alert.alert('Invalid dB', 'Please enter a positive number for decibels.');
+    if (capturedDb == null) {
+      Alert.alert('No measurement', 'Record a sound level before adding the entry.');
       return;
     }
 
     const newEntry: SoundEntry = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       action: trimmedAction,
-      decibels: dbValue,
+      decibels: capturedDb,
     };
     setEntries((prev) => [newEntry, ...prev]);
     setAction('');
-    setDecibels('');
+    setCapturedDb(null);
   };
 
   const handleFinish = async () => {
@@ -66,11 +132,25 @@ export default function ActivityRunScreen({ navigation, route }: Props) {
     }
   };
 
+  const meterDisplay = recorderState.isRecording
+    ? `${liveDb ?? '--'} dB`
+    : capturedDb != null
+    ? `${capturedDb} dB`
+    : '-- dB';
+
+  const meterHint = recorderState.isRecording
+    ? 'Listening… tap Stop when done.'
+    : capturedDb != null
+    ? 'Captured. Add the entry or measure again.'
+    : permissionGranted === false
+    ? 'Microphone permission denied.'
+    : 'Tap Record to start measuring.';
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Sound Pollution Hunter</Text>
       <Text style={styles.subheading}>
-        Record an action and the sound level you measured (in dB).
+        Type what you are measuring, then record a few seconds of sound.
       </Text>
 
       <View style={styles.form}>
@@ -81,16 +161,28 @@ export default function ActivityRunScreen({ navigation, route }: Props) {
           placeholder="e.g. Lunch bell"
           style={styles.input}
         />
-        <Text style={styles.label}>Sound level (dB)</Text>
-        <TextInput
-          value={decibels}
-          onChangeText={setDecibels}
-          placeholder="e.g. 78"
-          keyboardType="numeric"
-          style={styles.input}
-        />
+
+        <Text style={styles.label}>Sound level</Text>
+        <View style={styles.meterBox}>
+          <Text style={styles.meterValue}>{meterDisplay}</Text>
+          <Text style={styles.meterHint}>{meterHint}</Text>
+        </View>
+
+        <View style={styles.recordButton}>
+          <Button
+            title={recorderState.isRecording ? 'Stop' : 'Record'}
+            onPress={recorderState.isRecording ? stopRecording : startRecording}
+            disabled={permissionGranted === false}
+            color={recorderState.isRecording ? '#dc2626' : undefined}
+          />
+        </View>
+
         <View style={styles.addButton}>
-          <Button title="Add Entry" onPress={handleAddEntry} />
+          <Button
+            title="Add Entry"
+            onPress={handleAddEntry}
+            disabled={recorderState.isRecording || capturedDb == null}
+          />
         </View>
       </View>
 
@@ -116,7 +208,7 @@ export default function ActivityRunScreen({ navigation, route }: Props) {
         <Button
           title={saving ? 'Saving…' : 'Finish Activity'}
           onPress={handleFinish}
-          disabled={saving}
+          disabled={saving || recorderState.isRecording}
         />
       </View>
     </View>
@@ -145,6 +237,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginBottom: 8,
   },
+  meterBox: {
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  meterValue: { fontSize: 28, fontWeight: '700', color: '#2563eb' },
+  meterHint: { fontSize: 12, color: '#6b7280', marginTop: 4 },
+  recordButton: { marginTop: 4, marginBottom: 6 },
   addButton: { marginTop: 4 },
   listHeading: { fontSize: 14, fontWeight: '600', marginBottom: 6 },
   list: { flex: 1 },
