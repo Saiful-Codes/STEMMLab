@@ -17,7 +17,7 @@ import {
   useAudioRecorderState,
 } from 'expo-audio';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
-import { saveAttempt, SoundEntry } from '../../../storage/attempts';
+import { SoundEntry } from '../../../storage/attempts';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -44,7 +44,6 @@ export default function SoundRunScreen({ navigation, route }: Props) {
   const [action, setAction] = useState('');
   const [capturedDb, setCapturedDb] = useState<number | null>(null);
   const [entries, setEntries] = useState<SoundEntry[]>([]);
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -111,25 +110,16 @@ export default function SoundRunScreen({ navigation, route }: Props) {
     setCapturedDb(null);
   };
 
-  const handleFinish = async () => {
+  const handleFinish = () => {
     if (entries.length === 0) {
       Alert.alert('No entries', 'Add at least one entry before finishing.');
       return;
     }
-
-    setSaving(true);
-    try {
-      await saveAttempt<SoundEntry>({
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        activityId,
-        finishedAt: Date.now(),
-        entries,
-      });
-      navigation.replace('ActivityResult', { activityId });
-    } catch (err) {
-      Alert.alert('Save failed', 'Could not save your attempt. Please try again.');
-      setSaving(false);
-    }
+    const peakDb = Math.max(...entries.map((e) => e.decibels));
+    navigation.replace('ResultSummary', {
+      activityId,
+      result: peakDb,
+    });
   };
 
   const meterDisplay = recorderState.isRecording
@@ -206,9 +196,9 @@ export default function SoundRunScreen({ navigation, route }: Props) {
 
       <View style={styles.finishButton}>
         <Button
-          title={saving ? 'Saving…' : 'Finish Activity'}
+          title="Finish Activity"
           onPress={handleFinish}
-          disabled={saving || recorderState.isRecording}
+          disabled={recorderState.isRecording}
         />
       </View>
     </View>

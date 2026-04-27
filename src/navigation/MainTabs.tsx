@@ -1,13 +1,13 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ActivityStack from './ActivityStack';
 import LeaderboardScreen from '../screens/leaderboard/LeaderboardScreen';
-import ProfileScreen from '../screens/profile/ProfileScreen';
+import HistoryScreen from '../screens/history/HistoryScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 
 export type MainTabsParamList = {
   Home: undefined;
   Leaderboard: undefined;
-  Profile: undefined;
+  History: undefined;
   Settings: undefined;
 };
 
@@ -18,7 +18,7 @@ export default function MainTabs() {
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen name="Home" component={ActivityStack} />
       <Tab.Screen name="Leaderboard" component={LeaderboardScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="History" component={HistoryScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
   );

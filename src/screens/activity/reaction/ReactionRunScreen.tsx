@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
-import { ReactionEntry, saveAttempt } from '../../../storage/attempts';
+import { ReactionEntry } from '../../../storage/attempts';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -25,7 +25,6 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [entries, setEntries] = useState<ReactionEntry[]>([]);
   const [lastReactionMs, setLastReactionMs] = useState<number | null>(null);
-  const [saving, setSaving] = useState(false);
 
   const goTimestampRef = useRef<number | null>(null);
   const waitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -77,24 +76,16 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
     setGameState('idle');
   };
 
-  const handleFinish = async () => {
+  const handleFinish = () => {
     if (entries.length === 0) {
       Alert.alert('No attempts', 'Try at least one tap before finishing.');
       return;
     }
-    setSaving(true);
-    try {
-      await saveAttempt<ReactionEntry>({
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        activityId,
-        finishedAt: Date.now(),
-        entries,
-      });
-      navigation.replace('ActivityResult', { activityId });
-    } catch (err) {
-      Alert.alert('Save failed', 'Could not save your attempt. Please try again.');
-      setSaving(false);
-    }
+    const bestMs = Math.min(...entries.map((e) => e.reactionMs));
+    navigation.replace('ResultSummary', {
+      activityId,
+      result: bestMs,
+    });
   };
 
   const areaStyle = [
@@ -192,9 +183,9 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
 
       <View style={styles.finishButton}>
         <Button
-          title={saving ? 'Saving…' : 'Finish Activity'}
+          title="Finish Activity"
           onPress={handleFinish}
-          disabled={saving || isInteractive}
+          disabled={isInteractive}
         />
       </View>
     </View>

@@ -1,7 +1,9 @@
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WelcomeScreen from '../screens/onboarding/WelcomeScreen';
 import TeamSetupScreen from '../screens/onboarding/TeamSetupScreen';
 import MainTabs from './MainTabs';
+import { useTeam } from '../context/TeamContext';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -12,8 +14,20 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
+  const { team, loading } = useTeam();
+
+  if (loading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  const initialRoute: keyof RootStackParamList = team ? 'MainTabs' : 'Welcome';
+
   return (
-    <Stack.Navigator initialRouteName="Welcome">
+    <Stack.Navigator initialRouteName={initialRoute}>
       <Stack.Screen
         name="Welcome"
         component={WelcomeScreen}
@@ -32,3 +46,7 @@ export default function RootNavigator() {
     </Stack.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  loader: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+});

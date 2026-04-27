@@ -3,12 +3,14 @@ import HomeScreen from '../screens/home/HomeScreen';
 import ActivityDetailScreen from '../screens/activity/ActivityDetailScreen';
 import ActivityRunScreen from '../screens/activity/ActivityRunScreen';
 import ActivityResultScreen from '../screens/activity/ActivityResultScreen';
+import ResultSummaryScreen from '../screens/common/ResultSummaryScreen';
 
 export type ActivityStackParamList = {
   Home: undefined;
   ActivityDetail: { activityId: string };
   ActivityRun: { activityId: string };
   ActivityResult: { activityId: string };
+  ResultSummary: { activityId: string; result: number | string };
 };
 
 const Stack = createNativeStackNavigator<ActivityStackParamList>();
@@ -35,6 +37,11 @@ export default function ActivityStack() {
         name="ActivityResult"
         component={ActivityResultScreen}
         options={{ title: 'Results' }}
+      />
+      <Stack.Screen
+        name="ResultSummary"
+        component={ResultSummaryScreen}
+        options={{ title: 'Save Result' }}
       />
     </Stack.Navigator>
   );

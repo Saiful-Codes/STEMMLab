@@ -12,7 +12,7 @@ import {
 import { Accelerometer } from 'expo-sensors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
-import { EarthquakeEntry, saveAttempt } from '../../../storage/attempts';
+import { EarthquakeEntry } from '../../../storage/attempts';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -43,7 +43,6 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
   const [avgMagnitude, setAvgMagnitude] = useState(0);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [entries, setEntries] = useState<EarthquakeEntry[]>([]);
-  const [saving, setSaving] = useState(false);
 
   const subscriptionRef = useRef<ReturnType<typeof Accelerometer.addListener> | null>(null);
   const startTimeRef = useRef<number | null>(null);
@@ -154,24 +153,16 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
     setEntries((prev) => [newEntry, ...prev]);
   };
 
-  const handleFinish = async () => {
+  const handleFinish = () => {
     if (entries.length === 0) {
       Alert.alert('No attempts', 'Run at least one test before finishing.');
       return;
     }
-    setSaving(true);
-    try {
-      await saveAttempt<EarthquakeEntry>({
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        activityId,
-        finishedAt: Date.now(),
-        entries,
-      });
-      navigation.replace('ActivityResult', { activityId });
-    } catch (err) {
-      Alert.alert('Save failed', 'Could not save your attempt. Please try again.');
-      setSaving(false);
-    }
+    const peak = Math.max(...entries.map((e) => e.peakMagnitude));
+    navigation.replace('ResultSummary', {
+      activityId,
+      result: Number(peak.toFixed(2)),
+    });
   };
 
   const liveDisplay = isRunning
@@ -266,9 +257,9 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
 
       <View style={styles.finishButton}>
         <Button
-          title={saving ? 'Saving…' : 'Finish Activity'}
+          title="Finish Activity"
           onPress={handleFinish}
-          disabled={saving || isRunning}
+          disabled={isRunning}
         />
       </View>
     </View>
