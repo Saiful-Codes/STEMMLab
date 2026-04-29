@@ -7,6 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { Result } from '../../types/Result';
 import { getResults } from '../../storage/results';
@@ -66,7 +67,10 @@ export default function LeaderboardScreen() {
   const lower = isLowerBetter(activityId);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      edges={['top']}
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       <Text
         style={[
           styles.heading,
@@ -209,7 +213,7 @@ export default function LeaderboardScreen() {
           )}
         />
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

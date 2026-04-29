@@ -1,10 +1,5 @@
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { activities } from '../../data/activities';
 import { Activity } from '../../types/Activity';
@@ -23,7 +18,10 @@ export default function HomeScreen({ navigation }: Props) {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      edges={['top']}
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       <Text
         style={[
           styles.heading,
@@ -110,7 +108,7 @@ export default function HomeScreen({ navigation }: Props) {
           </Pressable>
         )}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

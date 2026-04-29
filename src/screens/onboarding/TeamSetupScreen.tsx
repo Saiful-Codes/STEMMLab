@@ -10,16 +10,12 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../navigation/RootNavigator';
 import { useTeam } from '../../context/TeamContext';
 import { useTheme } from '../../context/ThemeContext';
 import MemberInputList from '../../components/MemberInputList';
 import { baseFont } from '../../theme/tokens';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'TeamSetup'>;
-
-export default function TeamSetupScreen({ navigation }: Props) {
+export default function TeamSetupScreen() {
   const { saveTeam } = useTeam();
   const { colors, fontScale } = useTheme();
   const [teamName, setTeamName] = useState('');
@@ -53,7 +49,6 @@ export default function TeamSetupScreen({ navigation }: Props) {
         grade: trimmedGrade,
         createdAt: Date.now(),
       });
-      navigation.replace('MainTabs');
     } catch {
       Alert.alert('Error', 'Could not save team. Please try again.');
       setSubmitting(false);

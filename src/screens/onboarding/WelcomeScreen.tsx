@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/RootNavigator';
 import { useTheme } from '../../context/ThemeContext';
@@ -10,7 +11,7 @@ export default function WelcomeScreen({ navigation }: Props) {
   const { colors, fontScale } = useTheme();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <Text
         style={[
           styles.title,
@@ -43,7 +44,7 @@ export default function WelcomeScreen({ navigation }: Props) {
           Get Started
         </Text>
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -8,6 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTeam } from '../../context/TeamContext';
 import { useTheme } from '../../context/ThemeContext';
 import { clearResults } from '../../storage/results';
@@ -69,10 +70,14 @@ export default function SettingsScreen() {
   };
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={styles.content}
+    <SafeAreaView
+      edges={['top']}
+      style={[styles.safeArea, { backgroundColor: colors.background }]}
     >
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+      >
       <Text
         style={[
           styles.heading,
@@ -150,7 +155,8 @@ export default function SettingsScreen() {
           onPress={handleClearResults}
         />
       </Section>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -269,6 +275,7 @@ function DangerButton({
 }
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1 },
   container: { flex: 1 },
   content: { padding: 16, paddingBottom: 32 },
   heading: { fontWeight: '700' },

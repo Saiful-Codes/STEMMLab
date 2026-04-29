@@ -26,25 +26,28 @@ export default function RootNavigator() {
     );
   }
 
-  const initialRoute: keyof RootStackParamList = team ? 'MainTabs' : 'Welcome';
-
   return (
-    <Stack.Navigator initialRouteName={initialRoute}>
-      <Stack.Screen
-        name="Welcome"
-        component={WelcomeScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="TeamSetup"
-        component={TeamSetupScreen}
-        options={{ title: 'Team Setup' }}
-      />
-      <Stack.Screen
-        name="MainTabs"
-        component={MainTabs}
-        options={{ headerShown: false }}
-      />
+    <Stack.Navigator>
+      {team ? (
+        <Stack.Screen
+          name="MainTabs"
+          component={MainTabs}
+          options={{ headerShown: false }}
+        />
+      ) : (
+        <>
+          <Stack.Screen
+            name="Welcome"
+            component={WelcomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="TeamSetup"
+            component={TeamSetupScreen}
+            options={{ title: 'Team Setup' }}
+          />
+        </>
+      )}
     </Stack.Navigator>
   );
 }
