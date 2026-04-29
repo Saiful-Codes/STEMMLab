@@ -4,6 +4,7 @@ import WelcomeScreen from '../screens/onboarding/WelcomeScreen';
 import TeamSetupScreen from '../screens/onboarding/TeamSetupScreen';
 import MainTabs from './MainTabs';
 import { useTeam } from '../context/TeamContext';
+import { useTheme } from '../context/ThemeContext';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -14,12 +15,13 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
-  const { team, loading } = useTeam();
+  const { team, loading: teamLoading } = useTeam();
+  const { loading: themeLoading, colors } = useTheme();
 
-  if (loading) {
+  if (teamLoading || themeLoading) {
     return (
-      <View style={styles.loader}>
-        <ActivityIndicator size="large" />
+      <View style={[styles.loader, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }

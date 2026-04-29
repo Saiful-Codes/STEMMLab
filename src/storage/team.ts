@@ -8,9 +8,9 @@ export async function saveTeam(team: Team): Promise<void> {
 }
 
 export async function loadTeam(): Promise<Team | null> {
-  const raw = await AsyncStorage.getItem(TEAM_KEY);
-  if (!raw) return null;
   try {
+    const raw = await AsyncStorage.getItem(TEAM_KEY);
+    if (!raw) return null;
     return JSON.parse(raw) as Team;
   } catch {
     return null;

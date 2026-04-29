@@ -1,4 +1,6 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
+import { baseFont } from '../theme/tokens';
 
 type Props = {
   members: string[];
@@ -6,6 +8,8 @@ type Props = {
 };
 
 export default function MemberInputList({ members, onChange }: Props) {
+  const { colors, fontScale } = useTheme();
+
   const updateAt = (index: number, value: string) => {
     const next = [...members];
     next[index] = value;
@@ -24,74 +28,103 @@ export default function MemberInputList({ members, onChange }: Props) {
 
   return (
     <View>
-      {members.map((member, index) => (
-        <View key={index} style={styles.row}>
-          <TextInput
-            style={styles.input}
-            placeholder={`Member ${index + 1}`}
-            value={member}
-            onChangeText={(text) => updateAt(index, text)}
-            autoCapitalize="words"
-          />
-          <Pressable
-            onPress={() => removeAt(index)}
-            disabled={members.length <= 1}
-            style={({ pressed }) => [
-              styles.removeBtn,
-              members.length <= 1 && styles.removeBtnDisabled,
-              pressed && members.length > 1 && styles.removeBtnPressed,
-            ]}
-          >
-            <Text style={styles.removeBtnText}>Remove</Text>
-          </Pressable>
-        </View>
-      ))}
+      {members.map((member, index) => {
+        const canRemove = members.length > 1;
+        return (
+          <View key={index} style={styles.row}>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.borderStrong,
+                  backgroundColor: colors.inputBg,
+                  color: colors.text,
+                  fontSize: baseFont.body * fontScale,
+                },
+              ]}
+              placeholder={`Member ${index + 1}`}
+              placeholderTextColor={colors.textSubtle}
+              value={member}
+              onChangeText={(text) => updateAt(index, text)}
+              autoCapitalize="words"
+            />
+            <Pressable
+              onPress={() => removeAt(index)}
+              disabled={!canRemove}
+              style={({ pressed }) => [
+                styles.removeBtn,
+                {
+                  backgroundColor:
+                    pressed && canRemove
+                      ? colors.dangerSoftPressed
+                      : colors.dangerSoft,
+                },
+                !canRemove && styles.removeBtnDisabled,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.removeBtnText,
+                  {
+                    color: colors.dangerText,
+                    fontSize: baseFont.bodySm * fontScale,
+                  },
+                ]}
+              >
+                Remove
+              </Text>
+            </Pressable>
+          </View>
+        );
+      })}
 
       <Pressable
         onPress={addMember}
-        style={({ pressed }) => [styles.addBtn, pressed && styles.addBtnPressed]}
+        style={({ pressed }) => [
+          styles.addBtn,
+          {
+            borderColor: colors.primary,
+            backgroundColor: pressed ? colors.primarySoft : 'transparent',
+          },
+        ]}
       >
-        <Text style={styles.addBtnText}>+ Add Member</Text>
+        <Text
+          style={[
+            styles.addBtnText,
+            { color: colors.primary, fontSize: baseFont.bodySm * fontScale },
+          ]}
+        >
+          + Add Member
+        </Text>
       </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
+  row: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#d1d5db',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    fontSize: 16,
-    backgroundColor: '#fff',
   },
   removeBtn: {
     marginLeft: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: '#fee2e2',
   },
-  removeBtnPressed: { backgroundColor: '#fecaca' },
   removeBtnDisabled: { opacity: 0.4 },
-  removeBtnText: { color: '#b91c1c', fontWeight: '600' },
+  removeBtnText: { fontWeight: '600' },
   addBtn: {
     marginTop: 4,
     paddingVertical: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#2563eb',
     borderStyle: 'dashed',
     alignItems: 'center',
   },
-  addBtnPressed: { backgroundColor: '#eff6ff' },
-  addBtnText: { color: '#2563eb', fontWeight: '600' },
+  addBtnText: { fontWeight: '600' },
 });

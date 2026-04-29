@@ -4,10 +4,11 @@ import { Result } from '../types/Result';
 const RESULTS_KEY = 'results';
 
 export async function getResults(): Promise<Result[]> {
-  const raw = await AsyncStorage.getItem(RESULTS_KEY);
-  if (!raw) return [];
   try {
-    return JSON.parse(raw) as Result[];
+    const raw = await AsyncStorage.getItem(RESULTS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as Result[]) : [];
   } catch {
     return [];
   }

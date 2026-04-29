@@ -36,11 +36,3 @@ export function averageResult(results: Result[], activityId: string): number | n
   const sum = nums.reduce((acc, n) => acc + n, 0);
   return sum / nums.length;
 }
-
-export function groupByActivity(results: Result[]): Record<string, Result[]> {
-  return results.reduce<Record<string, Result[]>>((acc, r) => {
-    if (!acc[r.activityId]) acc[r.activityId] = [];
-    acc[r.activityId].push(r);
-    return acc;
-  }, {});
-}

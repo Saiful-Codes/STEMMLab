@@ -29,10 +29,13 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const stored = await loadTeam();
-      if (!cancelled) {
-        setTeam(stored);
-        setLoading(false);
+      try {
+        const stored = await loadTeam();
+        if (!cancelled) setTeam(stored);
+      } catch {
+        if (!cancelled) setTeam(null);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     })();
     return () => {

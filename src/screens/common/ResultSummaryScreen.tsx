@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import {
   Alert,
-  Button,
   Pressable,
   StyleSheet,
   Text,
@@ -12,14 +11,17 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../navigation/ActivityStack';
 import { activities } from '../../data/activities';
 import { useTeam } from '../../context/TeamContext';
+import { useTheme } from '../../context/ThemeContext';
 import { saveResult } from '../../storage/results';
 import { Result } from '../../types/Result';
+import { baseFont } from '../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ResultSummary'>;
 
 export default function ResultSummaryScreen({ navigation, route }: Props) {
   const { activityId, result } = route.params;
   const { team } = useTeam();
+  const { colors, fontScale } = useTheme();
 
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState('');
@@ -49,29 +51,69 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
     try {
       await saveResult(payload);
       navigation.popToTop();
-    } catch (err) {
+    } catch {
       Alert.alert('Save failed', 'Could not save your result. Please try again.');
       setSaving(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Activity complete</Text>
-      <Text style={styles.activity}>{activityTitle}</Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text
+        style={[
+          styles.heading,
+          { color: colors.textMuted, fontSize: baseFont.small * fontScale },
+        ]}
+      >
+        Activity complete
+      </Text>
+      <Text
+        style={[
+          styles.activity,
+          { color: colors.text, fontSize: baseFont.title * fontScale },
+        ]}
+      >
+        {activityTitle}
+      </Text>
 
-      <View style={styles.card}>
-        <Text style={styles.cardLabel}>Result</Text>
-        <Text style={styles.cardValue}>{String(result)}</Text>
+      <View style={[styles.card, { backgroundColor: colors.surfaceMuted }]}>
+        <Text
+          style={[
+            styles.cardLabel,
+            { color: colors.textMuted, fontSize: baseFont.tiny * fontScale },
+          ]}
+        >
+          Result
+        </Text>
+        <Text
+          style={[
+            styles.cardValue,
+            { color: colors.primary, fontSize: baseFont.display * fontScale },
+          ]}
+        >
+          {String(result)}
+        </Text>
         {team && (
-          <Text style={styles.cardMeta}>
+          <Text
+            style={[
+              styles.cardMeta,
+              { color: colors.textMuted, fontSize: baseFont.tiny * fontScale },
+            ]}
+          >
             Team: {team.name} · {team.members.length} member
             {team.members.length === 1 ? '' : 's'}
           </Text>
         )}
       </View>
 
-      <Text style={styles.label}>Rate this experiment</Text>
+      <Text
+        style={[
+          styles.label,
+          { color: colors.text, fontSize: baseFont.bodySm * fontScale },
+        ]}
+      >
+        Rate this experiment
+      </Text>
       <View style={styles.starRow}>
         {[1, 2, 3, 4, 5].map((n) => (
           <Pressable
@@ -79,62 +121,98 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
             onPress={() => setRating(n === rating ? 0 : n)}
             style={styles.star}
           >
-            <Text style={[styles.starText, n <= rating && styles.starTextOn]}>
+            <Text
+              style={[
+                styles.starText,
+                {
+                  color: n <= rating ? colors.star : colors.starDim,
+                  fontSize: 36 * fontScale,
+                },
+              ]}
+            >
               ★
             </Text>
           </Pressable>
         ))}
       </View>
 
-      <Text style={styles.label}>Reflection (optional)</Text>
+      <Text
+        style={[
+          styles.label,
+          { color: colors.text, fontSize: baseFont.bodySm * fontScale },
+        ]}
+      >
+        Reflection (optional)
+      </Text>
       <TextInput
         value={comment}
         onChangeText={setComment}
         placeholder="What did you notice? What would you change?"
-        style={styles.input}
+        placeholderTextColor={colors.textSubtle}
+        style={[
+          styles.input,
+          {
+            borderColor: colors.borderStrong,
+            backgroundColor: colors.inputBg,
+            color: colors.text,
+            fontSize: baseFont.body * fontScale,
+          },
+        ]}
         multiline
         numberOfLines={4}
       />
 
-      <View style={styles.saveButton}>
-        <Button
-          title={saving ? 'Saving…' : 'Save Result'}
-          onPress={handleSave}
-          disabled={saving}
-        />
-      </View>
+      <Pressable
+        onPress={handleSave}
+        disabled={saving}
+        style={({ pressed }) => [
+          styles.saveBtn,
+          {
+            backgroundColor: pressed ? colors.primaryPressed : colors.primary,
+          },
+          saving && styles.saveBtnDisabled,
+        ]}
+      >
+        <Text
+          style={[
+            styles.saveBtnText,
+            { color: colors.primaryText, fontSize: baseFont.body * fontScale },
+          ]}
+        >
+          {saving ? 'Saving…' : 'Save Result'}
+        </Text>
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  heading: { fontSize: 13, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1 },
-  activity: { fontSize: 22, fontWeight: '700', marginTop: 4, marginBottom: 16 },
-  card: {
-    backgroundColor: '#f3f4f6',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 20,
-  },
-  cardLabel: { fontSize: 12, color: '#6b7280' },
-  cardValue: { fontSize: 32, fontWeight: '800', color: '#2563eb', marginTop: 4 },
-  cardMeta: { fontSize: 12, color: '#6b7280', marginTop: 8 },
-  label: { fontSize: 14, fontWeight: '600', marginBottom: 8 },
+  heading: { textTransform: 'uppercase', letterSpacing: 1 },
+  activity: { fontWeight: '700', marginTop: 4, marginBottom: 16 },
+  card: { borderRadius: 12, padding: 16, marginBottom: 20 },
+  cardLabel: {},
+  cardValue: { fontWeight: '800', marginTop: 4 },
+  cardMeta: { marginTop: 8 },
+  label: { fontWeight: '600', marginBottom: 8 },
   starRow: { flexDirection: 'row', marginBottom: 20 },
   star: { paddingHorizontal: 4 },
-  starText: { fontSize: 36, color: '#d1d5db' },
-  starTextOn: { color: '#f59e0b' },
+  starText: {},
   input: {
     borderWidth: 1,
-    borderColor: '#d1d5db',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    backgroundColor: '#fff',
     minHeight: 90,
     textAlignVertical: 'top',
     marginBottom: 16,
   },
-  saveButton: { marginTop: 'auto' },
+  saveBtn: {
+    marginTop: 'auto',
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  saveBtnDisabled: { opacity: 0.6 },
+  saveBtnText: { fontWeight: '700' },
 });

@@ -1,0 +1,68 @@
+export const baseFont = {
+  display: 32,
+  heading: 24,
+  title: 22,
+  subheading: 20,
+  bodyLg: 18,
+  body: 16,
+  bodySm: 14,
+  small: 13,
+  tiny: 12,
+  micro: 11,
+} as const;
+
+export type FontKey = keyof typeof baseFont;
+
+export const lightColors = {
+  background: '#ffffff',
+  surface: '#ffffff',
+  surfaceMuted: '#f3f4f6',
+  surfaceSubtle: '#f9fafb',
+  border: '#e5e7eb',
+  borderStrong: '#d1d5db',
+  text: '#111827',
+  textMuted: '#6b7280',
+  textSubtle: '#9ca3af',
+  primary: '#2563eb',
+  primaryPressed: '#1d4ed8',
+  primarySoft: '#eff6ff',
+  primaryText: '#ffffff',
+  accent: '#f59e0b',
+  warning: '#92400e',
+  warningBg: '#fef3c7',
+  danger: '#dc2626',
+  dangerSoft: '#fee2e2',
+  dangerSoftPressed: '#fecaca',
+  dangerText: '#b91c1c',
+  inputBg: '#ffffff',
+  star: '#f59e0b',
+  starDim: '#d1d5db',
+};
+
+export type Colors = typeof lightColors;
+
+export const darkColors: Colors = {
+  background: '#0b1220',
+  surface: '#111827',
+  surfaceMuted: '#1f2937',
+  surfaceSubtle: '#0f172a',
+  border: '#374151',
+  borderStrong: '#4b5563',
+  text: '#f9fafb',
+  textMuted: '#9ca3af',
+  textSubtle: '#6b7280',
+  primary: '#3b82f6',
+  primaryPressed: '#1d4ed8',
+  primarySoft: '#1e3a8a',
+  primaryText: '#ffffff',
+  accent: '#fbbf24',
+  warning: '#fbbf24',
+  warningBg: '#451a03',
+  danger: '#f87171',
+  dangerSoft: '#7f1d1d',
+  dangerSoftPressed: '#991b1b',
+  dangerText: '#fecaca',
+  inputBg: '#1f2937',
+  star: '#fbbf24',
+  starDim: '#374151',
+};

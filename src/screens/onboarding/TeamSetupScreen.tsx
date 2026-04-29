@@ -13,12 +13,15 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/RootNavigator';
 import { useTeam } from '../../context/TeamContext';
+import { useTheme } from '../../context/ThemeContext';
 import MemberInputList from '../../components/MemberInputList';
+import { baseFont } from '../../theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TeamSetup'>;
 
 export default function TeamSetupScreen({ navigation }: Props) {
   const { saveTeam } = useTeam();
+  const { colors, fontScale } = useTheme();
   const [teamName, setTeamName] = useState('');
   const [members, setMembers] = useState<string[]>(['']);
   const [grade, setGrade] = useState('');
@@ -51,31 +54,58 @@ export default function TeamSetupScreen({ navigation }: Props) {
         createdAt: Date.now(),
       });
       navigation.replace('MainTabs');
-    } catch (err) {
+    } catch {
       Alert.alert('Error', 'Could not save team. Please try again.');
       setSubmitting(false);
     }
   };
 
+  const inputStyle = {
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.inputBg,
+    color: colors.text,
+    fontSize: baseFont.body * fontScale,
+  };
+
   return (
     <KeyboardAvoidingView
-      style={styles.flex}
+      style={[styles.flex, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.title}>Team Setup</Text>
-        <Text style={styles.subtitle}>
+        <Text
+          style={[
+            styles.title,
+            { color: colors.text, fontSize: baseFont.heading * fontScale },
+          ]}
+        >
+          Team Setup
+        </Text>
+        <Text
+          style={[
+            styles.subtitle,
+            { color: colors.textMuted, fontSize: baseFont.bodySm * fontScale },
+          ]}
+        >
           Tell us about your team before you start exploring activities.
         </Text>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Team Name</Text>
+          <Text
+            style={[
+              styles.label,
+              { color: colors.text, fontSize: baseFont.bodySm * fontScale },
+            ]}
+          >
+            Team Name
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, inputStyle]}
             placeholder="e.g. The Lab Rats"
+            placeholderTextColor={colors.textSubtle}
             value={teamName}
             onChangeText={setTeamName}
             autoCapitalize="words"
@@ -83,15 +113,30 @@ export default function TeamSetupScreen({ navigation }: Props) {
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Members</Text>
+          <Text
+            style={[
+              styles.label,
+              { color: colors.text, fontSize: baseFont.bodySm * fontScale },
+            ]}
+          >
+            Members
+          </Text>
           <MemberInputList members={members} onChange={setMembers} />
         </View>
 
         <View style={styles.field}>
-          <Text style={styles.label}>Grade / Year Level</Text>
+          <Text
+            style={[
+              styles.label,
+              { color: colors.text, fontSize: baseFont.bodySm * fontScale },
+            ]}
+          >
+            Grade / Year Level
+          </Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, inputStyle]}
             placeholder="e.g. Grade 9"
+            placeholderTextColor={colors.textSubtle}
             value={grade}
             onChangeText={setGrade}
           />
@@ -102,11 +147,16 @@ export default function TeamSetupScreen({ navigation }: Props) {
           disabled={submitting}
           style={({ pressed }) => [
             styles.submitBtn,
-            pressed && styles.submitBtnPressed,
+            { backgroundColor: pressed ? colors.primaryPressed : colors.primary },
             submitting && styles.submitBtnDisabled,
           ]}
         >
-          <Text style={styles.submitBtnText}>
+          <Text
+            style={[
+              styles.submitBtnText,
+              { color: colors.primaryText, fontSize: baseFont.body * fontScale },
+            ]}
+          >
             {submitting ? 'Saving...' : 'Save & Continue'}
           </Text>
         </Pressable>
@@ -118,27 +168,22 @@ export default function TeamSetupScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   flex: { flex: 1 },
   container: { padding: 20, paddingBottom: 40 },
-  title: { fontSize: 24, fontWeight: '600', marginBottom: 4 },
-  subtitle: { fontSize: 14, color: '#555', marginBottom: 20 },
+  title: { fontWeight: '600', marginBottom: 4 },
+  subtitle: { marginBottom: 20 },
   field: { marginBottom: 18 },
-  label: { fontSize: 14, fontWeight: '600', marginBottom: 8, color: '#374151' },
+  label: { fontWeight: '600', marginBottom: 8 },
   input: {
     borderWidth: 1,
-    borderColor: '#d1d5db',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    fontSize: 16,
-    backgroundColor: '#fff',
   },
   submitBtn: {
     marginTop: 8,
-    backgroundColor: '#2563eb',
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: 'center',
   },
-  submitBtnPressed: { backgroundColor: '#1d4ed8' },
   submitBtnDisabled: { opacity: 0.6 },
-  submitBtnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  submitBtnText: { fontWeight: '600' },
 });
