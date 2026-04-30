@@ -10,11 +10,13 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
 import { ActivityAttempt, loadAttempts, SoundEntry } from '../../../storage/attempts';
+import { useTranslation } from '../../../context/LanguageContext';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityResult'>;
 
 export default function SoundResultScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [latest, setLatest] = useState<ActivityAttempt<SoundEntry> | null>(null);
   const [totalAttempts, setTotalAttempts] = useState(0);
@@ -44,7 +46,7 @@ export default function SoundResultScreen({ navigation, route }: Props) {
   if (!latest) {
     return (
       <View style={styles.center}>
-        <Text style={styles.empty}>No attempts saved yet.</Text>
+        <Text style={styles.empty}>{t('result.common.empty')}</Text>
       </View>
     );
   }
@@ -56,20 +58,27 @@ export default function SoundResultScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Latest Attempt</Text>
+      <Text style={styles.heading}>{t('result.common.latest')}</Text>
       <Text style={styles.meta}>
-        Saved {new Date(latest.finishedAt).toLocaleString()}
+        {t('result.common.savedAt', {
+          when: new Date(latest.finishedAt).toLocaleString(),
+        })}
       </Text>
-      <Text style={styles.meta}>Total attempts saved: {totalAttempts}</Text>
+      <Text style={styles.meta}>
+        {t('result.common.totalAttempts', { count: totalAttempts })}
+      </Text>
 
       <View style={styles.stats}>
-        <Stat label="Entries" value={latest.entries.length.toString()} />
-        <Stat label="Loudest" value={`${max} dB`} />
-        <Stat label="Quietest" value={`${min} dB`} />
-        <Stat label="Average" value={`${avg.toFixed(1)} dB`} />
+        <Stat
+          label={t('result.sound.entries')}
+          value={latest.entries.length.toString()}
+        />
+        <Stat label={t('result.sound.loudest')} value={`${max} dB`} />
+        <Stat label={t('result.sound.quietest')} value={`${min} dB`} />
+        <Stat label={t('result.sound.average')} value={`${avg.toFixed(1)} dB`} />
       </View>
 
-      <Text style={styles.listHeading}>Recorded sound levels</Text>
+      <Text style={styles.listHeading}>{t('result.sound.listHeading')}</Text>
       <FlatList
         data={latest.entries}
         keyExtractor={(item) => item.id}
@@ -84,7 +93,7 @@ export default function SoundResultScreen({ navigation, route }: Props) {
 
       <View style={styles.actions}>
         <Button
-          title="Back to Activities"
+          title={t('result.common.back')}
           onPress={() => navigation.popToTop()}
         />
       </View>

@@ -4,6 +4,7 @@ import ActivityDetailScreen from '../screens/activity/ActivityDetailScreen';
 import ActivityRunScreen from '../screens/activity/ActivityRunScreen';
 import ActivityResultScreen from '../screens/activity/ActivityResultScreen';
 import ResultSummaryScreen from '../screens/common/ResultSummaryScreen';
+import { useTranslation } from '../context/LanguageContext';
 
 export type ActivityStackParamList = {
   Home: undefined;
@@ -16,6 +17,7 @@ export type ActivityStackParamList = {
 const Stack = createNativeStackNavigator<ActivityStackParamList>();
 
 export default function ActivityStack() {
+  const { t } = useTranslation();
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -26,22 +28,22 @@ export default function ActivityStack() {
       <Stack.Screen
         name="ActivityDetail"
         component={ActivityDetailScreen}
-        options={{ title: 'Activity' }}
+        options={{ title: t('nav.activityDetail') }}
       />
       <Stack.Screen
         name="ActivityRun"
         component={ActivityRunScreen}
-        options={{ title: 'Run Activity' }}
+        options={{ title: t('nav.activityRun') }}
       />
       <Stack.Screen
         name="ActivityResult"
         component={ActivityResultScreen}
-        options={{ title: 'Results' }}
+        options={{ title: t('nav.activityResult') }}
       />
       <Stack.Screen
         name="ResultSummary"
         component={ResultSummaryScreen}
-        options={{ title: 'Save Result' }}
+        options={{ title: t('nav.resultSummary') }}
       />
     </Stack.Navigator>
   );

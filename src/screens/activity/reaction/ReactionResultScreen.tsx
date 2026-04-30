@@ -10,11 +10,13 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
 import { ActivityAttempt, loadAttempts, ReactionEntry } from '../../../storage/attempts';
+import { useTranslation } from '../../../context/LanguageContext';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityResult'>;
 
 export default function ReactionResultScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [latest, setLatest] = useState<ActivityAttempt<ReactionEntry> | null>(null);
   const [totalAttempts, setTotalAttempts] = useState(0);
@@ -44,7 +46,7 @@ export default function ReactionResultScreen({ navigation, route }: Props) {
   if (!latest) {
     return (
       <View style={styles.center}>
-        <Text style={styles.empty}>No attempts saved yet.</Text>
+        <Text style={styles.empty}>{t('result.common.empty')}</Text>
       </View>
     );
   }
@@ -56,26 +58,38 @@ export default function ReactionResultScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Latest Attempt</Text>
+      <Text style={styles.heading}>{t('result.common.latest')}</Text>
       <Text style={styles.meta}>
-        Saved {new Date(latest.finishedAt).toLocaleString()}
+        {t('result.common.savedAt', {
+          when: new Date(latest.finishedAt).toLocaleString(),
+        })}
       </Text>
-      <Text style={styles.meta}>Total attempts saved: {totalAttempts}</Text>
+      <Text style={styles.meta}>
+        {t('result.common.totalAttempts', { count: totalAttempts })}
+      </Text>
 
       <View style={styles.stats}>
-        <Stat label="Taps" value={latest.entries.length.toString()} />
-        <Stat label="Best" value={`${best} ms`} />
-        <Stat label="Slowest" value={`${worst} ms`} />
-        <Stat label="Average" value={`${avg.toFixed(0)} ms`} />
+        <Stat
+          label={t('result.reaction.taps')}
+          value={latest.entries.length.toString()}
+        />
+        <Stat label={t('result.reaction.best')} value={`${best} ms`} />
+        <Stat label={t('result.reaction.slowest')} value={`${worst} ms`} />
+        <Stat
+          label={t('result.reaction.average')}
+          value={`${avg.toFixed(0)} ms`}
+        />
       </View>
 
-      <Text style={styles.listHeading}>Reaction times</Text>
+      <Text style={styles.listHeading}>{t('result.reaction.listHeading')}</Text>
       <FlatList
         data={latest.entries}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.entryRow}>
-            <Text style={styles.entryLabel}>Attempt {item.attemptNumber}</Text>
+            <Text style={styles.entryLabel}>
+              {t('result.reaction.attemptLabel', { n: item.attemptNumber })}
+            </Text>
             <Text style={styles.entryValue}>{item.reactionMs} ms</Text>
           </View>
         )}
@@ -84,7 +98,7 @@ export default function ReactionResultScreen({ navigation, route }: Props) {
 
       <View style={styles.actions}>
         <Button
-          title="Back to Activities"
+          title={t('result.common.back')}
           onPress={() => navigation.popToTop()}
         />
       </View>

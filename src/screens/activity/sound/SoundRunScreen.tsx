@@ -18,6 +18,7 @@ import {
 } from 'expo-audio';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
 import { SoundEntry } from '../../../storage/attempts';
+import { useTranslation } from '../../../context/LanguageContext';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -33,6 +34,7 @@ function meteringToApproxDb(metering: number | null | undefined): number | null 
 
 export default function SoundRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
+  const { t } = useTranslation();
 
   const audioRecorder = useAudioRecorder({
     ...RecordingPresets.HIGH_QUALITY,
@@ -51,8 +53,8 @@ export default function SoundRunScreen({ navigation, route }: Props) {
       setPermissionGranted(status.granted);
       if (!status.granted) {
         Alert.alert(
-          'Microphone permission denied',
-          'You need to allow microphone access to measure sound levels.'
+          t('run.sound.alert.permissionTitle'),
+          t('run.sound.alert.permissionMessage')
         );
         return;
       }
@@ -61,13 +63,17 @@ export default function SoundRunScreen({ navigation, route }: Props) {
         allowsRecording: true,
       });
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const liveDb = meteringToApproxDb(recorderState.metering);
 
   const startRecording = async () => {
     if (permissionGranted === false) {
-      Alert.alert('No permission', 'Microphone permission is required.');
+      Alert.alert(
+        t('run.sound.alert.noPermissionTitle'),
+        t('run.sound.alert.noPermissionMessage')
+      );
       return;
     }
     try {
@@ -75,7 +81,10 @@ export default function SoundRunScreen({ navigation, route }: Props) {
       await audioRecorder.prepareToRecordAsync();
       audioRecorder.record();
     } catch (err) {
-      Alert.alert('Could not start recording', 'Please try again.');
+      Alert.alert(
+        t('run.sound.alert.startFailTitle'),
+        t('run.sound.alert.startFailMessage')
+      );
     }
   };
 
@@ -85,18 +94,27 @@ export default function SoundRunScreen({ navigation, route }: Props) {
       await audioRecorder.stop();
       if (finalDb != null) setCapturedDb(finalDb);
     } catch (err) {
-      Alert.alert('Could not stop recording', 'Please try again.');
+      Alert.alert(
+        t('run.sound.alert.stopFailTitle'),
+        t('run.sound.alert.stopFailMessage')
+      );
     }
   };
 
   const handleAddEntry = () => {
     const trimmedAction = action.trim();
     if (!trimmedAction) {
-      Alert.alert('Missing action', 'Please enter what you were measuring.');
+      Alert.alert(
+        t('run.sound.alert.missingActionTitle'),
+        t('run.sound.alert.missingActionMessage')
+      );
       return;
     }
     if (capturedDb == null) {
-      Alert.alert('No measurement', 'Record a sound level before adding the entry.');
+      Alert.alert(
+        t('run.sound.alert.noMeasurementTitle'),
+        t('run.sound.alert.noMeasurementMessage')
+      );
       return;
     }
 
@@ -112,7 +130,10 @@ export default function SoundRunScreen({ navigation, route }: Props) {
 
   const handleFinish = () => {
     if (entries.length === 0) {
-      Alert.alert('No entries', 'Add at least one entry before finishing.');
+      Alert.alert(
+        t('run.sound.alert.noEntriesTitle'),
+        t('run.sound.alert.noEntriesMessage')
+      );
       return;
     }
     const peakDb = Math.max(...entries.map((e) => e.decibels));
@@ -129,30 +150,28 @@ export default function SoundRunScreen({ navigation, route }: Props) {
     : '-- dB';
 
   const meterHint = recorderState.isRecording
-    ? 'Listening… tap Stop when done.'
+    ? t('run.sound.hint.listening')
     : capturedDb != null
-    ? 'Captured. Add the entry or measure again.'
+    ? t('run.sound.hint.captured')
     : permissionGranted === false
-    ? 'Microphone permission denied.'
-    : 'Tap Record to start measuring.';
+    ? t('run.sound.hint.denied')
+    : t('run.sound.hint.tapRecord');
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Sound Pollution Hunter</Text>
-      <Text style={styles.subheading}>
-        Type what you are measuring, then record a few seconds of sound.
-      </Text>
+      <Text style={styles.heading}>{t('run.sound.heading')}</Text>
+      <Text style={styles.subheading}>{t('run.sound.subheading')}</Text>
 
       <View style={styles.form}>
-        <Text style={styles.label}>Action</Text>
+        <Text style={styles.label}>{t('run.sound.action')}</Text>
         <TextInput
           value={action}
           onChangeText={setAction}
-          placeholder="e.g. Lunch bell"
+          placeholder={t('run.sound.actionPlaceholder')}
           style={styles.input}
         />
 
-        <Text style={styles.label}>Sound level</Text>
+        <Text style={styles.label}>{t('run.sound.level')}</Text>
         <View style={styles.meterBox}>
           <Text style={styles.meterValue}>{meterDisplay}</Text>
           <Text style={styles.meterHint}>{meterHint}</Text>
@@ -160,7 +179,9 @@ export default function SoundRunScreen({ navigation, route }: Props) {
 
         <View style={styles.recordButton}>
           <Button
-            title={recorderState.isRecording ? 'Stop' : 'Record'}
+            title={
+              recorderState.isRecording ? t('run.sound.stop') : t('run.sound.record')
+            }
             onPress={recorderState.isRecording ? stopRecording : startRecording}
             disabled={permissionGranted === false}
             color={recorderState.isRecording ? '#dc2626' : undefined}
@@ -169,7 +190,7 @@ export default function SoundRunScreen({ navigation, route }: Props) {
 
         <View style={styles.addButton}>
           <Button
-            title="Add Entry"
+            title={t('run.sound.addEntry')}
             onPress={handleAddEntry}
             disabled={recorderState.isRecording || capturedDb == null}
           />
@@ -177,13 +198,13 @@ export default function SoundRunScreen({ navigation, route }: Props) {
       </View>
 
       <Text style={styles.listHeading}>
-        Entries this session ({entries.length})
+        {t('run.sound.entriesHeading', { count: entries.length })}
       </Text>
       <FlatList
         data={entries}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No entries yet.</Text>
+          <Text style={styles.emptyText}>{t('run.sound.empty')}</Text>
         }
         renderItem={({ item }) => (
           <View style={styles.entryRow}>
@@ -196,7 +217,7 @@ export default function SoundRunScreen({ navigation, route }: Props) {
 
       <View style={styles.finishButton}>
         <Button
-          title="Finish Activity"
+          title={t('run.sound.finish')}
           onPress={handleFinish}
           disabled={recorderState.isRecording}
         />

@@ -3,6 +3,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../navigation/ActivityStack';
 import { activities } from '../../data/activities';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityDetail'>;
@@ -12,6 +13,7 @@ const IMPLEMENTED_ACTIVITY_IDS = ['sound', 'reaction', 'earthquake'];
 export default function ActivityDetailScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { colors, fontScale } = useTheme();
+  const { t } = useTranslation();
   const activity = activities.find((a) => a.id === activityId);
 
   if (!activity) {
@@ -23,7 +25,7 @@ export default function ActivityDetailScreen({ navigation, route }: Props) {
             { color: colors.text, fontSize: baseFont.heading * fontScale },
           ]}
         >
-          Activity not found
+          {t('activityDetail.notFound')}
         </Text>
       </View>
     );
@@ -39,7 +41,7 @@ export default function ActivityDetailScreen({ navigation, route }: Props) {
           { color: colors.primary, fontSize: baseFont.tiny * fontScale },
         ]}
       >
-        {activity.category}
+        {t(`category.${activity.category}`)}
       </Text>
       <Text
         style={[
@@ -47,7 +49,7 @@ export default function ActivityDetailScreen({ navigation, route }: Props) {
           { color: colors.text, fontSize: baseFont.heading * fontScale },
         ]}
       >
-        {activity.title}
+        {t(`activity.${activity.id}.title`)}
       </Text>
       <Text
         style={[
@@ -55,7 +57,7 @@ export default function ActivityDetailScreen({ navigation, route }: Props) {
           { color: colors.textMuted, fontSize: baseFont.bodySm * fontScale },
         ]}
       >
-        {activity.domain}
+        {t(`activity.${activity.id}.domain`)}
       </Text>
       <Text
         style={[
@@ -63,7 +65,7 @@ export default function ActivityDetailScreen({ navigation, route }: Props) {
           { color: colors.text, fontSize: baseFont.body * fontScale },
         ]}
       >
-        {activity.shortDescription}
+        {t(`activity.${activity.id}.shortDescription`)}
       </Text>
 
       <View style={styles.actions}>
@@ -90,7 +92,7 @@ export default function ActivityDetailScreen({ navigation, route }: Props) {
                 },
               ]}
             >
-              Start Activity
+              {t('activityDetail.startBtn')}
             </Text>
           </Pressable>
         ) : (
@@ -103,7 +105,7 @@ export default function ActivityDetailScreen({ navigation, route }: Props) {
               },
             ]}
           >
-            This activity will be added in a later phase.
+            {t('activityDetail.notice')}
           </Text>
         )}
       </View>

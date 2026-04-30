@@ -1,4 +1,5 @@
 import { activities } from '../data/activities';
+import { translate, LanguageCode } from '../i18n/translations';
 
 type ActivityMeta = {
   unit: string;
@@ -17,6 +18,24 @@ export const RANKED_ACTIVITY_IDS = Object.keys(META);
 export function getActivityLabel(activityId: string): string {
   const found = activities.find((a) => a.id === activityId);
   return found?.title ?? activityId;
+}
+
+export function getActivityTitleKey(activityId: string): string {
+  return `activity.${activityId}.title`;
+}
+
+export function getActivityShortLabelKey(activityId: string): string {
+  return `activity.${activityId}.shortLabel`;
+}
+
+export function translateActivityTitle(
+  language: LanguageCode,
+  activityId: string
+): string {
+  const key = getActivityTitleKey(activityId);
+  const translated = translate(language, key);
+  if (translated !== key) return translated;
+  return getActivityLabel(activityId);
 }
 
 export function getActivityUnit(activityId: string): string {

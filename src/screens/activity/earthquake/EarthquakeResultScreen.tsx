@@ -14,11 +14,13 @@ import {
   EarthquakeEntry,
   loadAttempts,
 } from '../../../storage/attempts';
+import { useTranslation } from '../../../context/LanguageContext';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityResult'>;
 
 export default function EarthquakeResultScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [latest, setLatest] = useState<ActivityAttempt<EarthquakeEntry> | null>(
     null
@@ -50,7 +52,7 @@ export default function EarthquakeResultScreen({ navigation, route }: Props) {
   if (!latest) {
     return (
       <View style={styles.center}>
-        <Text style={styles.empty}>No attempts saved yet.</Text>
+        <Text style={styles.empty}>{t('result.common.empty')}</Text>
       </View>
     );
   }
@@ -64,34 +66,61 @@ export default function EarthquakeResultScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Latest Attempt</Text>
+      <Text style={styles.heading}>{t('result.common.latest')}</Text>
       <Text style={styles.meta}>
-        Saved {new Date(latest.finishedAt).toLocaleString()}
+        {t('result.common.savedAt', {
+          when: new Date(latest.finishedAt).toLocaleString(),
+        })}
       </Text>
-      <Text style={styles.meta}>Total attempts saved: {totalAttempts}</Text>
+      <Text style={styles.meta}>
+        {t('result.common.totalAttempts', { count: totalAttempts })}
+      </Text>
 
       <View style={styles.stats}>
-        <Stat label="Tests" value={latest.entries.length.toString()} />
-        <Stat label="Best (lowest peak)" value={`${lowestPeak.toFixed(2)} g`} />
-        <Stat label="Worst (highest peak)" value={`${highestPeak.toFixed(2)} g`} />
-        <Stat label="Mean peak" value={`${meanPeak.toFixed(2)} g`} />
-        <Stat label="Mean shake" value={`${meanAvg.toFixed(2)} g`} />
+        <Stat
+          label={t('result.earthquake.tests')}
+          value={latest.entries.length.toString()}
+        />
+        <Stat
+          label={t('result.earthquake.bestPeak')}
+          value={`${lowestPeak.toFixed(2)} g`}
+        />
+        <Stat
+          label={t('result.earthquake.worstPeak')}
+          value={`${highestPeak.toFixed(2)} g`}
+        />
+        <Stat
+          label={t('result.earthquake.meanPeak')}
+          value={`${meanPeak.toFixed(2)} g`}
+        />
+        <Stat
+          label={t('result.earthquake.meanShake')}
+          value={`${meanAvg.toFixed(2)} g`}
+        />
       </View>
 
-      <Text style={styles.listHeading}>Test runs</Text>
+      <Text style={styles.listHeading}>
+        {t('result.earthquake.listHeading')}
+      </Text>
       <FlatList
         data={latest.entries}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.entryRow}>
-            <Text style={styles.entryLabel}>Attempt {item.attemptNumber}</Text>
+            <Text style={styles.entryLabel}>
+              {t('result.earthquake.attemptLabel', { n: item.attemptNumber })}
+            </Text>
             <View style={styles.entryRight}>
               <Text style={styles.entryValue}>
-                Peak {item.peakMagnitude.toFixed(2)} g
+                {t('result.earthquake.entryPeak', {
+                  value: item.peakMagnitude.toFixed(2),
+                })}
               </Text>
               <Text style={styles.entrySub}>
-                {(item.durationMs / 1000).toFixed(1)} s · avg{' '}
-                {item.avgMagnitude.toFixed(2)} g
+                {t('result.earthquake.entrySub', {
+                  seconds: (item.durationMs / 1000).toFixed(1),
+                  avg: item.avgMagnitude.toFixed(2),
+                })}
               </Text>
             </View>
           </View>
@@ -101,7 +130,7 @@ export default function EarthquakeResultScreen({ navigation, route }: Props) {
 
       <View style={styles.actions}>
         <Button
-          title="Back to Activities"
+          title={t('result.common.back')}
           onPress={() => navigation.popToTop()}
         />
       </View>
