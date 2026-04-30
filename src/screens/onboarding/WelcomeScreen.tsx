@@ -3,12 +3,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/RootNavigator';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Welcome'>;
 
 export default function WelcomeScreen({ navigation }: Props) {
   const { colors, fontScale } = useTheme();
+  const { t } = useTranslation();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -18,7 +20,7 @@ export default function WelcomeScreen({ navigation }: Props) {
           { color: colors.text, fontSize: baseFont.heading * fontScale },
         ]}
       >
-        Welcome to STEMM Lab
+        {t('welcome.title')}
       </Text>
       <Text
         style={[
@@ -26,7 +28,7 @@ export default function WelcomeScreen({ navigation }: Props) {
           { color: colors.textMuted, fontSize: baseFont.body * fontScale },
         ]}
       >
-        Real-world STEMM activities, gamified.
+        {t('welcome.subtitle')}
       </Text>
       <Pressable
         onPress={() => navigation.navigate('TeamSetup')}
@@ -41,7 +43,7 @@ export default function WelcomeScreen({ navigation }: Props) {
             { color: colors.primaryText, fontSize: baseFont.body * fontScale },
           ]}
         >
-          Get Started
+          {t('welcome.cta')}
         </Text>
       </Pressable>
     </SafeAreaView>

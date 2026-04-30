@@ -13,6 +13,7 @@ import { Accelerometer } from 'expo-sensors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
 import { EarthquakeEntry } from '../../../storage/attempts';
+import { useTranslation } from '../../../context/LanguageContext';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -34,6 +35,7 @@ function shakeMagnitude(x: number, y: number, z: number): number {
 
 export default function EarthquakeRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
+  const { t } = useTranslation();
 
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [mode, setMode] = useState<SimulationMode>('manual');
@@ -82,8 +84,8 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
   const handleStart = () => {
     if (isAvailable === false) {
       Alert.alert(
-        'Accelerometer unavailable',
-        'This device does not provide accelerometer data.'
+        t('run.earthquake.alert.unavailableTitle'),
+        t('run.earthquake.alert.unavailableMessage')
       );
       return;
     }
@@ -138,7 +140,10 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
     setAvgMagnitude(avg);
 
     if (samples === 0) {
-      Alert.alert('No data', 'No accelerometer samples were captured.');
+      Alert.alert(
+        t('run.earthquake.alert.noDataTitle'),
+        t('run.earthquake.alert.noDataMessage')
+      );
       return;
     }
 
@@ -155,7 +160,10 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
 
   const handleFinish = () => {
     if (entries.length === 0) {
-      Alert.alert('No attempts', 'Run at least one test before finishing.');
+      Alert.alert(
+        t('run.earthquake.alert.noAttemptsTitle'),
+        t('run.earthquake.alert.noAttemptsMessage')
+      );
       return;
     }
     const peak = Math.max(...entries.map((e) => e.peakMagnitude));
@@ -173,33 +181,30 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
 
   const liveHint = isRunning
     ? mode === 'simulate'
-      ? 'Phone is vibrating… tap Stop when the test is complete.'
-      : 'Shaking… tap Stop when the test is complete.'
+      ? t('run.earthquake.hint.simulating')
+      : t('run.earthquake.hint.shaking')
     : peakMagnitude > 0
-    ? 'Test complete. Add another attempt or finish.'
+    ? t('run.earthquake.hint.complete')
     : isAvailable === false
-    ? 'Accelerometer not available on this device.'
+    ? t('run.earthquake.hint.unavailable')
     : mode === 'simulate'
-    ? 'Place phone on the structure, then tap Start Test to vibrate.'
-    : 'Place phone on the structure, then tap Start Test and shake.';
+    ? t('run.earthquake.hint.simulatePrompt')
+    : t('run.earthquake.hint.manualPrompt');
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Earthquake-Resistant Structure</Text>
-      <Text style={styles.subheading}>
-        Place the phone on your structure, pick a mode, then tap Start Test.
-        Tap Stop to record the result.
-      </Text>
+      <Text style={styles.heading}>{t('run.earthquake.heading')}</Text>
+      <Text style={styles.subheading}>{t('run.earthquake.subheading')}</Text>
 
       <View style={styles.modeRow}>
         <ModeButton
-          label="Manual"
+          label={t('run.earthquake.mode.manual')}
           selected={mode === 'manual'}
           disabled={isRunning}
           onPress={() => setMode('manual')}
         />
         <ModeButton
-          label="Simulate Earthquake"
+          label={t('run.earthquake.mode.simulate')}
           selected={mode === 'simulate'}
           disabled={isRunning}
           onPress={() => setMode('simulate')}
@@ -208,21 +213,34 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
 
       <View style={styles.meterBox}>
         <Text style={styles.meterLabel}>
-          {isRunning ? 'Live shake' : 'Last peak'}
+          {isRunning
+            ? t('run.earthquake.meter.live')
+            : t('run.earthquake.meter.lastPeak')}
         </Text>
         <Text style={styles.meterValue}>{liveDisplay}</Text>
         <Text style={styles.meterHint}>{liveHint}</Text>
       </View>
 
       <View style={styles.statsRow}>
-        <Stat label="Time" value={`${(elapsedMs / 1000).toFixed(1)} s`} />
-        <Stat label="Peak" value={`${peakMagnitude.toFixed(2)} g`} />
-        <Stat label="Average" value={`${avgMagnitude.toFixed(2)} g`} />
+        <Stat
+          label={t('run.earthquake.stat.time')}
+          value={`${(elapsedMs / 1000).toFixed(1)} s`}
+        />
+        <Stat
+          label={t('run.earthquake.stat.peak')}
+          value={`${peakMagnitude.toFixed(2)} g`}
+        />
+        <Stat
+          label={t('run.earthquake.stat.average')}
+          value={`${avgMagnitude.toFixed(2)} g`}
+        />
       </View>
 
       <View style={styles.controls}>
         <Button
-          title={isRunning ? 'Stop Test' : 'Start Test'}
+          title={
+            isRunning ? t('run.earthquake.stop') : t('run.earthquake.start')
+          }
           onPress={isRunning ? handleStop : handleStart}
           color={isRunning ? '#dc2626' : undefined}
           disabled={isAvailable === false}
@@ -230,24 +248,30 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
       </View>
 
       <Text style={styles.listHeading}>
-        Attempts this session ({entries.length})
+        {t('run.earthquake.attemptsHeading', { count: entries.length })}
       </Text>
       <FlatList
         data={entries}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No attempts yet.</Text>
+          <Text style={styles.emptyText}>{t('run.earthquake.empty')}</Text>
         }
         renderItem={({ item }) => (
           <View style={styles.entryRow}>
-            <Text style={styles.entryLabel}>Attempt {item.attemptNumber}</Text>
+            <Text style={styles.entryLabel}>
+              {t('run.earthquake.attemptLabel', { n: item.attemptNumber })}
+            </Text>
             <View style={styles.entryRight}>
               <Text style={styles.entryValue}>
-                Peak {item.peakMagnitude.toFixed(2)} g
+                {t('run.earthquake.entryPeak', {
+                  value: item.peakMagnitude.toFixed(2),
+                })}
               </Text>
               <Text style={styles.entrySub}>
-                {(item.durationMs / 1000).toFixed(1)} s · avg{' '}
-                {item.avgMagnitude.toFixed(2)} g
+                {t('run.earthquake.entrySub', {
+                  seconds: (item.durationMs / 1000).toFixed(1),
+                  avg: item.avgMagnitude.toFixed(2),
+                })}
               </Text>
             </View>
           </View>
@@ -257,7 +281,7 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
 
       <View style={styles.finishButton}>
         <Button
-          title="Finish Activity"
+          title={t('run.earthquake.finish')}
           onPress={handleFinish}
           disabled={isRunning}
         />

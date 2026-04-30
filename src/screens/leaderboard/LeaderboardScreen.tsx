@@ -14,7 +14,8 @@ import { getResults } from '../../storage/results';
 import {
   formatResult,
   formatTimestamp,
-  getActivityLabel,
+  getActivityShortLabelKey,
+  getActivityTitleKey,
   isLowerBetter,
   RANKED_ACTIVITY_IDS,
 } from '../../utils/activityLabels';
@@ -24,15 +25,12 @@ import {
   sortResultsForRanking,
 } from '../../utils/resultUtils';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { Colors, baseFont } from '../../theme/tokens';
-
-const FILTERS = RANKED_ACTIVITY_IDS.map((id) => ({
-  id,
-  label: getActivityLabel(id).split(' ')[0],
-}));
 
 export default function LeaderboardScreen() {
   const { colors, fontScale } = useTheme();
+  const { t } = useTranslation();
   const [results, setResults] = useState<Result[]>([]);
   const [activityId, setActivityId] = useState<string>(RANKED_ACTIVITY_IDS[0]);
   const [loading, setLoading] = useState(true);
@@ -59,6 +57,11 @@ export default function LeaderboardScreen() {
     }, [])
   );
 
+  const filterChips = RANKED_ACTIVITY_IDS.map((id) => ({
+    id,
+    label: t(getActivityShortLabelKey(id)),
+  }));
+
   const forActivity = results.filter((r) => r.activityId === activityId);
   const ranked = sortResultsForRanking(forActivity, activityId);
   const total = forActivity.length;
@@ -77,7 +80,7 @@ export default function LeaderboardScreen() {
           { color: colors.text, fontSize: baseFont.heading * fontScale },
         ]}
       >
-        Leaderboard
+        {t('leaderboard.heading')}
       </Text>
       <Text
         style={[
@@ -85,11 +88,11 @@ export default function LeaderboardScreen() {
           { color: colors.textMuted, fontSize: baseFont.small * fontScale },
         ]}
       >
-        {lower ? 'Lower is better' : 'Higher is better'}
+        {lower ? t('leaderboard.lowerBetter') : t('leaderboard.higherBetter')}
       </Text>
 
       <View style={styles.filterRow}>
-        {FILTERS.map((f) => {
+        {filterChips.map((f) => {
           const active = activityId === f.id;
           return (
             <Pressable
@@ -122,19 +125,19 @@ export default function LeaderboardScreen() {
 
       <View style={styles.statsRow}>
         <StatCard
-          label="Attempts"
+          label={t('leaderboard.stat.attempts')}
           value={loading ? '…' : String(total)}
           colors={colors}
           fontScale={fontScale}
         />
         <StatCard
-          label="Best"
+          label={t('leaderboard.stat.best')}
           value={best === null ? '—' : formatResult(activityId, best)}
           colors={colors}
           fontScale={fontScale}
         />
         <StatCard
-          label="Average"
+          label={t('leaderboard.stat.average')}
           value={avg === null ? '—' : formatResult(activityId, avg)}
           colors={colors}
           fontScale={fontScale}
@@ -149,15 +152,15 @@ export default function LeaderboardScreen() {
         <EmptyState
           colors={colors}
           fontScale={fontScale}
-          title="Couldn't load leaderboard"
-          message="Something went wrong reading saved results. Try again later."
+          title={t('leaderboard.error.title')}
+          message={t('leaderboard.error.message')}
         />
       ) : ranked.length === 0 ? (
         <EmptyState
           colors={colors}
           fontScale={fontScale}
-          title="No data available"
-          message="Finish an activity to see ranked results here."
+          title={t('leaderboard.empty.title')}
+          message={t('leaderboard.empty.message')}
         />
       ) : (
         <FlatList
@@ -197,7 +200,7 @@ export default function LeaderboardScreen() {
                     { color: colors.textMuted, fontSize: baseFont.tiny * fontScale },
                   ]}
                 >
-                  {getActivityLabel(item.activityId)} ·{' '}
+                  {t(getActivityTitleKey(item.activityId))} ·{' '}
                   {formatTimestamp(item.timestamp)}
                 </Text>
               </View>

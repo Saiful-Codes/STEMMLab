@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import RootNavigator from './src/navigation/RootNavigator';
 import { TeamProvider } from './src/context/TeamContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { LanguageProvider } from './src/context/LanguageContext';
 
 function ThemedApp() {
   const { navTheme, mode } = useTheme();
@@ -18,11 +19,13 @@ function ThemedApp() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
-        <TeamProvider>
-          <ThemedApp />
-        </TeamProvider>
-      </ThemeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <TeamProvider>
+            <ThemedApp />
+          </TeamProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     </SafeAreaProvider>
   );
 }

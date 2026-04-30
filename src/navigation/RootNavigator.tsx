@@ -5,6 +5,7 @@ import TeamSetupScreen from '../screens/onboarding/TeamSetupScreen';
 import MainTabs from './MainTabs';
 import { useTeam } from '../context/TeamContext';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from '../context/LanguageContext';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -17,6 +18,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function RootNavigator() {
   const { team, loading: teamLoading } = useTeam();
   const { loading: themeLoading, colors } = useTheme();
+  const { t } = useTranslation();
 
   if (teamLoading || themeLoading) {
     return (
@@ -44,7 +46,7 @@ export default function RootNavigator() {
           <Stack.Screen
             name="TeamSetup"
             component={TeamSetupScreen}
-            options={{ title: 'Team Setup' }}
+            options={{ title: t('nav.teamSetup') }}
           />
         </>
       )}

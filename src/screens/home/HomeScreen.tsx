@@ -5,12 +5,14 @@ import { activities } from '../../data/activities';
 import { Activity } from '../../types/Activity';
 import { ActivityStackParamList } from '../../navigation/ActivityStack';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
   const { colors, fontScale } = useTheme();
+  const { t } = useTranslation();
 
   const handlePress = (activity: Activity) => {
     if (activity.comingSoon) return;
@@ -28,7 +30,7 @@ export default function HomeScreen({ navigation }: Props) {
           { color: colors.text, fontSize: baseFont.heading * fontScale },
         ]}
       >
-        Activities
+        {t('home.heading')}
       </Text>
       <Text
         style={[
@@ -36,7 +38,7 @@ export default function HomeScreen({ navigation }: Props) {
           { color: colors.textMuted, fontSize: baseFont.bodySm * fontScale },
         ]}
       >
-        Pick a STEMM challenge to start.
+        {t('home.subheading')}
       </Text>
 
       <FlatList
@@ -64,7 +66,7 @@ export default function HomeScreen({ navigation }: Props) {
                   { color: colors.primary, fontSize: baseFont.tiny * fontScale },
                 ]}
               >
-                {item.category}
+                {t(`category.${item.category}`)}
               </Text>
               {item.comingSoon && (
                 <Text
@@ -77,7 +79,7 @@ export default function HomeScreen({ navigation }: Props) {
                     },
                   ]}
                 >
-                  Coming Soon
+                  {t('home.comingSoon')}
                 </Text>
               )}
             </View>
@@ -87,7 +89,7 @@ export default function HomeScreen({ navigation }: Props) {
                 { color: colors.text, fontSize: baseFont.bodyLg * fontScale },
               ]}
             >
-              {item.title}
+              {t(`activity.${item.id}.title`)}
             </Text>
             <Text
               style={[
@@ -95,7 +97,7 @@ export default function HomeScreen({ navigation }: Props) {
                 { color: colors.textMuted, fontSize: baseFont.tiny * fontScale },
               ]}
             >
-              {item.domain}
+              {t(`activity.${item.id}.domain`)}
             </Text>
             <Text
               style={[
@@ -103,7 +105,7 @@ export default function HomeScreen({ navigation }: Props) {
                 { color: colors.text, fontSize: baseFont.bodySm * fontScale },
               ]}
             >
-              {item.shortDescription}
+              {t(`activity.${item.id}.shortDescription`)}
             </Text>
           </Pressable>
         )}

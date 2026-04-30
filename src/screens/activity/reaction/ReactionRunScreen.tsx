@@ -11,6 +11,7 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
 import { ReactionEntry } from '../../../storage/attempts';
+import { useTranslation } from '../../../context/LanguageContext';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -21,6 +22,7 @@ const MAX_DELAY_MS = 3000;
 
 export default function ReactionRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
+  const { t } = useTranslation();
 
   const [gameState, setGameState] = useState<GameState>('idle');
   const [entries, setEntries] = useState<ReactionEntry[]>([]);
@@ -78,7 +80,10 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
 
   const handleFinish = () => {
     if (entries.length === 0) {
-      Alert.alert('No attempts', 'Try at least one tap before finishing.');
+      Alert.alert(
+        t('run.reaction.alert.noAttemptsTitle'),
+        t('run.reaction.alert.noAttemptsMessage')
+      );
       return;
     }
     const bestMs = Math.min(...entries.map((e) => e.reactionMs));
@@ -107,10 +112,8 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Reaction Board – Tap Phase</Text>
-      <Text style={styles.subheading}>
-        Tap Start, wait for the green signal, then tap as fast as you can.
-      </Text>
+      <Text style={styles.heading}>{t('run.reaction.heading')}</Text>
+      <Text style={styles.subheading}>{t('run.reaction.subheading')}</Text>
 
       <Pressable
         onPress={handleAreaPress}
@@ -118,21 +121,23 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
         style={areaStyle}
       >
         {gameState === 'idle' && (
-          <Text style={styles.areaText}>Press Start to begin</Text>
+          <Text style={styles.areaText}>{t('run.reaction.area.idle')}</Text>
         )}
         {gameState === 'waiting' && (
-          <Text style={styles.areaText}>Wait for green…</Text>
+          <Text style={styles.areaText}>{t('run.reaction.area.waiting')}</Text>
         )}
         {gameState === 'go' && (
-          <Text style={styles.areaTextLarge}>TAP NOW!</Text>
+          <Text style={styles.areaTextLarge}>{t('run.reaction.area.go')}</Text>
         )}
         {gameState === 'tooSoon' && (
-          <Text style={styles.areaText}>Too soon! Try again.</Text>
+          <Text style={styles.areaText}>{t('run.reaction.area.tooSoon')}</Text>
         )}
         {gameState === 'result' && lastReactionMs != null && (
           <>
             <Text style={styles.areaTextLarge}>{lastReactionMs} ms</Text>
-            <Text style={styles.areaSubText}>Nice tap!</Text>
+            <Text style={styles.areaSubText}>
+              {t('run.reaction.area.resultSub')}
+            </Text>
           </>
         )}
       </Pressable>
@@ -142,39 +147,52 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
           gameState === 'result' ||
           gameState === 'tooSoon') && (
           <Button
-            title={entries.length === 0 ? 'Start' : 'Try Again'}
+            title={
+              entries.length === 0
+                ? t('run.reaction.start')
+                : t('run.reaction.tryAgain')
+            }
             onPress={handleStart}
           />
         )}
         {gameState === 'waiting' && (
-          <Button title="Cancel" onPress={handleReset} color="#dc2626" />
+          <Button
+            title={t('run.reaction.cancel')}
+            onPress={handleReset}
+            color="#dc2626"
+          />
         )}
       </View>
 
       <View style={styles.statsRow}>
-        <Stat label="Attempts" value={entries.length.toString()} />
         <Stat
-          label="Best"
+          label={t('run.reaction.stat.attempts')}
+          value={entries.length.toString()}
+        />
+        <Stat
+          label={t('run.reaction.stat.best')}
           value={best != null ? `${best} ms` : '—'}
         />
         <Stat
-          label="Average"
+          label={t('run.reaction.stat.average')}
           value={avg != null ? `${Math.round(avg)} ms` : '—'}
         />
       </View>
 
       <Text style={styles.listHeading}>
-        Attempts this session ({entries.length})
+        {t('run.reaction.attemptsHeading', { count: entries.length })}
       </Text>
       <FlatList
         data={entries}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No attempts yet.</Text>
+          <Text style={styles.emptyText}>{t('run.reaction.empty')}</Text>
         }
         renderItem={({ item }) => (
           <View style={styles.entryRow}>
-            <Text style={styles.entryLabel}>Attempt {item.attemptNumber}</Text>
+            <Text style={styles.entryLabel}>
+              {t('run.reaction.attemptLabel', { n: item.attemptNumber })}
+            </Text>
             <Text style={styles.entryValue}>{item.reactionMs} ms</Text>
           </View>
         )}
@@ -183,7 +201,7 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
 
       <View style={styles.finishButton}>
         <Button
-          title="Finish Activity"
+          title={t('run.reaction.finish')}
           onPress={handleFinish}
           disabled={isInteractive}
         />
