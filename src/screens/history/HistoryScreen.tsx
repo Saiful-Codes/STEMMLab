@@ -14,24 +14,19 @@ import { getResults } from '../../storage/results';
 import {
   formatResult,
   formatTimestamp,
-  getActivityLabel,
+  getActivityShortLabelKey,
+  getActivityTitleKey,
   RANKED_ACTIVITY_IDS,
 } from '../../utils/activityLabels';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
 
 type Filter = 'all' | string;
 
-const FILTERS: { id: Filter; label: string }[] = [
-  { id: 'all', label: 'All' },
-  ...RANKED_ACTIVITY_IDS.map((id) => ({
-    id,
-    label: getActivityLabel(id).split(' ')[0],
-  })),
-];
-
 export default function HistoryScreen() {
   const { colors, fontScale } = useTheme();
+  const { t } = useTranslation();
   const [results, setResults] = useState<Result[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
   const [loading, setLoading] = useState(true);
@@ -58,6 +53,14 @@ export default function HistoryScreen() {
     }, [])
   );
 
+  const filterChips: { id: Filter; label: string }[] = [
+    { id: 'all', label: t('history.filter.all') },
+    ...RANKED_ACTIVITY_IDS.map((id) => ({
+      id,
+      label: t(getActivityShortLabelKey(id)),
+    })),
+  ];
+
   const filtered =
     filter === 'all' ? results : results.filter((r) => r.activityId === filter);
 
@@ -72,7 +75,7 @@ export default function HistoryScreen() {
           { color: colors.text, fontSize: baseFont.heading * fontScale },
         ]}
       >
-        History
+        {t('history.heading')}
       </Text>
       <Text
         style={[
@@ -80,11 +83,11 @@ export default function HistoryScreen() {
           { color: colors.textMuted, fontSize: baseFont.bodySm * fontScale },
         ]}
       >
-        All saved attempts across activities.
+        {t('history.subheading')}
       </Text>
 
       <View style={styles.filterRow}>
-        {FILTERS.map((f) => {
+        {filterChips.map((f) => {
           const active = filter === f.id;
           return (
             <Pressable
@@ -123,18 +126,22 @@ export default function HistoryScreen() {
         <EmptyState
           colors={colors}
           fontScale={fontScale}
-          title="Couldn't load history"
-          message="Something went wrong reading saved results. Try again later."
+          title={t('history.error.title')}
+          message={t('history.error.message')}
         />
       ) : filtered.length === 0 ? (
         <EmptyState
           colors={colors}
           fontScale={fontScale}
-          title={results.length === 0 ? 'No results yet' : 'No attempts here'}
+          title={
+            results.length === 0
+              ? t('history.empty.noResultsTitle')
+              : t('history.empty.noFilteredTitle')
+          }
           message={
             results.length === 0
-              ? 'Finish an activity to see your history grow.'
-              : 'No saved attempts for this activity yet.'
+              ? t('history.empty.noResultsMessage')
+              : t('history.empty.noFilteredMessage')
           }
         />
       ) : (
@@ -156,7 +163,7 @@ export default function HistoryScreen() {
                     { color: colors.text, fontSize: baseFont.bodySm * fontScale },
                   ]}
                 >
-                  {getActivityLabel(item.activityId)}
+                  {t(getActivityTitleKey(item.activityId))}
                 </Text>
                 <Text
                   style={[

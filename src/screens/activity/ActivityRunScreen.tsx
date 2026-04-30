@@ -4,6 +4,9 @@ import { ActivityStackParamList } from '../../navigation/ActivityStack';
 import SoundRunScreen from './sound/SoundRunScreen';
 import ReactionRunScreen from './reaction/ReactionRunScreen';
 import EarthquakeRunScreen from './earthquake/EarthquakeRunScreen';
+import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/LanguageContext';
+import { baseFont } from '../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -18,15 +21,28 @@ export default function ActivityRunScreen(props: Props) {
     case 'earthquake':
       return <EarthquakeRunScreen {...props} />;
     default:
-      return (
-        <View style={styles.center}>
-          <Text style={styles.text}>This activity is not playable yet.</Text>
-        </View>
-      );
+      return <NotPlayable />;
   }
+}
+
+function NotPlayable() {
+  const { colors, fontScale } = useTheme();
+  const { t } = useTranslation();
+  return (
+    <View style={[styles.center, { backgroundColor: colors.background }]}>
+      <Text
+        style={[
+          styles.text,
+          { color: colors.textMuted, fontSize: baseFont.bodySm * fontScale },
+        ]}
+      >
+        {t('activityRun.notPlayable')}
+      </Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  text: { fontSize: 14, color: '#6b7280', textAlign: 'center' },
+  text: { textAlign: 'center' },
 });

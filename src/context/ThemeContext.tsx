@@ -57,7 +57,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const persist = useCallback((next: Preferences) => {
+  const persist = useCallback((next: Partial<Preferences>) => {
     void savePreferences(next);
   }, []);
 

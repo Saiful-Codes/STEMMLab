@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import { useTranslation } from '../context/LanguageContext';
 import { baseFont } from '../theme/tokens';
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
 
 export default function MemberInputList({ members, onChange }: Props) {
   const { colors, fontScale } = useTheme();
+  const { t } = useTranslation();
 
   const updateAt = (index: number, value: string) => {
     const next = [...members];
@@ -42,7 +44,7 @@ export default function MemberInputList({ members, onChange }: Props) {
                   fontSize: baseFont.body * fontScale,
                 },
               ]}
-              placeholder={`Member ${index + 1}`}
+              placeholder={t('teamSetup.memberPlaceholder', { n: index + 1 })}
               placeholderTextColor={colors.textSubtle}
               value={member}
               onChangeText={(text) => updateAt(index, text)}
@@ -71,7 +73,7 @@ export default function MemberInputList({ members, onChange }: Props) {
                   },
                 ]}
               >
-                Remove
+                {t('teamSetup.removeMember')}
               </Text>
             </Pressable>
           </View>
@@ -94,7 +96,7 @@ export default function MemberInputList({ members, onChange }: Props) {
             { color: colors.primary, fontSize: baseFont.bodySm * fontScale },
           ]}
         >
-          + Add Member
+          {t('teamSetup.addMember')}
         </Text>
       </Pressable>
     </View>

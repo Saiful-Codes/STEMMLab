@@ -11,30 +11,33 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTeam } from '../../context/TeamContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { clearResults } from '../../storage/results';
 import { Colors, baseFont } from '../../theme/tokens';
+import { LANGUAGES, LanguageCode } from '../../i18n/translations';
 
 export default function SettingsScreen() {
   const { mode, colors, largeText, fontScale, toggleMode, toggleLargeText } =
     useTheme();
   const { team, clearTeam } = useTeam();
+  const { language, setLanguage, t } = useTranslation();
   const [working, setWorking] = useState(false);
 
   const handleResetTeam = () => {
     Alert.alert(
-      'Reset team?',
-      'This signs out the current team. Saved results will be kept.',
+      t('settings.alert.resetTeam.title'),
+      t('settings.alert.resetTeam.message'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Reset',
+          text: t('common.reset'),
           style: 'destructive',
           onPress: async () => {
             try {
               setWorking(true);
               await clearTeam();
             } catch {
-              Alert.alert('Error', 'Could not reset team. Please try again.');
+              Alert.alert(t('settings.alert.error'), t('settings.alert.resetError'));
             } finally {
               setWorking(false);
             }
@@ -46,20 +49,23 @@ export default function SettingsScreen() {
 
   const handleClearResults = () => {
     Alert.alert(
-      'Clear all results?',
-      'This permanently deletes every saved attempt across activities. This cannot be undone.',
+      t('settings.alert.clearResults.title'),
+      t('settings.alert.clearResults.message'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Clear',
+          text: t('common.clear'),
           style: 'destructive',
           onPress: async () => {
             try {
               setWorking(true);
               await clearResults();
-              Alert.alert('Done', 'All saved results have been cleared.');
+              Alert.alert(
+                t('settings.alert.cleared.title'),
+                t('settings.alert.cleared.message')
+              );
             } catch {
-              Alert.alert('Error', 'Could not clear results. Please try again.');
+              Alert.alert(t('settings.alert.error'), t('settings.alert.clearError'));
             } finally {
               setWorking(false);
             }
@@ -84,7 +90,7 @@ export default function SettingsScreen() {
           { color: colors.text, fontSize: baseFont.heading * fontScale },
         ]}
       >
-        Settings
+        {t('settings.heading')}
       </Text>
       <Text
         style={[
@@ -92,12 +98,16 @@ export default function SettingsScreen() {
           { color: colors.textMuted, fontSize: baseFont.bodySm * fontScale },
         ]}
       >
-        Theme, accessibility, and reset options.
+        {t('settings.subheading')}
       </Text>
 
-      <Section title="Display" colors={colors} fontScale={fontScale}>
+      <Section
+        title={t('settings.section.display')}
+        colors={colors}
+        fontScale={fontScale}
+      >
         <Row
-          label="Dark mode"
+          label={t('settings.darkMode')}
           colors={colors}
           fontScale={fontScale}
           control={
@@ -110,8 +120,8 @@ export default function SettingsScreen() {
         />
         <Divider color={colors.border} />
         <Row
-          label="Large text"
-          hint="Increases font sizes across the app for better readability."
+          label={t('settings.largeText')}
+          hint={t('settings.largeTextHint')}
           colors={colors}
           fontScale={fontScale}
           control={
@@ -124,7 +134,34 @@ export default function SettingsScreen() {
         />
       </Section>
 
-      <Section title="Team" colors={colors} fontScale={fontScale}>
+      <Section
+        title={t('settings.section.language')}
+        colors={colors}
+        fontScale={fontScale}
+      >
+        <View style={styles.langRow}>
+          {LANGUAGES.map((lang) => {
+            const selected = lang.code === language;
+            return (
+              <LanguagePill
+                key={lang.code}
+                code={lang.code}
+                label={lang.label}
+                selected={selected}
+                onPress={() => setLanguage(lang.code)}
+                colors={colors}
+                fontScale={fontScale}
+              />
+            );
+          })}
+        </View>
+      </Section>
+
+      <Section
+        title={t('settings.section.team')}
+        colors={colors}
+        fontScale={fontScale}
+      >
         <Text
           style={[
             styles.helper,
@@ -132,13 +169,18 @@ export default function SettingsScreen() {
           ]}
         >
           {team
-            ? `Current team: ${team.name} (${team.members.length} member${
-                team.members.length === 1 ? '' : 's'
-              })`
-            : 'No team set up.'}
+            ? t('settings.team.current', {
+                name: team.name,
+                count: team.members.length,
+                member:
+                  team.members.length === 1
+                    ? t('settings.team.memberSingular')
+                    : t('settings.team.memberPlural'),
+              })
+            : t('settings.team.none')}
         </Text>
         <DangerButton
-          label="Reset team"
+          label={t('settings.resetTeam')}
           colors={colors}
           fontScale={fontScale}
           disabled={working || !team}
@@ -146,9 +188,13 @@ export default function SettingsScreen() {
         />
       </Section>
 
-      <Section title="Data" colors={colors} fontScale={fontScale}>
+      <Section
+        title={t('settings.section.data')}
+        colors={colors}
+        fontScale={fontScale}
+      >
         <DangerButton
-          label="Clear all results"
+          label={t('settings.clearResults')}
           colors={colors}
           fontScale={fontScale}
           disabled={working}
@@ -237,6 +283,51 @@ function Divider({ color }: { color: string }) {
   return <View style={[styles.divider, { backgroundColor: color }]} />;
 }
 
+function LanguagePill({
+  code,
+  label,
+  selected,
+  onPress,
+  colors,
+  fontScale,
+}: {
+  code: LanguageCode;
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+  colors: Colors;
+  fontScale: number;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
+      accessibilityLabel={label}
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.langPill,
+        {
+          backgroundColor: selected ? colors.primary : colors.surfaceMuted,
+          borderColor: selected ? colors.primary : colors.border,
+        },
+        pressed && { opacity: 0.7 },
+      ]}
+    >
+      <Text
+        style={[
+          styles.langPillText,
+          {
+            color: selected ? colors.primaryText : colors.text,
+            fontSize: baseFont.bodySm * fontScale,
+          },
+        ]}
+      >
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
 function DangerButton({
   label,
   onPress,
@@ -299,6 +390,18 @@ const styles = StyleSheet.create({
   rowHint: { marginTop: 2 },
   divider: { height: StyleSheet.hairlineWidth, marginVertical: 4 },
   helper: { marginBottom: 12 },
+  langRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  langPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  langPillText: { fontWeight: '600' },
   dangerBtn: {
     paddingVertical: 12,
     borderRadius: 8,

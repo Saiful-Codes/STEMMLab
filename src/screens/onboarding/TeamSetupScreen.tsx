@@ -12,12 +12,14 @@ import {
 } from 'react-native';
 import { useTeam } from '../../context/TeamContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/LanguageContext';
 import MemberInputList from '../../components/MemberInputList';
 import { baseFont } from '../../theme/tokens';
 
 export default function TeamSetupScreen() {
   const { saveTeam } = useTeam();
   const { colors, fontScale } = useTheme();
+  const { t } = useTranslation();
   const [teamName, setTeamName] = useState('');
   const [members, setMembers] = useState<string[]>(['']);
   const [grade, setGrade] = useState('');
@@ -29,15 +31,24 @@ export default function TeamSetupScreen() {
     const cleanMembers = members.map((m) => m.trim()).filter((m) => m.length > 0);
 
     if (!trimmedName) {
-      Alert.alert('Missing info', 'Please enter a team name.');
+      Alert.alert(
+        t('teamSetup.alert.missingTitle'),
+        t('teamSetup.alert.missingName')
+      );
       return;
     }
     if (cleanMembers.length === 0) {
-      Alert.alert('Missing info', 'Please add at least one member.');
+      Alert.alert(
+        t('teamSetup.alert.missingTitle'),
+        t('teamSetup.alert.missingMembers')
+      );
       return;
     }
     if (!trimmedGrade) {
-      Alert.alert('Missing info', 'Please enter a grade or year level.');
+      Alert.alert(
+        t('teamSetup.alert.missingTitle'),
+        t('teamSetup.alert.missingGrade')
+      );
       return;
     }
 
@@ -50,7 +61,10 @@ export default function TeamSetupScreen() {
         createdAt: Date.now(),
       });
     } catch {
-      Alert.alert('Error', 'Could not save team. Please try again.');
+      Alert.alert(
+        t('teamSetup.alert.errorTitle'),
+        t('teamSetup.alert.errorMessage')
+      );
       setSubmitting(false);
     }
   };
@@ -77,7 +91,7 @@ export default function TeamSetupScreen() {
             { color: colors.text, fontSize: baseFont.heading * fontScale },
           ]}
         >
-          Team Setup
+          {t('teamSetup.title')}
         </Text>
         <Text
           style={[
@@ -85,7 +99,7 @@ export default function TeamSetupScreen() {
             { color: colors.textMuted, fontSize: baseFont.bodySm * fontScale },
           ]}
         >
-          Tell us about your team before you start exploring activities.
+          {t('teamSetup.subtitle')}
         </Text>
 
         <View style={styles.field}>
@@ -95,11 +109,11 @@ export default function TeamSetupScreen() {
               { color: colors.text, fontSize: baseFont.bodySm * fontScale },
             ]}
           >
-            Team Name
+            {t('teamSetup.teamName')}
           </Text>
           <TextInput
             style={[styles.input, inputStyle]}
-            placeholder="e.g. The Lab Rats"
+            placeholder={t('teamSetup.teamNamePlaceholder')}
             placeholderTextColor={colors.textSubtle}
             value={teamName}
             onChangeText={setTeamName}
@@ -114,7 +128,7 @@ export default function TeamSetupScreen() {
               { color: colors.text, fontSize: baseFont.bodySm * fontScale },
             ]}
           >
-            Members
+            {t('teamSetup.members')}
           </Text>
           <MemberInputList members={members} onChange={setMembers} />
         </View>
@@ -126,11 +140,11 @@ export default function TeamSetupScreen() {
               { color: colors.text, fontSize: baseFont.bodySm * fontScale },
             ]}
           >
-            Grade / Year Level
+            {t('teamSetup.grade')}
           </Text>
           <TextInput
             style={[styles.input, inputStyle]}
-            placeholder="e.g. Grade 9"
+            placeholder={t('teamSetup.gradePlaceholder')}
             placeholderTextColor={colors.textSubtle}
             value={grade}
             onChangeText={setGrade}
@@ -152,7 +166,7 @@ export default function TeamSetupScreen() {
               { color: colors.primaryText, fontSize: baseFont.body * fontScale },
             ]}
           >
-            {submitting ? 'Saving...' : 'Save & Continue'}
+            {submitting ? t('teamSetup.saving') : t('teamSetup.save')}
           </Text>
         </Pressable>
       </ScrollView>

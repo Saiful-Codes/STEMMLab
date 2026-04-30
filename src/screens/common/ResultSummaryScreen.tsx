@@ -12,9 +12,11 @@ import { ActivityStackParamList } from '../../navigation/ActivityStack';
 import { activities } from '../../data/activities';
 import { useTeam } from '../../context/TeamContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/LanguageContext';
 import { saveResult } from '../../storage/results';
 import { Result } from '../../types/Result';
 import { baseFont } from '../../theme/tokens';
+import { getActivityTitleKey } from '../../utils/activityLabels';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ResultSummary'>;
 
@@ -22,17 +24,23 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
   const { activityId, result } = route.params;
   const { team } = useTeam();
   const { colors, fontScale } = useTheme();
+  const { t } = useTranslation();
 
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState('');
   const [saving, setSaving] = useState(false);
 
   const activity = activities.find((a) => a.id === activityId);
-  const activityTitle = activity?.title ?? activityId;
+  const activityTitle = activity
+    ? t(getActivityTitleKey(activity.id))
+    : activityId;
 
   const handleSave = async () => {
     if (!team) {
-      Alert.alert('No team', 'Set up a team before saving results.');
+      Alert.alert(
+        t('summary.alert.noTeamTitle'),
+        t('summary.alert.noTeamMessage')
+      );
       return;
     }
 
@@ -52,7 +60,10 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
       await saveResult(payload);
       navigation.popToTop();
     } catch {
-      Alert.alert('Save failed', 'Could not save your result. Please try again.');
+      Alert.alert(
+        t('summary.alert.saveFailTitle'),
+        t('summary.alert.saveFailMessage')
+      );
       setSaving(false);
     }
   };
@@ -65,7 +76,7 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
           { color: colors.textMuted, fontSize: baseFont.small * fontScale },
         ]}
       >
-        Activity complete
+        {t('summary.heading')}
       </Text>
       <Text
         style={[
@@ -83,7 +94,7 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
             { color: colors.textMuted, fontSize: baseFont.tiny * fontScale },
           ]}
         >
-          Result
+          {t('summary.resultLabel')}
         </Text>
         <Text
           style={[
@@ -100,8 +111,14 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
               { color: colors.textMuted, fontSize: baseFont.tiny * fontScale },
             ]}
           >
-            Team: {team.name} · {team.members.length} member
-            {team.members.length === 1 ? '' : 's'}
+            {t('summary.teamMeta', {
+              name: team.name,
+              count: team.members.length,
+              member:
+                team.members.length === 1
+                  ? t('settings.team.memberSingular')
+                  : t('settings.team.memberPlural'),
+            })}
           </Text>
         )}
       </View>
@@ -112,7 +129,7 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
           { color: colors.text, fontSize: baseFont.bodySm * fontScale },
         ]}
       >
-        Rate this experiment
+        {t('summary.rate')}
       </Text>
       <View style={styles.starRow}>
         {[1, 2, 3, 4, 5].map((n) => (
@@ -142,12 +159,12 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
           { color: colors.text, fontSize: baseFont.bodySm * fontScale },
         ]}
       >
-        Reflection (optional)
+        {t('summary.reflection')}
       </Text>
       <TextInput
         value={comment}
         onChangeText={setComment}
-        placeholder="What did you notice? What would you change?"
+        placeholder={t('summary.reflectionPlaceholder')}
         placeholderTextColor={colors.textSubtle}
         style={[
           styles.input,
@@ -179,7 +196,7 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
             { color: colors.primaryText, fontSize: baseFont.body * fontScale },
           ]}
         >
-          {saving ? 'Saving…' : 'Save Result'}
+          {saving ? t('summary.saving') : t('summary.save')}
         </Text>
       </Pressable>
     </View>

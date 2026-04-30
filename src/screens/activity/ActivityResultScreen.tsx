@@ -4,6 +4,9 @@ import { ActivityStackParamList } from '../../navigation/ActivityStack';
 import SoundResultScreen from './sound/SoundResultScreen';
 import ReactionResultScreen from './reaction/ReactionResultScreen';
 import EarthquakeResultScreen from './earthquake/EarthquakeResultScreen';
+import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/LanguageContext';
+import { baseFont } from '../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityResult'>;
 
@@ -18,15 +21,28 @@ export default function ActivityResultScreen(props: Props) {
     case 'earthquake':
       return <EarthquakeResultScreen {...props} />;
     default:
-      return (
-        <View style={styles.center}>
-          <Text style={styles.text}>No results to show for this activity.</Text>
-        </View>
-      );
+      return <NoResults />;
   }
+}
+
+function NoResults() {
+  const { colors, fontScale } = useTheme();
+  const { t } = useTranslation();
+  return (
+    <View style={[styles.center, { backgroundColor: colors.background }]}>
+      <Text
+        style={[
+          styles.text,
+          { color: colors.textMuted, fontSize: baseFont.bodySm * fontScale },
+        ]}
+      >
+        {t('activityResult.none')}
+      </Text>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  text: { fontSize: 14, color: '#6b7280', textAlign: 'center' },
+  text: { textAlign: 'center' },
 });
