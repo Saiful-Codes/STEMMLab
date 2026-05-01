@@ -108,6 +108,59 @@ const en: TranslationDict = {
   'activityDetail.startBtn': 'Start Activity',
   'activityDetail.notice': 'This activity will be added in a later phase.',
   'activityDetail.notFound': 'Activity not found',
+  'activityDetail.label.gradeLevel': 'Grade Level',
+  'activityDetail.label.estimatedTime': 'Estimated Time',
+  'activityDetail.section.tags': 'You will learn about',
+  'activityDetail.section.introduction': 'Introduction',
+  'activityDetail.section.objectives': 'Learning Objectives',
+  'activityDetail.section.materials': 'Tools and Materials',
+  'activityDetail.section.instructions': 'Experiment Setup and Instructions',
+  'activityDetail.section.interpreting': 'Interpreting Data and Discussion',
+
+  // Activity Detail – Sound Pollution Hunter
+  'activityDetail.sound.gradeLevel': 'Grades 6 – 10',
+  'activityDetail.sound.estimatedTime': '30 – 45 minutes',
+  'activityDetail.sound.tags': 'Sound, Decibels, Environment, Data, Microphone',
+  'activityDetail.sound.introduction':
+    'Noise is everywhere — busy hallways, classrooms, and traffic. In this activity you become a sound investigator. You will use the phone microphone to measure sound levels in different situations and places, then compare them to understand which environments are noisier than others.',
+  'activityDetail.sound.objectives':
+    '• Measure sound levels in everyday environments using a phone.\n• Compare loudness across different actions and locations.\n• Identify which sources cause the most sound pollution.\n• Practise recording, organising, and interpreting data.',
+  'activityDetail.sound.materials':
+    '• A smartphone or tablet running STEMM Lab\n• A few different locations or actions to measure (e.g. hallway, library, clapping)\n• A notebook or worksheet to plan and record observations',
+  'activityDetail.sound.instructions':
+    '1. Open Sound Pollution Hunter from the activity list.\n2. Type a short label for what you are about to measure (e.g. "Library").\n3. Tap Record and stay still while the app captures sound for a few seconds.\n4. Tap Stop, then Add Entry to save the measurement.\n5. Repeat for several different actions or places.\n6. Tap Finish Activity once you have at least three entries to compare.',
+  'activityDetail.sound.interpreting':
+    '• Compare your loudest and quietest entries.\n• Discuss which actions or places were the noisiest, and why.\n• Talk about sound pollution: where in your school or town would high readings be a real concern?\n• Suggest one change that could lower the sound level in a noisy spot.',
+
+  // Activity Detail – Reaction Board Challenge
+  'activityDetail.reaction.gradeLevel': 'Grades 5 – 10',
+  'activityDetail.reaction.estimatedTime': '15 – 30 minutes',
+  'activityDetail.reaction.tags': 'Reaction Time, Brain, Coordination, Data, Practice',
+  'activityDetail.reaction.introduction':
+    'How fast can your brain tell your finger to move? In this activity you will measure your visual reaction time across many attempts and see whether you improve with practice.',
+  'activityDetail.reaction.objectives':
+    '• Measure your visual reaction time in milliseconds.\n• Track best, average, and slowest taps across many attempts.\n• Observe how reaction time changes with practice or fatigue.\n• Practise comparing repeated trials in a fair way.',
+  'activityDetail.reaction.materials':
+    '• A smartphone or tablet running STEMM Lab\n• A quiet space where you can focus on the screen\n• (Optional) A teammate to take turns or record observations',
+  'activityDetail.reaction.instructions':
+    '1. Open Reaction Board Challenge from the activity list.\n2. Tap Start and watch the screen carefully.\n3. When the panel turns green, tap as quickly as you can.\n4. If you tap before green appears, the attempt counts as too soon.\n5. Tap Try Again to record more attempts and build up the list.\n6. Tap Finish Activity when you are happy with the number of attempts.',
+  'activityDetail.reaction.interpreting':
+    '• Look at your best, average, and slowest reaction times.\n• Did you get faster after a few attempts? Slower if you were tired?\n• Compare results between teammates and discuss why people differ.\n• Think about real-world activities where fast reactions matter, like sport or driving.',
+
+  // Activity Detail – Earthquake-Resistant Structure
+  'activityDetail.earthquake.gradeLevel': 'Grades 7 – 11',
+  'activityDetail.earthquake.estimatedTime': '45 – 60 minutes',
+  'activityDetail.earthquake.tags': 'Engineering, Vibration, Structures, Accelerometer, Design',
+  'activityDetail.earthquake.introduction':
+    'Buildings in earthquake zones must absorb shaking instead of breaking. In this activity you will design a small platform that protects a phone from vibration, then test it using the phone motion sensors.',
+  'activityDetail.earthquake.objectives':
+    '• Design a structure that reduces shaking on a phone resting on top.\n• Use the accelerometer to measure peak and average shake.\n• Compare different designs and improve them through iteration.\n• Connect the activity to real engineering challenges in earthquake zones.',
+  'activityDetail.earthquake.materials':
+    '• A smartphone running STEMM Lab with accelerometer support\n• Building materials such as cardboard, straws, rubber bands, paper cups, foam, and tape\n• A flat table where you can safely shake or vibrate the phone\n• (Optional) A ruler to record structure dimensions',
+  'activityDetail.earthquake.instructions':
+    '1. Build a small platform from your materials, designed to absorb vibration.\n2. Open Earthquake-Resistant Structure on the phone.\n3. Place the phone gently on top of your platform.\n4. Choose Manual to shake the table by hand, or Simulate Earthquake to use the built-in vibration motor.\n5. Tap Start Test, then Stop Test when the run is complete.\n6. Read the peak and average values, then redesign and try again.',
+  'activityDetail.earthquake.interpreting':
+    '• A lower peak g value means your structure absorbed more shaking.\n• Compare runs across different designs, not different shake strengths.\n• Discuss which materials worked best and why.\n• Real engineers use base isolation, dampers, and flexible joints — what did you accidentally invent?',
   'activityRun.notPlayable': 'This activity is not playable yet.',
   'activityResult.none': 'No results to show for this activity.',
 
@@ -390,6 +443,56 @@ const es: TranslationDict = {
   'activityDetail.startBtn': 'Iniciar Actividad',
   'activityDetail.notice': 'Esta actividad se añadirá en una fase posterior.',
   'activityDetail.notFound': 'Actividad no encontrada',
+  'activityDetail.label.gradeLevel': 'Nivel / Grado',
+  'activityDetail.label.estimatedTime': 'Tiempo Estimado',
+  'activityDetail.section.tags': 'Aprenderás sobre',
+  'activityDetail.section.introduction': 'Introducción',
+  'activityDetail.section.objectives': 'Objetivos de Aprendizaje',
+  'activityDetail.section.materials': 'Herramientas y Materiales',
+  'activityDetail.section.instructions': 'Configuración e Instrucciones del Experimento',
+  'activityDetail.section.interpreting': 'Interpretación de Datos y Discusión',
+
+  'activityDetail.sound.gradeLevel': 'Grados 6 – 10',
+  'activityDetail.sound.estimatedTime': '30 – 45 minutos',
+  'activityDetail.sound.tags': 'Sonido, Decibelios, Entorno, Datos, Micrófono',
+  'activityDetail.sound.introduction':
+    'El ruido está en todas partes: pasillos llenos, aulas y tráfico. En esta actividad te conviertes en investigador del sonido. Usarás el micrófono del teléfono para medir niveles de sonido en distintas situaciones y lugares, y los compararás para entender qué entornos son más ruidosos.',
+  'activityDetail.sound.objectives':
+    '• Mide niveles de sonido en entornos cotidianos usando un teléfono.\n• Compara la intensidad entre diferentes acciones y lugares.\n• Identifica qué fuentes causan más contaminación acústica.\n• Practica registrar, organizar e interpretar datos.',
+  'activityDetail.sound.materials':
+    '• Un smartphone o tablet con STEMM Lab\n• Varios lugares o acciones diferentes para medir (p. ej. pasillo, biblioteca, aplausos)\n• Un cuaderno u hoja para planificar y anotar observaciones',
+  'activityDetail.sound.instructions':
+    '1. Abre Cazador de Contaminación Sonora en la lista de actividades.\n2. Escribe una etiqueta corta para lo que vas a medir (p. ej. "Biblioteca").\n3. Toca Grabar y mantente quieto mientras la app captura el sonido durante unos segundos.\n4. Toca Detener y luego Añadir Entrada para guardar la medición.\n5. Repítelo en varias acciones o lugares distintos.\n6. Toca Terminar Actividad cuando tengas al menos tres entradas para comparar.',
+  'activityDetail.sound.interpreting':
+    '• Compara tus entradas más fuertes y más suaves.\n• Comenta qué acciones o lugares fueron los más ruidosos y por qué.\n• Habla sobre la contaminación acústica: ¿dónde, en tu escuela o ciudad, los valores altos serían un problema real?\n• Propón un cambio que pudiera reducir el sonido en un lugar ruidoso.',
+
+  'activityDetail.reaction.gradeLevel': 'Grados 5 – 10',
+  'activityDetail.reaction.estimatedTime': '15 – 30 minutos',
+  'activityDetail.reaction.tags': 'Tiempo de reacción, Cerebro, Coordinación, Datos, Práctica',
+  'activityDetail.reaction.introduction':
+    '¿Qué tan rápido puede tu cerebro decirle a tu dedo que se mueva? En esta actividad medirás tu tiempo de reacción visual en muchos intentos y verás si mejoras con la práctica.',
+  'activityDetail.reaction.objectives':
+    '• Mide tu tiempo de reacción visual en milisegundos.\n• Registra tu mejor, promedio y peor toque a lo largo de muchos intentos.\n• Observa cómo cambia la reacción con la práctica o el cansancio.\n• Practica comparar pruebas repetidas de forma justa.',
+  'activityDetail.reaction.materials':
+    '• Un smartphone o tablet con STEMM Lab\n• Un espacio tranquilo donde puedas concentrarte en la pantalla\n• (Opcional) Un compañero para turnarse o registrar observaciones',
+  'activityDetail.reaction.instructions':
+    '1. Abre Reto del Tablero de Reacción en la lista de actividades.\n2. Toca Iniciar y observa la pantalla con atención.\n3. Cuando el panel se ponga verde, toca lo más rápido que puedas.\n4. Si tocas antes del verde, el intento cuenta como demasiado pronto.\n5. Toca Reintentar para registrar más intentos y formar la lista.\n6. Toca Terminar Actividad cuando estés conforme con el número de intentos.',
+  'activityDetail.reaction.interpreting':
+    '• Mira tus tiempos mejor, promedio y más lentos.\n• ¿Te volviste más rápido tras varios intentos? ¿Más lento al cansarte?\n• Compara resultados entre compañeros y comenta por qué difieren las personas.\n• Piensa en actividades reales donde una reacción rápida importa, como el deporte o conducir.',
+
+  'activityDetail.earthquake.gradeLevel': 'Grados 7 – 11',
+  'activityDetail.earthquake.estimatedTime': '45 – 60 minutos',
+  'activityDetail.earthquake.tags': 'Ingeniería, Vibración, Estructuras, Acelerómetro, Diseño',
+  'activityDetail.earthquake.introduction':
+    'Los edificios en zonas sísmicas deben absorber el movimiento en lugar de romperse. En esta actividad diseñarás una pequeña plataforma que proteja un teléfono de la vibración y la probarás usando los propios sensores de movimiento del teléfono.',
+  'activityDetail.earthquake.objectives':
+    '• Diseña una estructura que reduzca el movimiento del teléfono colocado encima.\n• Usa el acelerómetro para medir el pico y el promedio de vibración.\n• Compara diferentes diseños y mejóralos por iteraciones.\n• Conecta la actividad con los retos reales de la ingeniería antisísmica.',
+  'activityDetail.earthquake.materials':
+    '• Un smartphone con STEMM Lab y soporte de acelerómetro\n• Materiales de construcción como cartón, pajitas, gomas elásticas, vasos de papel, espuma y cinta\n• Una mesa plana donde puedas agitar o vibrar el teléfono con seguridad\n• (Opcional) Una regla para anotar las dimensiones de la estructura',
+  'activityDetail.earthquake.instructions':
+    '1. Construye una pequeña plataforma con tus materiales, diseñada para absorber vibraciones.\n2. Abre Estructura Antisísmica en el teléfono.\n3. Coloca el teléfono con cuidado encima de tu plataforma.\n4. Elige Manual para agitar la mesa con la mano, o Simular Sismo para usar el motor de vibración del teléfono.\n5. Toca Iniciar Prueba y luego Detener Prueba cuando la prueba termine.\n6. Lee los valores de pico y promedio, después rediseña y prueba de nuevo.',
+  'activityDetail.earthquake.interpreting':
+    '• Un valor de pico más bajo en g significa que tu estructura absorbió más vibración.\n• Compara pruebas entre diseños distintos, no entre intensidades de agitación distintas.\n• Comenta qué materiales funcionaron mejor y por qué.\n• Los ingenieros reales usan aislamiento de base, amortiguadores y juntas flexibles: ¿qué inventaste sin querer?',
   'activityRun.notPlayable': 'Esta actividad aún no se puede jugar.',
   'activityResult.none': 'No hay resultados que mostrar para esta actividad.',
 
@@ -675,6 +778,56 @@ const ar: TranslationDict = {
   'activityDetail.startBtn': 'ابدأ النشاط',
   'activityDetail.notice': 'سيتم إضافة هذا النشاط في مرحلة لاحقة.',
   'activityDetail.notFound': 'لم يتم العثور على النشاط',
+  'activityDetail.label.gradeLevel': 'المستوى الدراسي',
+  'activityDetail.label.estimatedTime': 'الوقت التقديري',
+  'activityDetail.section.tags': 'ستتعلم عن',
+  'activityDetail.section.introduction': 'مقدمة',
+  'activityDetail.section.objectives': 'أهداف التعلم',
+  'activityDetail.section.materials': 'الأدوات والمواد',
+  'activityDetail.section.instructions': 'الإعداد والتعليمات',
+  'activityDetail.section.interpreting': 'تفسير البيانات والمناقشة',
+
+  'activityDetail.sound.gradeLevel': 'الصفوف 6 – 10',
+  'activityDetail.sound.estimatedTime': '30 – 45 دقيقة',
+  'activityDetail.sound.tags': 'الصوت, الديسيبل, البيئة, البيانات, الميكروفون',
+  'activityDetail.sound.introduction':
+    'الضوضاء في كل مكان — في الممرات المزدحمة والفصول الدراسية وحركة المرور. في هذا النشاط ستصبح محققًا في الصوت. ستستخدم ميكروفون الهاتف لقياس مستويات الصوت في مواقف وأماكن مختلفة، ثم تقارنها لفهم أي البيئات أكثر ضجيجًا.',
+  'activityDetail.sound.objectives':
+    '• قِس مستويات الصوت في البيئات اليومية باستخدام الهاتف.\n• قارن مستويات الجهارة بين أفعال وأماكن مختلفة.\n• حدّد المصادر التي تسبب أكبر قدر من التلوث الضوضائي.\n• تدرّب على تسجيل البيانات وتنظيمها وتفسيرها.',
+  'activityDetail.sound.materials':
+    '• هاتف ذكي أو جهاز لوحي يعمل عليه STEMM Lab\n• عدة أماكن أو إجراءات مختلفة للقياس (مثل الممر، المكتبة، التصفيق)\n• دفتر أو ورقة عمل للتخطيط وتسجيل الملاحظات',
+  'activityDetail.sound.instructions':
+    '1. افتح صياد التلوث الضوضائي من قائمة الأنشطة.\n2. اكتب وصفًا قصيرًا لما ستقيسه (مثل: "المكتبة").\n3. اضغط تسجيل وابقَ ساكنًا بضع ثوانٍ بينما يلتقط التطبيق الصوت.\n4. اضغط إيقاف ثم إضافة إدخال لحفظ القياس.\n5. كرّر الخطوات في عدة أماكن أو مع إجراءات مختلفة.\n6. اضغط إنهاء النشاط عندما يكون لديك ثلاثة إدخالات على الأقل لمقارنتها.',
+  'activityDetail.sound.interpreting':
+    '• قارن بين أعلى وأقل إدخالاتك صوتًا.\n• ناقش أي الأماكن أو الإجراءات كانت الأكثر ضجيجًا ولماذا.\n• تحدّث عن التلوث الضوضائي: أين في مدرستك أو مدينتك تكون القراءات العالية مصدر قلق حقيقي؟\n• اقترح تغييرًا واحدًا قد يقلل من مستوى الصوت في مكان مزعج.',
+
+  'activityDetail.reaction.gradeLevel': 'الصفوف 5 – 10',
+  'activityDetail.reaction.estimatedTime': '15 – 30 دقيقة',
+  'activityDetail.reaction.tags': 'زمن رد الفعل, الدماغ, التنسيق, البيانات, التدريب',
+  'activityDetail.reaction.introduction':
+    'كم بسرعة يستطيع دماغك أن يأمر إصبعك بالحركة؟ في هذا النشاط ستقيس زمن رد فعلك البصري عبر محاولات عديدة وتلاحظ ما إذا كنت تتحسن مع التدرّب.',
+  'activityDetail.reaction.objectives':
+    '• قِس زمن رد فعلك البصري بالملي ثانية.\n• تتبّع أفضل ومتوسط وأبطأ نقرة عبر محاولات متعددة.\n• راقب كيف يتغيّر زمن رد الفعل مع التدرّب أو الإرهاق.\n• تدرّب على مقارنة المحاولات المتكررة بطريقة عادلة.',
+  'activityDetail.reaction.materials':
+    '• هاتف ذكي أو جهاز لوحي يعمل عليه STEMM Lab\n• مكان هادئ يمكنك التركيز فيه على الشاشة\n• (اختياري) زميل للتناوب أو لتسجيل الملاحظات',
+  'activityDetail.reaction.instructions':
+    '1. افتح تحدي لوحة ردود الفعل من قائمة الأنشطة.\n2. اضغط ابدأ وراقب الشاشة جيدًا.\n3. عندما تتحول اللوحة إلى الأخضر، انقر بأسرع ما يمكنك.\n4. إذا نقرت قبل ظهور الأخضر، تُحتسب المحاولة كنقرة مبكرة.\n5. اضغط حاول مرة أخرى لتسجيل المزيد من المحاولات.\n6. اضغط إنهاء النشاط عندما تكون راضيًا عن عدد المحاولات.',
+  'activityDetail.reaction.interpreting':
+    '• انظر إلى أفضل ومتوسط وأبطأ أزمنة رد الفعل لديك.\n• هل أصبحت أسرع بعد عدة محاولات؟ أبطأ عند التعب؟\n• قارن النتائج بين زملائك وناقش لماذا تختلف الناس.\n• فكّر في الأنشطة الواقعية التي تتطلب رد فعل سريع، مثل الرياضة أو القيادة.',
+
+  'activityDetail.earthquake.gradeLevel': 'الصفوف 7 – 11',
+  'activityDetail.earthquake.estimatedTime': '45 – 60 دقيقة',
+  'activityDetail.earthquake.tags': 'الهندسة, الاهتزاز, الهياكل, مقياس التسارع, التصميم',
+  'activityDetail.earthquake.introduction':
+    'يجب على المباني في مناطق الزلازل أن تمتص الاهتزاز بدلًا من أن تنكسر. في هذا النشاط ستصمم منصة صغيرة تحمي الهاتف من الاهتزاز ثم ستختبرها باستخدام مستشعرات الحركة في الهاتف نفسه.',
+  'activityDetail.earthquake.objectives':
+    '• صمّم هيكلًا يقلل من اهتزاز الهاتف الموضوع فوقه.\n• استخدم مقياس التسارع لقياس الذروة ومتوسط الاهتزاز.\n• قارن بين تصاميم مختلفة وحسّنها عبر التكرار.\n• اربط النشاط بالتحديات الحقيقية للهندسة في مناطق الزلازل.',
+  'activityDetail.earthquake.materials':
+    '• هاتف ذكي يعمل عليه STEMM Lab مع دعم مقياس التسارع\n• مواد بناء مثل الكرتون والشفاطات والأربطة المطاطية والأكواب الورقية والإسفنج والشريط اللاصق\n• طاولة مسطحة يمكنك أن تهز الهاتف أو تجعله يهتز عليها بأمان\n• (اختياري) مسطرة لتسجيل أبعاد الهيكل',
+  'activityDetail.earthquake.instructions':
+    '1. ابنِ منصة صغيرة من موادك مصممة لامتصاص الاهتزاز.\n2. افتح هيكل مقاوم للزلازل على الهاتف.\n3. ضع الهاتف بلطف فوق منصتك.\n4. اختر يدوي لهز الطاولة بيدك، أو محاكاة الزلزال لاستخدام محرك اهتزاز الهاتف.\n5. اضغط بدء الاختبار، ثم إيقاف الاختبار عند انتهاء التشغيل.\n6. اقرأ قيم الذروة والمتوسط، ثم أعد التصميم وحاول مرة أخرى.',
+  'activityDetail.earthquake.interpreting':
+    '• قيمة ذروة g أقل تعني أن هيكلك امتص قدرًا أكبر من الاهتزاز.\n• قارن بين تشغيلات تصاميم مختلفة، لا بين قوى اهتزاز مختلفة.\n• ناقش أي المواد كانت الأنسب ولماذا.\n• يستخدم المهندسون الحقيقيون العزل القاعدي والمخمدات والمفاصل المرنة — ماذا اخترعت دون قصد؟',
   'activityRun.notPlayable': 'هذا النشاط غير قابل للتشغيل بعد.',
   'activityResult.none': 'لا توجد نتائج لعرضها لهذا النشاط.',
 
@@ -954,6 +1107,56 @@ const zh: TranslationDict = {
   'activityDetail.startBtn': '开始活动',
   'activityDetail.notice': '此活动将在后续阶段添加。',
   'activityDetail.notFound': '未找到活动',
+  'activityDetail.label.gradeLevel': '年级',
+  'activityDetail.label.estimatedTime': '预计时长',
+  'activityDetail.section.tags': '你将学习',
+  'activityDetail.section.introduction': '介绍',
+  'activityDetail.section.objectives': '学习目标',
+  'activityDetail.section.materials': '工具与材料',
+  'activityDetail.section.instructions': '实验设置与步骤',
+  'activityDetail.section.interpreting': '数据解读与讨论',
+
+  'activityDetail.sound.gradeLevel': '6 – 10 年级',
+  'activityDetail.sound.estimatedTime': '30 – 45 分钟',
+  'activityDetail.sound.tags': '声音, 分贝, 环境, 数据, 麦克风',
+  'activityDetail.sound.introduction':
+    '噪声无处不在——拥挤的走廊、教室和交通。在此活动中，你将成为一名声音调查员。你将使用手机的麦克风测量不同情境和地点的声音水平，然后进行比较，以了解哪些环境更嘈杂。',
+  'activityDetail.sound.objectives':
+    '• 使用手机测量日常环境中的声音水平。\n• 比较不同动作和地点的响度。\n• 找出造成最多噪声污染的来源。\n• 练习记录、整理和解读数据。',
+  'activityDetail.sound.materials':
+    '• 一部运行 STEMM Lab 的智能手机或平板电脑\n• 几个不同的地点或动作进行测量（如走廊、图书馆、拍手）\n• 一本笔记本或工作单用于规划和记录观察',
+  'activityDetail.sound.instructions':
+    '1. 从活动列表中打开「噪声污染追踪者」。\n2. 输入你即将测量的简短标签（例如：「图书馆」）。\n3. 点击「录制」，保持安静几秒钟让应用捕获声音。\n4. 点击「停止」，再点击「添加记录」保存测量结果。\n5. 在不同的地点或动作上重复以上步骤。\n6. 至少有三条记录可比较时，点击「完成活动」。',
+  'activityDetail.sound.interpreting':
+    '• 比较你最响和最静的记录。\n• 讨论哪些动作或地点最嘈杂，以及原因。\n• 谈谈噪声污染：在你的学校或城镇中，哪些地方的高读数会成为真正的问题？\n• 提出一项可能降低嘈杂地点声音水平的改变。',
+
+  'activityDetail.reaction.gradeLevel': '5 – 10 年级',
+  'activityDetail.reaction.estimatedTime': '15 – 30 分钟',
+  'activityDetail.reaction.tags': '反应时间, 大脑, 协调能力, 数据, 练习',
+  'activityDetail.reaction.introduction':
+    '你的大脑能多快告诉手指去动作？在此活动中，你将测量自己在多次尝试中的视觉反应时间，并观察是否随着练习而提高。',
+  'activityDetail.reaction.objectives':
+    '• 以毫秒为单位测量你的视觉反应时间。\n• 在多次尝试中追踪最佳、平均和最慢的点击。\n• 观察反应时间如何随练习或疲劳而变化。\n• 练习以公平的方式比较重复试验。',
+  'activityDetail.reaction.materials':
+    '• 一部运行 STEMM Lab 的智能手机或平板电脑\n• 一个安静的空间，能让你专注于屏幕\n• （可选）一名队友轮流尝试或记录观察',
+  'activityDetail.reaction.instructions':
+    '1. 从活动列表中打开「反应板挑战」。\n2. 点击「开始」，仔细看着屏幕。\n3. 当面板变绿时，尽可能快地点击。\n4. 如果你在变绿前点击，本次尝试将算作太早。\n5. 点击「再试一次」记录更多尝试。\n6. 当你对尝试次数满意时，点击「完成活动」。',
+  'activityDetail.reaction.interpreting':
+    '• 看看你最佳、平均和最慢的反应时间。\n• 几次尝试后你变快了吗？疲劳时变慢了吗？\n• 在队友间比较结果，并讨论为什么人和人会不同。\n• 想想现实中需要快速反应的活动，比如运动或开车。',
+
+  'activityDetail.earthquake.gradeLevel': '7 – 11 年级',
+  'activityDetail.earthquake.estimatedTime': '45 – 60 分钟',
+  'activityDetail.earthquake.tags': '工程, 振动, 结构, 加速计, 设计',
+  'activityDetail.earthquake.introduction':
+    '地震区的建筑必须能吸收震动而不是断裂。在此活动中，你将设计一个小平台来保护手机不受振动影响，并使用手机自身的运动传感器进行测试。',
+  'activityDetail.earthquake.objectives':
+    '• 设计一个能减少放在上面的手机震动的结构。\n• 使用加速计测量震动的峰值和平均值。\n• 比较不同设计，并通过迭代改进它们。\n• 把活动与地震区真实工程挑战联系起来。',
+  'activityDetail.earthquake.materials':
+    '• 一部带加速计支持、运行 STEMM Lab 的智能手机\n• 建造材料如纸板、吸管、橡皮筋、纸杯、泡沫和胶带\n• 一张可以安全摇动或振动手机的平桌\n• （可选）一把尺子用于记录结构尺寸',
+  'activityDetail.earthquake.instructions':
+    '1. 用你的材料搭建一个旨在吸收振动的小平台。\n2. 在手机上打开「抗震结构」。\n3. 把手机轻轻放在你的平台上。\n4. 选择「手动」用手摇桌子，或选择「模拟地震」使用手机的振动马达。\n5. 点击「开始测试」，测试完成后点击「停止测试」。\n6. 读取峰值和平均值，然后重新设计并再次尝试。',
+  'activityDetail.earthquake.interpreting':
+    '• g 峰值越低意味着你的结构吸收了更多震动。\n• 比较不同设计的运行，而不是不同强度的摇动。\n• 讨论哪些材料表现最好，以及原因。\n• 真正的工程师会使用基础隔震、阻尼器和柔性接头——你不知不觉发明了什么？',
   'activityRun.notPlayable': '此活动尚未可玩。',
   'activityResult.none': '此活动没有可显示的结果。',
 
