@@ -108,6 +108,8 @@ const en: TranslationDict = {
   'activityDetail.startBtn': 'Start Activity',
   'activityDetail.notice': 'This activity will be added in a later phase.',
   'activityDetail.notFound': 'Activity not found',
+  'activityDetail.tts.read': 'Read Aloud',
+  'activityDetail.tts.stop': 'Stop Reading',
   'activityDetail.label.gradeLevel': 'Grade Level',
   'activityDetail.label.estimatedTime': 'Estimated Time',
   'activityDetail.section.tags': 'You will learn about',
@@ -309,6 +311,9 @@ const en: TranslationDict = {
   'history.empty.noFilteredMessage': 'No saved attempts for this activity yet.',
   'history.error.title': "Couldn't load history",
   'history.error.message': 'Something went wrong reading saved results. Try again later.',
+  'history.chart.title': 'Performance Chart',
+  'history.chart.empty': 'No data available',
+  'history.chart.subtitleAll': 'Attempts by activity',
 
   // Leaderboard
   'leaderboard.heading': 'Leaderboard',
@@ -443,6 +448,8 @@ const es: TranslationDict = {
   'activityDetail.startBtn': 'Iniciar Actividad',
   'activityDetail.notice': 'Esta actividad se añadirá en una fase posterior.',
   'activityDetail.notFound': 'Actividad no encontrada',
+  'activityDetail.tts.read': 'Leer en Voz Alta',
+  'activityDetail.tts.stop': 'Detener Lectura',
   'activityDetail.label.gradeLevel': 'Nivel / Grado',
   'activityDetail.label.estimatedTime': 'Tiempo Estimado',
   'activityDetail.section.tags': 'Aprenderás sobre',
@@ -644,6 +651,9 @@ const es: TranslationDict = {
   'history.error.title': 'No se pudo cargar el historial',
   'history.error.message':
     'Algo salió mal al leer los resultados guardados. Inténtalo más tarde.',
+  'history.chart.title': 'Gráfico de rendimiento',
+  'history.chart.empty': 'No hay datos disponibles',
+  'history.chart.subtitleAll': 'Intentos por actividad',
 
   'leaderboard.heading': 'Clasificación',
   'leaderboard.lowerBetter': 'Más bajo es mejor',
@@ -778,6 +788,8 @@ const ar: TranslationDict = {
   'activityDetail.startBtn': 'ابدأ النشاط',
   'activityDetail.notice': 'سيتم إضافة هذا النشاط في مرحلة لاحقة.',
   'activityDetail.notFound': 'لم يتم العثور على النشاط',
+  'activityDetail.tts.read': 'قراءة بصوت عالٍ',
+  'activityDetail.tts.stop': 'إيقاف القراءة',
   'activityDetail.label.gradeLevel': 'المستوى الدراسي',
   'activityDetail.label.estimatedTime': 'الوقت التقديري',
   'activityDetail.section.tags': 'ستتعلم عن',
@@ -976,6 +988,9 @@ const ar: TranslationDict = {
   'history.error.title': 'تعذر تحميل السجل',
   'history.error.message':
     'حدث خطأ أثناء قراءة النتائج المحفوظة. حاول لاحقًا.',
+  'history.chart.title': 'مخطط الأداء',
+  'history.chart.empty': 'لا توجد بيانات متاحة',
+  'history.chart.subtitleAll': 'المحاولات حسب النشاط',
 
   'leaderboard.heading': 'المتصدرون',
   'leaderboard.lowerBetter': 'الأقل أفضل',
@@ -1107,6 +1122,8 @@ const zh: TranslationDict = {
   'activityDetail.startBtn': '开始活动',
   'activityDetail.notice': '此活动将在后续阶段添加。',
   'activityDetail.notFound': '未找到活动',
+  'activityDetail.tts.read': '朗读内容',
+  'activityDetail.tts.stop': '停止朗读',
   'activityDetail.label.gradeLevel': '年级',
   'activityDetail.label.estimatedTime': '预计时长',
   'activityDetail.section.tags': '你将学习',
@@ -1294,6 +1311,9 @@ const zh: TranslationDict = {
   'history.empty.noFilteredMessage': '此活动尚未保存任何尝试。',
   'history.error.title': '无法加载历史',
   'history.error.message': '读取已保存的结果时出错。请稍后再试。',
+  'history.chart.title': '性能图表',
+  'history.chart.empty': '暂无数据',
+  'history.chart.subtitleAll': '各活动尝试次数',
 
   'leaderboard.heading': '排行榜',
   'leaderboard.lowerBetter': '越低越好',
