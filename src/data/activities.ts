@@ -18,6 +18,7 @@ export const activities: Activity[] = [
     shortDescription:
       'Measure and compare sound levels across different actions and places.',
     comingSoon: false,
+    hasDetail: true,
   },
   {
     id: 'handfan',
@@ -36,6 +37,7 @@ export const activities: Activity[] = [
     shortDescription:
       'Build a vibration-absorbing platform; measure phone movement during a simulated quake.',
     comingSoon: false,
+    hasDetail: true,
   },
   {
     id: 'performance',
@@ -54,6 +56,7 @@ export const activities: Activity[] = [
     shortDescription:
       'Test reaction time, coordination, and improvement across three phases.',
     comingSoon: false,
+    hasDetail: true,
   },
   {
     id: 'breathing',
