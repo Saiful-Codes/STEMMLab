@@ -7,4 +7,5 @@ export type Activity = {
   domain: string;
   shortDescription: string;
   comingSoon: boolean;
+  hasDetail?: boolean;
 };
