@@ -311,6 +311,9 @@ const en: TranslationDict = {
   'history.empty.noFilteredMessage': 'No saved attempts for this activity yet.',
   'history.error.title': "Couldn't load history",
   'history.error.message': 'Something went wrong reading saved results. Try again later.',
+  'history.chart.title': 'Performance Chart',
+  'history.chart.empty': 'No data available',
+  'history.chart.subtitleAll': 'Attempts by activity',
 
   // Leaderboard
   'leaderboard.heading': 'Leaderboard',
@@ -648,6 +651,9 @@ const es: TranslationDict = {
   'history.error.title': 'No se pudo cargar el historial',
   'history.error.message':
     'Algo salió mal al leer los resultados guardados. Inténtalo más tarde.',
+  'history.chart.title': 'Gráfico de rendimiento',
+  'history.chart.empty': 'No hay datos disponibles',
+  'history.chart.subtitleAll': 'Intentos por actividad',
 
   'leaderboard.heading': 'Clasificación',
   'leaderboard.lowerBetter': 'Más bajo es mejor',
@@ -982,6 +988,9 @@ const ar: TranslationDict = {
   'history.error.title': 'تعذر تحميل السجل',
   'history.error.message':
     'حدث خطأ أثناء قراءة النتائج المحفوظة. حاول لاحقًا.',
+  'history.chart.title': 'مخطط الأداء',
+  'history.chart.empty': 'لا توجد بيانات متاحة',
+  'history.chart.subtitleAll': 'المحاولات حسب النشاط',
 
   'leaderboard.heading': 'المتصدرون',
   'leaderboard.lowerBetter': 'الأقل أفضل',
@@ -1302,6 +1311,9 @@ const zh: TranslationDict = {
   'history.empty.noFilteredMessage': '此活动尚未保存任何尝试。',
   'history.error.title': '无法加载历史',
   'history.error.message': '读取已保存的结果时出错。请稍后再试。',
+  'history.chart.title': '性能图表',
+  'history.chart.empty': '暂无数据',
+  'history.chart.subtitleAll': '各活动尝试次数',
 
   'leaderboard.heading': '排行榜',
   'leaderboard.lowerBetter': '越低越好',
