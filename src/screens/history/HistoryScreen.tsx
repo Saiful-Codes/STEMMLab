@@ -21,6 +21,7 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
+import PerformanceChart from '../../components/PerformanceChart';
 
 type Filter = 'all' | string;
 
@@ -129,23 +130,26 @@ export default function HistoryScreen() {
           title={t('history.error.title')}
           message={t('history.error.message')}
         />
-      ) : filtered.length === 0 ? (
-        <EmptyState
-          colors={colors}
-          fontScale={fontScale}
-          title={
-            results.length === 0
-              ? t('history.empty.noResultsTitle')
-              : t('history.empty.noFilteredTitle')
-          }
-          message={
-            results.length === 0
-              ? t('history.empty.noResultsMessage')
-              : t('history.empty.noFilteredMessage')
-          }
-        />
       ) : (
-        <FlatList
+        <>
+          <PerformanceChart results={results} activeFilter={filter} />
+          {filtered.length === 0 ? (
+            <EmptyState
+              colors={colors}
+              fontScale={fontScale}
+              title={
+                results.length === 0
+                  ? t('history.empty.noResultsTitle')
+                  : t('history.empty.noFilteredTitle')
+              }
+              message={
+                results.length === 0
+                  ? t('history.empty.noResultsMessage')
+                  : t('history.empty.noFilteredMessage')
+              }
+            />
+          ) : (
+            <FlatList
           data={filtered}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
@@ -208,6 +212,8 @@ export default function HistoryScreen() {
             </View>
           )}
         />
+          )}
+        </>
       )}
     </SafeAreaView>
   );
