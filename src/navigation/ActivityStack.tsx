@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/home/HomeScreen';
+import ActivityListScreen from '../screens/activity/ActivityListScreen';
 import ActivityDetailScreen from '../screens/activity/ActivityDetailScreen';
 import ActivityRunScreen from '../screens/activity/ActivityRunScreen';
 import ActivityResultScreen from '../screens/activity/ActivityResultScreen';
@@ -8,6 +9,7 @@ import { useTranslation } from '../context/LanguageContext';
 
 export type ActivityStackParamList = {
   Home: undefined;
+  ActivityList: undefined;
   ActivityDetail: { activityId: string };
   ActivityRun: { activityId: string };
   ActivityResult: { activityId: string };
@@ -24,6 +26,11 @@ export default function ActivityStack() {
         name="Home"
         component={HomeScreen}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ActivityList"
+        component={ActivityListScreen}
+        options={{ title: t('home.heading') }}
       />
       <Stack.Screen
         name="ActivityDetail"
