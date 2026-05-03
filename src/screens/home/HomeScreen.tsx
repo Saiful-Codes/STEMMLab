@@ -1,149 +1,181 @@
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CompositeScreenProps, useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { activities } from '../../data/activities';
-import { Activity } from '../../types/Activity';
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { ActivityStackParamList } from '../../navigation/ActivityStack';
+import { MainTabsParamList } from '../../navigation/MainTabs';
+import { useTeam } from '../../context/TeamContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
+import { Result } from '../../types/Result';
+import { getResults } from '../../storage/results';
+import QuickAccessCard from '../../components/QuickAccessCard';
+import RecentActivityCard from '../../components/RecentActivityCard';
 
-type Props = NativeStackScreenProps<ActivityStackParamList, 'Home'>;
+type Props = CompositeScreenProps<
+  NativeStackScreenProps<ActivityStackParamList, 'Home'>,
+  BottomTabScreenProps<MainTabsParamList>
+>;
 
 export default function HomeScreen({ navigation }: Props) {
   const { colors, fontScale } = useTheme();
+  const { team } = useTeam();
   const { t } = useTranslation();
+  const [latestResult, setLatestResult] = useState<Result | null>(null);
 
-  const handlePress = (activity: Activity) => {
-    if (activity.comingSoon) return;
-    navigation.navigate('ActivityDetail', { activityId: activity.id });
-  };
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      (async () => {
+        const stored = await getResults();
+        if (!cancelled) setLatestResult(stored[0] ?? null);
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }, [])
+  );
+
+  const goToActivities = () => navigation.navigate('ActivityList');
+  const goToLeaderboard = () => navigation.navigate('Leaderboard');
+  const goToHistory = () => navigation.navigate('History');
+  const goToSettings = () => navigation.navigate('Settings');
+
+  const teamName = team?.name?.trim() || t('home.yourTeam');
 
   return (
     <SafeAreaView
       edges={['top']}
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={[styles.safe, { backgroundColor: colors.background }]}
     >
-      <Text
-        style={[
-          styles.heading,
-          { color: colors.text, fontSize: baseFont.heading * fontScale },
-        ]}
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
       >
-        {t('home.heading')}
-      </Text>
-      <Text
-        style={[
-          styles.subheading,
-          { color: colors.textMuted, fontSize: baseFont.bodySm * fontScale },
-        ]}
-      >
-        {t('home.subheading')}
-      </Text>
-
-      <FlatList
-        data={activities}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => handlePress(item)}
-            disabled={item.comingSoon}
-            style={({ pressed }) => [
-              styles.card,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.border,
-              },
-              item.comingSoon && styles.cardDisabled,
-              pressed && !item.comingSoon && { backgroundColor: colors.surfaceMuted },
+        {/* HEADER */}
+        <View style={styles.header}>
+          <Text
+            style={[
+              styles.welcome,
+              { color: colors.textMuted, fontSize: baseFont.bodySm * fontScale },
             ]}
           >
-            <View style={styles.cardHeader}>
-              <Text
-                style={[
-                  styles.category,
-                  { color: colors.primary, fontSize: baseFont.tiny * fontScale },
-                ]}
-              >
-                {t(`category.${item.category}`)}
-              </Text>
-              {item.comingSoon && (
-                <Text
-                  style={[
-                    styles.badge,
-                    {
-                      color: colors.warning,
-                      backgroundColor: colors.warningBg,
-                      fontSize: baseFont.micro * fontScale,
-                    },
-                  ]}
-                >
-                  {t('home.comingSoon')}
-                </Text>
-              )}
-            </View>
+            {t('home.welcomeBack')}
+          </Text>
+          <View style={[styles.teamBanner, { backgroundColor: colors.primary }]}>
             <Text
               style={[
-                styles.title,
-                { color: colors.text, fontSize: baseFont.bodyLg * fontScale },
+                styles.teamName,
+                {
+                  color: colors.primaryText,
+                  fontSize: baseFont.heading * fontScale,
+                },
               ]}
+              numberOfLines={1}
             >
-              {t(`activity.${item.id}.title`)}
+              {teamName}
             </Text>
-            <Text
-              style={[
-                styles.domain,
-                { color: colors.textMuted, fontSize: baseFont.tiny * fontScale },
-              ]}
-            >
-              {t(`activity.${item.id}.domain`)}
-            </Text>
-            <Text
-              style={[
-                styles.description,
-                { color: colors.text, fontSize: baseFont.bodySm * fontScale },
-              ]}
-            >
-              {t(`activity.${item.id}.shortDescription`)}
-            </Text>
-          </Pressable>
-        )}
-      />
+          </View>
+        </View>
+
+        {/* QUICK ACCESS */}
+        <Text
+          style={[
+            styles.sectionTitle,
+            { color: colors.text, fontSize: baseFont.subheading * fontScale },
+          ]}
+        >
+          {t('home.quickAccess')}
+        </Text>
+        <View style={styles.grid}>
+          <View style={styles.gridRow}>
+            <QuickAccessCard
+              icon="🧪"
+              label={t('home.heading')}
+              iconBg={colors.primarySoft}
+              iconColor={colors.primary}
+              onPress={goToActivities}
+            />
+            <View style={styles.gridGap} />
+            <QuickAccessCard
+              icon="🏆"
+              label={t('tab.leaderboard')}
+              iconBg={colors.warningBg}
+              iconColor={colors.warning}
+              onPress={goToLeaderboard}
+            />
+          </View>
+          <View style={styles.gridRowSpacer} />
+          <View style={styles.gridRow}>
+            <QuickAccessCard
+              icon="📊"
+              label={t('tab.history')}
+              iconBg={colors.dangerSoft}
+              iconColor={colors.dangerText}
+              onPress={goToHistory}
+            />
+            <View style={styles.gridGap} />
+            <QuickAccessCard
+              icon="⚙️"
+              label={t('tab.settings')}
+              iconBg={colors.surfaceMuted}
+              iconColor={colors.text}
+              onPress={goToSettings}
+            />
+          </View>
+        </View>
+
+        {/* RECENT ACTIVITY */}
+        <Text
+          style={[
+            styles.sectionTitle,
+            styles.sectionTitleSpaced,
+            { color: colors.text, fontSize: baseFont.subheading * fontScale },
+          ]}
+        >
+          {t('home.recentActivity')}
+        </Text>
+        <RecentActivityCard result={latestResult} />
+
+        {/* FOOTER HINT */}
+        <Text
+          style={[
+            styles.footerHint,
+            { color: colors.textSubtle, fontSize: baseFont.tiny * fontScale },
+          ]}
+        >
+          {t('home.tapHint')}
+        </Text>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 16, paddingTop: 16 },
-  heading: { fontWeight: '600' },
-  subheading: { marginBottom: 12 },
-  list: { paddingBottom: 24 },
-  card: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
+  safe: { flex: 1 },
+  scroll: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 },
+  header: { marginBottom: 24 },
+  welcome: { marginBottom: 8 },
+  teamBanner: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+    maxWidth: '100%',
   },
-  cardDisabled: { opacity: 0.55 },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
+  teamName: { fontWeight: '800', letterSpacing: 0.2 },
+  sectionTitle: { fontWeight: '700', marginBottom: 12 },
+  sectionTitleSpaced: { marginTop: 28 },
+  grid: {},
+  gridRow: { flexDirection: 'row' },
+  gridGap: { width: 12 },
+  gridRowSpacer: { height: 12 },
+  footerHint: {
+    textAlign: 'center',
+    marginTop: 32,
+    fontWeight: '500',
   },
-  category: {
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  badge: {
-    fontWeight: '600',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 999,
-  },
-  title: { fontWeight: '600', marginBottom: 2 },
-  domain: { marginBottom: 6 },
-  description: {},
 });
