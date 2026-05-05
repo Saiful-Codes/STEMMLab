@@ -2,6 +2,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WelcomeScreen from '../screens/onboarding/WelcomeScreen';
 import TeamSetupScreen from '../screens/onboarding/TeamSetupScreen';
+import AuthScreen from '../screens/auth/AuthScreen';
 import MainTabs from './MainTabs';
 import { useTeam } from '../context/TeamContext';
 import { useTheme } from '../context/ThemeContext';
@@ -11,6 +12,7 @@ export type RootStackParamList = {
   Welcome: undefined;
   TeamSetup: undefined;
   MainTabs: undefined;
+  Auth: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -31,11 +33,18 @@ export default function RootNavigator() {
   return (
     <Stack.Navigator>
       {team ? (
-        <Stack.Screen
-          name="MainTabs"
-          component={MainTabs}
-          options={{ headerShown: false }}
-        />
+        <>
+          <Stack.Screen
+            name="MainTabs"
+            component={MainTabs}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Auth"
+            component={AuthScreen}
+            options={{ title: 'Account' }}
+          />
+        </>
       ) : (
         <>
           <Stack.Screen

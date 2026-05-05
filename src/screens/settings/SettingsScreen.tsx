@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import {
   Alert,
   Pressable,
@@ -9,19 +9,103 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTeam } from '../../context/TeamContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
-import { clearResults } from '../../storage/results';
+import { clearResults, getResults } from '../../storage/results';
 import { Colors, baseFont } from '../../theme/tokens';
 import { LANGUAGES, LanguageCode } from '../../i18n/translations';
+import {
+  AuthUser,
+  getFriendlyAuthError,
+  listenToAuthChanges,
+  signOutUser,
+} from '../../services/authService';
+import {
+  getActivityResultsFromFirestore,
+  getTeamFromFirestore,
+  saveActivityResultToFirestore,
+  saveTeamToFirestore,
+} from '../../services/firestoreService';
+import type { RootStackParamList } from '../../navigation/RootNavigator';
 
 export default function SettingsScreen() {
   const { mode, colors, largeText, fontScale, toggleMode, toggleLargeText } =
     useTheme();
   const { team, clearTeam } = useTeam();
   const { language, setLanguage, t } = useTranslation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [working, setWorking] = useState(false);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [signingOut, setSigningOut] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [loadingCloud, setLoadingCloud] = useState(false);
+
+  useEffect(() => {
+    const unsub = listenToAuthChanges(setAuthUser);
+    return unsub;
+  }, []);
+
+  const handleSignOut = async () => {
+    try {
+      setSigningOut(true);
+      await signOutUser();
+    } catch (err) {
+      Alert.alert('Sign out failed', getFriendlyAuthError(err));
+    } finally {
+      setSigningOut(false);
+    }
+  };
+
+  const handleSyncToCloud = async () => {
+    if (!authUser) return;
+    try {
+      setSyncing(true);
+      let teamSynced = 0;
+      if (team) {
+        await saveTeamToFirestore(team);
+        teamSynced = 1;
+      }
+      const localResults = await getResults();
+      for (const r of localResults) {
+        await saveActivityResultToFirestore(r);
+      }
+      Alert.alert(
+        'Backed up to cloud',
+        `Synced ${teamSynced ? 'team + ' : ''}${localResults.length} result${
+          localResults.length === 1 ? '' : 's'
+        } to Firestore.`
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Sync failed.';
+      Alert.alert('Sync failed', message);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleLoadFromCloud = async () => {
+    if (!authUser) return;
+    try {
+      setLoadingCloud(true);
+      const cloudTeam = await getTeamFromFirestore(authUser.uid);
+      const cloudResults = await getActivityResultsFromFirestore(authUser.uid);
+      Alert.alert(
+        'Loaded from cloud',
+        `Team: ${cloudTeam ? cloudTeam.name : '(none)'}\nResults: ${
+          cloudResults.length
+        }`
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Load failed.';
+      Alert.alert('Load failed', message);
+    } finally {
+      setLoadingCloud(false);
+    }
+  };
 
   const handleResetTeam = () => {
     Alert.alert(
@@ -155,6 +239,102 @@ export default function SettingsScreen() {
             );
           })}
         </View>
+      </Section>
+
+      <Section title="Account" colors={colors} fontScale={fontScale}>
+        <Text
+          style={[
+            styles.helper,
+            { color: colors.textMuted, fontSize: baseFont.small * fontScale },
+          ]}
+        >
+          {authUser
+            ? `Signed in as ${authUser.email ?? 'unknown user'}`
+            : 'Not signed in. Sign in to use cloud features.'}
+        </Text>
+        {authUser ? (
+          <>
+            <Pressable
+              onPress={handleSyncToCloud}
+              disabled={syncing || loadingCloud}
+              style={({ pressed }) => [
+                styles.primaryBtn,
+                {
+                  backgroundColor: pressed
+                    ? colors.primaryPressed
+                    : colors.primary,
+                },
+                (syncing || loadingCloud) && styles.dangerBtnDisabled,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.primaryBtnText,
+                  {
+                    color: colors.primaryText,
+                    fontSize: baseFont.bodySm * fontScale,
+                  },
+                ]}
+              >
+                {syncing ? 'Backing up…' : 'Back up to cloud'}
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={handleLoadFromCloud}
+              disabled={syncing || loadingCloud}
+              style={({ pressed }) => [
+                styles.secondaryBtn,
+                {
+                  backgroundColor: pressed
+                    ? colors.surfaceMuted
+                    : colors.surfaceSubtle,
+                  borderColor: colors.border,
+                },
+                (syncing || loadingCloud) && styles.dangerBtnDisabled,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.secondaryBtnText,
+                  { color: colors.text, fontSize: baseFont.bodySm * fontScale },
+                ]}
+              >
+                {loadingCloud ? 'Loading…' : 'Load from cloud (verify)'}
+              </Text>
+            </Pressable>
+            <DangerButton
+              label={signingOut ? 'Signing out…' : 'Sign out'}
+              colors={colors}
+              fontScale={fontScale}
+              disabled={signingOut}
+              onPress={handleSignOut}
+            />
+          </>
+        ) : (
+          <Pressable
+            onPress={() => navigation.navigate('Auth')}
+            style={({ pressed }) => [
+              styles.primaryBtn,
+              {
+                backgroundColor: pressed
+                  ? colors.primaryPressed
+                  : colors.primary,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.primaryBtnText,
+                {
+                  color: colors.primaryText,
+                  fontSize: baseFont.bodySm * fontScale,
+                },
+              ]}
+            >
+              Sign in or create account
+            </Text>
+          </Pressable>
+        )}
       </Section>
 
       <Section
@@ -410,4 +590,19 @@ const styles = StyleSheet.create({
   },
   dangerBtnDisabled: { opacity: 0.5 },
   dangerBtnText: { fontWeight: '700' },
+  primaryBtn: {
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  primaryBtnText: { fontWeight: '700' },
+  secondaryBtn: {
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 8,
+    borderWidth: 1,
+  },
+  secondaryBtnText: { fontWeight: '600' },
 });
