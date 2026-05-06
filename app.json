@@ -31,7 +31,8 @@
         {
           "microphonePermission": "Allow STEMM Lab to use the microphone so you can measure sound levels for the Sound Pollution Hunter activity."
         }
-      ]
+      ],
+      "expo-sqlite"
     ]
   }
 }
