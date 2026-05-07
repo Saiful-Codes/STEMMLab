@@ -17,9 +17,33 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
+// One-time dev diagnostic so missing env vars surface clearly instead of as
+// opaque "auth/internal-error" or Firestore failures at first use. Does not
+// change runtime behaviour — Firebase still initialises and throws naturally.
+const requiredConfigKeys: (keyof typeof firebaseConfig)[] = [
+  'apiKey',
+  'authDomain',
+  'projectId',
+  'appId',
+];
+const missingConfigKeys = requiredConfigKeys.filter((k) => !firebaseConfig[k]);
+if (missingConfigKeys.length > 0) {
+  console.warn(
+    '[firebase] Missing config values:',
+    missingConfigKeys.join(', '),
+    '— check EXPO_PUBLIC_FIREBASE_* in .env'
+  );
+}
+
 // Initialize Firebase exactly once. Fast Refresh / re-imports would otherwise
 // throw "Firebase App named '[DEFAULT]' already exists".
-const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
+let app: FirebaseApp;
+try {
+  app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+} catch (err) {
+  console.error('[firebase] initializeApp failed:', err);
+  throw err;
+}
 
 export const auth: Auth = getAuth(app);
 export const db: Firestore = getFirestore(app);

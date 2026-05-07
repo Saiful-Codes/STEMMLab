@@ -9,17 +9,28 @@ export async function getResults(): Promise<Result[]> {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as Result[]) : [];
-  } catch {
+  } catch (err) {
+    console.warn('[storage/results] getResults parse failed; returning []:', err);
     return [];
   }
 }
 
 export async function saveResult(result: Result): Promise<void> {
-  const existing = await getResults();
-  const updated = [result, ...existing];
-  await AsyncStorage.setItem(RESULTS_KEY, JSON.stringify(updated));
+  try {
+    const existing = await getResults();
+    const updated = [result, ...existing];
+    await AsyncStorage.setItem(RESULTS_KEY, JSON.stringify(updated));
+  } catch (err) {
+    console.warn('[storage/results] saveResult failed:', err);
+    throw err;
+  }
 }
 
 export async function clearResults(): Promise<void> {
-  await AsyncStorage.removeItem(RESULTS_KEY);
+  try {
+    await AsyncStorage.removeItem(RESULTS_KEY);
+  } catch (err) {
+    console.warn('[storage/results] clearResults failed:', err);
+    throw err;
+  }
 }
