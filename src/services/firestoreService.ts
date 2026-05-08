@@ -76,19 +76,26 @@ export async function getActivityResultsFromFirestore(
     where('userId', '==', userId)
   );
   const snap = await getDocs(q);
-  const results: Result[] = snap.docs.map((d) => {
-    const data = d.data();
-    return {
-      id: typeof data.id === 'string' ? data.id : d.id,
-      activityId: String(data.activityId ?? ''),
-      teamName: String(data.teamName ?? ''),
-      members: Array.isArray(data.members) ? (data.members as string[]) : [],
-      result: (data.result as number | string) ?? '',
-      timestamp: typeof data.timestamp === 'number' ? data.timestamp : 0,
-      rating: typeof data.rating === 'number' ? data.rating : undefined,
-      comment: typeof data.comment === 'string' ? data.comment : undefined,
-    };
-  });
+  // Parse each doc independently so a single malformed record can't take down
+  // the whole list — skip + warn instead of throwing.
+  const results: Result[] = [];
+  for (const d of snap.docs) {
+    try {
+      const data = d.data();
+      results.push({
+        id: typeof data.id === 'string' ? data.id : d.id,
+        activityId: String(data.activityId ?? ''),
+        teamName: String(data.teamName ?? ''),
+        members: Array.isArray(data.members) ? (data.members as string[]) : [],
+        result: (data.result as number | string) ?? '',
+        timestamp: typeof data.timestamp === 'number' ? data.timestamp : 0,
+        rating: typeof data.rating === 'number' ? data.rating : undefined,
+        comment: typeof data.comment === 'string' ? data.comment : undefined,
+      });
+    } catch (err) {
+      console.warn('[firestoreService] skipping malformed result doc:', d.id, err);
+    }
+  }
   // Sort newest-first client-side to avoid needing a composite index.
   return results.sort((a, b) => b.timestamp - a.timestamp);
 }

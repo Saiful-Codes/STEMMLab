@@ -7,6 +7,9 @@ import { TeamProvider } from './src/context/TeamContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { LanguageProvider } from './src/context/LanguageContext';
 import { initDatabase } from './src/storage/sqliteDb';
+// Side-effect import: registers the background task definition with TaskManager
+// at JS startup so the OS can locate it when the task fires. Don't remove.
+import './src/services/backgroundTaskService';
 
 function ThemedApp() {
   const { navTheme, mode } = useTheme();
