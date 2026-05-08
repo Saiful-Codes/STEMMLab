@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Pressable,
@@ -29,6 +29,18 @@ import {
   saveActivityResultToFirestore,
   saveTeamToFirestore,
 } from '../../services/firestoreService';
+import {
+  BatteryStatus,
+  getBatteryStatus,
+} from '../../services/batteryService';
+import {
+  BackgroundRunInfo,
+  BackgroundTaskStatus,
+  getBackgroundTaskStatus,
+  getLastBackgroundRun,
+  registerBackgroundTask,
+  unregisterBackgroundTask,
+} from '../../services/backgroundTaskService';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 
 export default function SettingsScreen() {
@@ -43,11 +55,98 @@ export default function SettingsScreen() {
   const [signingOut, setSigningOut] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [loadingCloud, setLoadingCloud] = useState(false);
+  const [battery, setBattery] = useState<BatteryStatus | null>(null);
+  const [batteryLoading, setBatteryLoading] = useState(false);
+  const [batteryError, setBatteryError] = useState<string | null>(null);
+  const [bgStatus, setBgStatus] = useState<BackgroundTaskStatus | null>(null);
+  const [bgRun, setBgRun] = useState<BackgroundRunInfo | null>(null);
+  const [bgLoading, setBgLoading] = useState(false);
+  const [bgError, setBgError] = useState<string | null>(null);
+
+  const refreshBackgroundStatus = useCallback(async () => {
+    try {
+      setBgLoading(true);
+      setBgError(null);
+      const [status, run] = await Promise.all([
+        getBackgroundTaskStatus(),
+        getLastBackgroundRun(),
+      ]);
+      setBgStatus(status);
+      setBgRun(run);
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Could not read background task status.';
+      setBgError(message);
+    } finally {
+      setBgLoading(false);
+    }
+  }, []);
+
+  const handleRegisterBackground = async () => {
+    try {
+      setBgLoading(true);
+      setBgError(null);
+      await registerBackgroundTask();
+      await refreshBackgroundStatus();
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Could not register background task.';
+      setBgError(message);
+      Alert.alert('Register failed', message);
+    } finally {
+      setBgLoading(false);
+    }
+  };
+
+  const handleUnregisterBackground = async () => {
+    try {
+      setBgLoading(true);
+      setBgError(null);
+      await unregisterBackgroundTask();
+      await refreshBackgroundStatus();
+    } catch (err) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'Could not unregister background task.';
+      setBgError(message);
+      Alert.alert('Unregister failed', message);
+    } finally {
+      setBgLoading(false);
+    }
+  };
+
+  const refreshBattery = useCallback(async () => {
+    try {
+      setBatteryLoading(true);
+      setBatteryError(null);
+      const status = await getBatteryStatus();
+      setBattery(status);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : 'Could not read battery status.';
+      setBatteryError(message);
+    } finally {
+      setBatteryLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     const unsub = listenToAuthChanges(setAuthUser);
     return unsub;
   }, []);
+
+  useEffect(() => {
+    void refreshBattery();
+  }, [refreshBattery]);
+
+  useEffect(() => {
+    void refreshBackgroundStatus();
+  }, [refreshBackgroundStatus]);
 
   const handleSignOut = async () => {
     try {
@@ -216,6 +315,280 @@ export default function SettingsScreen() {
             />
           }
         />
+      </Section>
+
+      <Section title="Device Status" colors={colors} fontScale={fontScale}>
+        {batteryError ? (
+          <Text
+            style={[
+              styles.helper,
+              {
+                color: colors.dangerText,
+                fontSize: baseFont.small * fontScale,
+              },
+            ]}
+          >
+            {batteryError}
+          </Text>
+        ) : !battery ? (
+          <Text
+            style={[
+              styles.helper,
+              {
+                color: colors.textMuted,
+                fontSize: baseFont.small * fontScale,
+              },
+            ]}
+          >
+            {batteryLoading ? 'Reading battery…' : 'Battery status unavailable.'}
+          </Text>
+        ) : (
+          <>
+            <Row
+              label="Battery"
+              colors={colors}
+              fontScale={fontScale}
+              control={
+                <Text
+                  style={[
+                    styles.statusValue,
+                    {
+                      color: colors.text,
+                      fontSize: baseFont.body * fontScale,
+                    },
+                  ]}
+                >
+                  {battery.levelPercent !== null
+                    ? `${battery.levelPercent}%`
+                    : 'Unknown'}
+                </Text>
+              }
+            />
+            <Divider color={colors.border} />
+            <Row
+              label="Charging"
+              colors={colors}
+              fontScale={fontScale}
+              control={
+                <Text
+                  style={[
+                    styles.statusValue,
+                    {
+                      color: colors.text,
+                      fontSize: baseFont.body * fontScale,
+                    },
+                  ]}
+                >
+                  {battery.stateLabel}
+                </Text>
+              }
+            />
+            <Divider color={colors.border} />
+            <Row
+              label="Low power mode"
+              colors={colors}
+              fontScale={fontScale}
+              control={
+                <Text
+                  style={[
+                    styles.statusValue,
+                    {
+                      color: colors.text,
+                      fontSize: baseFont.body * fontScale,
+                    },
+                  ]}
+                >
+                  {battery.lowPowerMode === null
+                    ? 'Unknown'
+                    : battery.lowPowerMode
+                    ? 'On'
+                    : 'Off'}
+                </Text>
+              }
+            />
+          </>
+        )}
+        <Pressable
+          onPress={refreshBattery}
+          disabled={batteryLoading}
+          style={({ pressed }) => [
+            styles.secondaryBtn,
+            {
+              backgroundColor: pressed
+                ? colors.surfaceMuted
+                : colors.surfaceSubtle,
+              borderColor: colors.border,
+            },
+            batteryLoading && styles.dangerBtnDisabled,
+          ]}
+        >
+          <Text
+            style={[
+              styles.secondaryBtnText,
+              { color: colors.text, fontSize: baseFont.bodySm * fontScale },
+            ]}
+          >
+            {batteryLoading ? 'Refreshing…' : 'Refresh'}
+          </Text>
+        </Pressable>
+      </Section>
+
+      <Section
+        title="Background Task Status"
+        colors={colors}
+        fontScale={fontScale}
+      >
+        {bgError ? (
+          <Text
+            style={[
+              styles.helper,
+              {
+                color: colors.dangerText,
+                fontSize: baseFont.small * fontScale,
+              },
+            ]}
+          >
+            {bgError}
+          </Text>
+        ) : null}
+        <Row
+          label="Registered"
+          colors={colors}
+          fontScale={fontScale}
+          control={
+            <Text
+              style={[
+                styles.statusValue,
+                { color: colors.text, fontSize: baseFont.body * fontScale },
+              ]}
+            >
+              {bgStatus ? (bgStatus.registered ? 'Yes' : 'No') : '—'}
+            </Text>
+          }
+        />
+        <Divider color={colors.border} />
+        <Row
+          label="OS status"
+          colors={colors}
+          fontScale={fontScale}
+          control={
+            <Text
+              style={[
+                styles.statusValue,
+                { color: colors.text, fontSize: baseFont.body * fontScale },
+              ]}
+            >
+              {bgStatus ? bgStatus.statusLabel : '—'}
+            </Text>
+          }
+        />
+        <Divider color={colors.border} />
+        <Row
+          label="Last run"
+          colors={colors}
+          fontScale={fontScale}
+          control={
+            <Text
+              style={[
+                styles.statusValue,
+                { color: colors.text, fontSize: baseFont.body * fontScale },
+              ]}
+            >
+              {bgRun && bgRun.lastRunAt
+                ? new Date(bgRun.lastRunAt).toLocaleString()
+                : 'Never'}
+            </Text>
+          }
+        />
+        <Divider color={colors.border} />
+        <Row
+          label="Run count"
+          colors={colors}
+          fontScale={fontScale}
+          control={
+            <Text
+              style={[
+                styles.statusValue,
+                { color: colors.text, fontSize: baseFont.body * fontScale },
+              ]}
+            >
+              {bgRun ? String(bgRun.runCount) : '0'}
+            </Text>
+          }
+        />
+        <Pressable
+          onPress={handleRegisterBackground}
+          disabled={bgLoading || bgStatus?.registered === true}
+          style={({ pressed }) => [
+            styles.primaryBtn,
+            {
+              backgroundColor: pressed
+                ? colors.primaryPressed
+                : colors.primary,
+            },
+            (bgLoading || bgStatus?.registered === true) &&
+              styles.dangerBtnDisabled,
+          ]}
+        >
+          <Text
+            style={[
+              styles.primaryBtnText,
+              {
+                color: colors.primaryText,
+                fontSize: baseFont.bodySm * fontScale,
+              },
+            ]}
+          >
+            {bgLoading ? 'Working…' : 'Register Task'}
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={handleUnregisterBackground}
+          disabled={bgLoading || bgStatus?.registered === false}
+          style={({ pressed }) => [
+            styles.secondaryBtn,
+            {
+              backgroundColor: pressed
+                ? colors.surfaceMuted
+                : colors.surfaceSubtle,
+              borderColor: colors.border,
+            },
+            (bgLoading || bgStatus?.registered === false) &&
+              styles.dangerBtnDisabled,
+          ]}
+        >
+          <Text
+            style={[
+              styles.secondaryBtnText,
+              { color: colors.text, fontSize: baseFont.bodySm * fontScale },
+            ]}
+          >
+            Unregister Task
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={refreshBackgroundStatus}
+          disabled={bgLoading}
+          style={({ pressed }) => [
+            styles.secondaryBtn,
+            {
+              backgroundColor: pressed
+                ? colors.surfaceMuted
+                : colors.surfaceSubtle,
+              borderColor: colors.border,
+            },
+            bgLoading && styles.dangerBtnDisabled,
+          ]}
+        >
+          <Text
+            style={[
+              styles.secondaryBtnText,
+              { color: colors.text, fontSize: baseFont.bodySm * fontScale },
+            ]}
+          >
+            {bgLoading ? 'Refreshing…' : 'Refresh Status'}
+          </Text>
+        </Pressable>
       </Section>
 
       <Section
@@ -605,4 +978,5 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   secondaryBtnText: { fontWeight: '600' },
+  statusValue: { fontWeight: '600' },
 });

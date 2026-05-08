@@ -41,7 +41,9 @@ export function getCurrentUser(): AuthUser | null {
 export function listenToAuthChanges(
   callback: (user: AuthUser | null) => void
 ): Unsubscribe {
-  return onAuthStateChanged(auth, callback);
+  return onAuthStateChanged(auth, callback, (err) => {
+    console.warn('[authService] onAuthStateChanged error:', err);
+  });
 }
 
 // Map Firebase auth error codes to short, kid-friendly messages.
