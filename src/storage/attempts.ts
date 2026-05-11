@@ -23,13 +23,47 @@ export type EarthquakeEntry = {
   samples: number;
 };
 
-export type AttemptEntry = SoundEntry | ReactionEntry | EarthquakeEntry;
+export type StudentLevel = 'primary' | 'highschool';
+
+export type ParachuteTrialInput = {
+  fallTime: number;
+  contactTime?: number;
+  didBounce?: boolean;
+  bounceTime?: number;
+};
+
+export type ParachuteTrialResult = {
+  finalVelocity: number;
+  acceleration: number;
+  netForce: number;
+  weight: number;
+  dragForce: number;
+  gForce: number;
+  gForceRisk: string;
+};
+
+export type ParachuteEntry = {
+  id: string;
+  trialNumber: 1 | 2 | 3;
+  trialLabel: string;
+  input: ParachuteTrialInput;
+  result: ParachuteTrialResult;
+};
+
+export type ParachuteMeta = {
+  studentLevel: StudentLevel;
+  dropHeight: number;
+  toyMass: number;
+};
+
+export type AttemptEntry = SoundEntry | ReactionEntry | EarthquakeEntry | ParachuteEntry;
 
 export type ActivityAttempt<E extends AttemptEntry = AttemptEntry> = {
   id: string;
   activityId: string;
   finishedAt: number;
   entries: E[];
+  meta?: unknown;
 };
 
 export async function saveAttempt<E extends AttemptEntry>(
