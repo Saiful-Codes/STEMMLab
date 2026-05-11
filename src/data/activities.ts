@@ -8,7 +8,8 @@ export const activities: Activity[] = [
     domain: 'Engineering + Physics',
     shortDescription:
       'Design and test a parachute to minimise landing speed and impact force.',
-    comingSoon: true,
+    comingSoon: false,
+    hasDetail: true,
   },
   {
     id: 'sound',
