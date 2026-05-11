@@ -4,6 +4,7 @@ import { ActivityStackParamList } from '../../navigation/ActivityStack';
 import SoundResultScreen from './sound/SoundResultScreen';
 import ReactionResultScreen from './reaction/ReactionResultScreen';
 import EarthquakeResultScreen from './earthquake/EarthquakeResultScreen';
+import ParachuteResultScreen from './parachute/ParachuteResultScreen';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
@@ -20,6 +21,8 @@ export default function ActivityResultScreen(props: Props) {
       return <ReactionResultScreen {...props} />;
     case 'earthquake':
       return <EarthquakeResultScreen {...props} />;
+    case 'parachute':
+      return <ParachuteResultScreen {...props} />;
     default:
       return <NoResults />;
   }

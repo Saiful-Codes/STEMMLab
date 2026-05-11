@@ -4,6 +4,7 @@ import { ActivityStackParamList } from '../../navigation/ActivityStack';
 import SoundRunScreen from './sound/SoundRunScreen';
 import ReactionRunScreen from './reaction/ReactionRunScreen';
 import EarthquakeRunScreen from './earthquake/EarthquakeRunScreen';
+import ParachuteRunScreen from './parachute/ParachuteRunScreen';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
@@ -20,6 +21,8 @@ export default function ActivityRunScreen(props: Props) {
       return <ReactionRunScreen {...props} />;
     case 'earthquake':
       return <EarthquakeRunScreen {...props} />;
+    case 'parachute':
+      return <ParachuteRunScreen {...props} />;
     default:
       return <NotPlayable />;
   }

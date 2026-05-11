@@ -45,8 +45,10 @@ yarn-error.*
 
 #claude
 .claude/
+.superpowers
 
 # Local planning / AI workflow files
+docs/superpowers
 docs/CLAUDE.md
 docs/project-spec.md
 docs/plan.md
