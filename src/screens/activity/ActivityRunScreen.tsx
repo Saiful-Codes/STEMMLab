@@ -5,6 +5,7 @@ import SoundRunScreen from './sound/SoundRunScreen';
 import ReactionRunScreen from './reaction/ReactionRunScreen';
 import EarthquakeRunScreen from './earthquake/EarthquakeRunScreen';
 import ParachuteRunScreen from './parachute/ParachuteRunScreen';
+import HandFanRunScreen from './handfan/HandFanRunScreen';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
@@ -23,6 +24,8 @@ export default function ActivityRunScreen(props: Props) {
       return <EarthquakeRunScreen {...props} />;
     case 'parachute':
       return <ParachuteRunScreen {...props} />;
+    case 'handfan':
+      return <HandFanRunScreen {...props} />;
     default:
       return <NotPlayable />;
   }
