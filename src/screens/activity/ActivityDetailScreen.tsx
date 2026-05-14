@@ -11,7 +11,7 @@ import { baseFont } from '../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityDetail'>;
 
-const IMPLEMENTED_ACTIVITY_IDS = ['sound', 'reaction', 'earthquake', 'parachute'];
+const IMPLEMENTED_ACTIVITY_IDS = ['sound', 'reaction', 'earthquake', 'parachute', 'handfan'];
 
 const DETAIL_SECTIONS = [
   'introduction',

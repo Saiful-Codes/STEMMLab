@@ -5,6 +5,7 @@ import SoundResultScreen from './sound/SoundResultScreen';
 import ReactionResultScreen from './reaction/ReactionResultScreen';
 import EarthquakeResultScreen from './earthquake/EarthquakeResultScreen';
 import ParachuteResultScreen from './parachute/ParachuteResultScreen';
+import HandFanResultScreen from './handfan/HandFanResultScreen';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
@@ -23,6 +24,8 @@ export default function ActivityResultScreen(props: Props) {
       return <EarthquakeResultScreen {...props} />;
     case 'parachute':
       return <ParachuteResultScreen {...props} />;
+    case 'handfan':
+      return <HandFanResultScreen {...props} />;
     default:
       return <NoResults />;
   }

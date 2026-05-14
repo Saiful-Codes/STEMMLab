@@ -28,7 +28,8 @@ export const activities: Activity[] = [
     domain: 'Physics – Air Movement',
     shortDescription:
       'Fan air at targets from set distances and record the bend angle.',
-    comingSoon: true,
+    comingSoon: false,
+    hasDetail: true,
   },
   {
     id: 'earthquake',
