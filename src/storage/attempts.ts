@@ -56,7 +56,32 @@ export type ParachuteMeta = {
   toyMass: number;
 };
 
-export type AttemptEntry = SoundEntry | ReactionEntry | EarthquakeEntry | ParachuteEntry;
+export type HandFanTrialInput = {
+  designName: string;
+  predictedAngle: number;
+  actualAngle: number;
+  notes: string;
+};
+
+export type HandFanTrialResult = {
+  bendAngleRad: number;
+  estimatedForce: number;
+};
+
+export type HandFanEntry = {
+  id: string;
+  trialNumber: 1 | 2 | 3;
+  trialLabel: string;
+  input: HandFanTrialInput;
+  result: HandFanTrialResult;
+};
+
+export type HandFanMeta = {
+  materialType: string;
+  distance: number;
+};
+
+export type AttemptEntry = SoundEntry | ReactionEntry | EarthquakeEntry | ParachuteEntry | HandFanEntry;
 
 export type ActivityAttempt<E extends AttemptEntry = AttemptEntry> = {
   id: string;
