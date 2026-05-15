@@ -19,6 +19,11 @@ import {
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
 import { SoundEntry } from '../../../storage/attempts';
 import { useTranslation } from '../../../context/LanguageContext';
+import { useLocation } from '../../../context/LocationContext';
+import { useNotifications } from '../../../context/NotificationContext';
+import { useTeam } from '../../../context/TeamContext';
+import { saveActivityResultWithLocation } from '../../../utils/activityResultHelper';
+import type { Result } from '../../../types/Result';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -35,6 +40,9 @@ function meteringToApproxDb(metering: number | null | undefined): number | null 
 export default function SoundRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
+  const { team } = useTeam();
+  const { location, refreshLocation } = useLocation();
+  const { sendAchievement } = useNotifications();
 
   const audioRecorder = useAudioRecorder({
     ...RecordingPresets.HIGH_QUALITY,
@@ -63,6 +71,8 @@ export default function SoundRunScreen({ navigation, route }: Props) {
         allowsRecording: true,
       });
     })();
+    // Get location on mount
+    refreshLocation();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -128,7 +138,7 @@ export default function SoundRunScreen({ navigation, route }: Props) {
     setCapturedDb(null);
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     if (entries.length === 0) {
       Alert.alert(
         t('run.sound.alert.noEntriesTitle'),
@@ -136,11 +146,53 @@ export default function SoundRunScreen({ navigation, route }: Props) {
       );
       return;
     }
-    const peakDb = Math.max(...entries.map((e) => e.decibels));
-    navigation.replace('ResultSummary', {
-      activityId,
-      result: peakDb,
-    });
+
+    if (!team) {
+      Alert.alert('Error', 'No team information available');
+      return;
+    }
+
+    try {
+      // Refresh location before finishing
+      await refreshLocation();
+      Alert.alert(
+  'GPS Test',
+  `Lat: ${location?.latitude}\nLng: ${location?.longitude}\nLocation: ${location?.locationName || 'Unknown'}`
+);
+
+      const peakDb = Math.max(...entries.map((e) => e.decibels));
+
+      // Save result with GPS location
+      const result: Result = {
+        id: `result_${Date.now()}`,
+        activityId,
+        teamName: team.name,
+        members: team.members,
+        result: peakDb,
+        timestamp: Date.now(),
+      };
+
+      await saveActivityResultWithLocation(result, location);
+
+      // Send completion notification
+      await sendAchievement(
+  'Sound Pollution Hunter Complete! 🔊',
+  `${team.name} measured sound levels${location?.locationName ? ` at ${location.locationName}` : ''}`
+);
+
+Alert.alert(
+  'Activity Saved!',
+  `GPS location captured:\n${location?.locationName || 'Unknown location'}`
+);
+
+navigation.replace('ResultSummary', {
+        activityId,
+        result: peakDb,
+      });
+    } catch (err) {
+      console.error('Error finishing activity:', err);
+      Alert.alert('Error', 'Failed to save activity result');
+    }
   };
 
   const meterDisplay = recorderState.isRecording

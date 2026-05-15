@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Pressable,
@@ -7,6 +7,7 @@ import {
   Text,
   TextInput,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
@@ -23,6 +24,11 @@ import {
   calculateForce,
 } from '../../../utils/handFanPhysics';
 import { useTranslation } from '../../../context/LanguageContext';
+import { useLocation } from '../../../context/LocationContext';
+import { useNotifications } from '../../../context/NotificationContext';
+import { useTeam } from '../../../context/TeamContext';
+import { saveActivityResultWithLocation } from '../../../utils/activityResultHelper';
+import type { Result } from '../../../types/Result';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -51,6 +57,9 @@ const EMPTY_TRIAL: TrialState = {
 export default function HandFanRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
+  const { team } = useTeam();
+  const { location, refreshLocation } = useLocation();
+  const { sendAchievement } = useNotifications();
 
   const [materialType, setMaterialType] = useState(MATERIALS[0].key);
   const [distance, setDistance] = useState(DISTANCES[1]);
@@ -60,6 +69,12 @@ export default function HandFanRunScreen({ navigation, route }: Props) {
     { ...EMPTY_TRIAL },
   ]);
   const [expandedTrial, setExpandedTrial] = useState(0);
+  const [isFinishing, setIsFinishing] = useState(false);
+
+  // Get location when screen mounts
+  useEffect(() => {
+    refreshLocation();
+  }, [refreshLocation]);
 
   const updateTrial = (index: number, patch: Partial<TrialState>) => {
     setTrials((prev) => prev.map((tr, i) => (i === index ? { ...tr, ...patch } : tr)));
@@ -108,34 +123,76 @@ export default function HandFanRunScreen({ navigation, route }: Props) {
       return;
     }
 
-    const entries: HandFanEntry[] = trials.map((tr, i) => ({
-      id: `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,
-      trialNumber: (i + 1) as 1 | 2 | 3,
-      trialLabel: t(TRIAL_LABELS[i].key),
-      input: {
-        designName: tr.designName.trim(),
-        predictedAngle: parseFloat(tr.predictedAngle),
-        actualAngle: parseFloat(tr.actualAngle),
-        notes: tr.notes.trim(),
-      },
-      result: tr.result!,
-    }));
-
-    const meta: HandFanMeta = { materialType, distance };
-
-    try {
-      await saveAttempt({
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-        activityId,
-        finishedAt: Date.now(),
-        entries,
-        meta,
-      });
-    } catch (e) {
-      console.log('Save attempt error:', e);
+    if (!team) {
+      Alert.alert('Error', 'No team information available');
+      return;
     }
 
-    navigation.replace('ActivityResult', { activityId });
+    setIsFinishing(true);
+
+    try {
+      // Refresh location before finishing
+      await refreshLocation();
+
+      const entries: HandFanEntry[] = trials.map((tr, i) => ({
+        id: `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,
+        trialNumber: (i + 1) as 1 | 2 | 3,
+        trialLabel: t(TRIAL_LABELS[i].key),
+        input: {
+          designName: tr.designName.trim(),
+          predictedAngle: parseFloat(tr.predictedAngle),
+          actualAngle: parseFloat(tr.actualAngle),
+          notes: tr.notes.trim(),
+        },
+        result: tr.result!,
+      }));
+
+      const meta: HandFanMeta = { materialType, distance };
+
+      try {
+        await saveAttempt({
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          activityId,
+          finishedAt: Date.now(),
+          entries,
+          meta,
+        });
+      } catch (e) {
+        console.log('Save attempt error:', e);
+      }
+
+      // Save result with GPS location
+      const bestAngle = Math.max(...entries.map((e) => e.result.bendAngleRad));
+      const result: Result = {
+        id: `result_${Date.now()}`,
+        activityId,
+        teamName: team.name,
+        members: team.members,
+        result: bestAngle,
+        timestamp: Date.now(),
+      };
+
+      await saveActivityResultWithLocation(result, location);
+
+      // Send completion notification
+      await sendAchievement(
+        'Hand Fan Challenge Complete! 💨',
+        `${team.name} tested air movement designs${location?.locationName ? ` at ${location.locationName}` : ''}`
+      );
+
+      Alert.alert(
+  'Activity Saved!',
+  `GPS location captured:\n${location?.locationName || 'Unknown location'}`
+);
+
+
+      navigation.replace('ActivityResult', { activityId });
+    } catch (err) {
+      console.error('Error finishing activity:', err);
+      Alert.alert('Error', 'Failed to save activity result');
+    } finally {
+      setIsFinishing(false);
+    }
   };
 
   return (
