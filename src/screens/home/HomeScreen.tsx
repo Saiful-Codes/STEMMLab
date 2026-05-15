@@ -14,6 +14,7 @@ import { Result } from '../../types/Result';
 import { getResults } from '../../storage/results';
 import QuickAccessCard from '../../components/QuickAccessCard';
 import RecentActivityCard from '../../components/RecentActivityCard';
+import AdBanner from '../../components/AdBanner';
 
 type Props = CompositeScreenProps<
   NativeStackScreenProps<ActivityStackParamList, 'Home'>,
@@ -150,6 +151,7 @@ export default function HomeScreen({ navigation }: Props) {
           {t('home.tapHint')}
         </Text>
       </ScrollView>
+      <AdBanner />
     </SafeAreaView>
   );
 }
