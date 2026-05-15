@@ -14,6 +14,7 @@ import { useTeam } from '../../context/TeamContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { saveResult } from '../../storage/results';
+import { showInterstitialIfReady } from '../../services/adService';
 import { Result } from '../../types/Result';
 import { baseFont } from '../../theme/tokens';
 import { getActivityTitleKey } from '../../utils/activityLabels';
@@ -58,6 +59,7 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
 
     try {
       await saveResult(payload);
+      showInterstitialIfReady();
       navigation.popToTop();
     } catch {
       Alert.alert(

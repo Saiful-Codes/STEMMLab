@@ -10,6 +10,7 @@ import { initDatabase } from './src/storage/sqliteDb';
 // Side-effect import: registers the background task definition with TaskManager
 // at JS startup so the OS can locate it when the task fires. Don't remove.
 import './src/services/backgroundTaskService';
+import { initAds } from './src/services/adService';
 
 function ThemedApp() {
   const { navTheme, mode } = useTheme();
@@ -26,6 +27,7 @@ export default function App() {
     initDatabase().catch((err) => {
       console.warn('[App] SQLite init failed; app continues with AsyncStorage:', err);
     });
+    initAds();
   }, []);
 
   return (
