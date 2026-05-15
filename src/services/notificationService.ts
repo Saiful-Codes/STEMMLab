@@ -1,57 +1,155 @@
 /**
  * Notification Service
  * Handles all in-app and system notifications for STEMM Lab
+ * Supports both immediate local notifications and scheduled notifications
  */
 
-import * as BackgroundFetch from 'expo-background-fetch';
-import * as TaskManager from 'expo-task-manager';
+import * as Notifications from 'expo-notifications';
+
+// Configure notification handler for when app is in foreground
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 export type Notification = {
   id: string;
   title: string;
   message: string;
-  type: 'challenge' | 'achievement' | 'reminder' | 'info';
+  type: 'challenge' | 'achievement' | 'reminder' | 'info' | 'activity_complete';
   timestamp: number;
   read: boolean;
   data?: Record<string, any>;
 };
 
-const NOTIFICATIONS_KEY = 'notifications';
-
 /**
- * Store notification locally
+ * Request notification permissions from user
+ * Should be called once at app startup
  */
-export async function saveNotification(notification: Notification): Promise<void> {
+export async function requestNotificationPermissions(): Promise<boolean> {
   try {
-    // This would be expanded to use your actual storage system
-    // For now, just log it
-    console.log('[notificationService] Notification saved:', notification);
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+
+    // If already granted, return true
+    if (existingStatus === 'granted') {
+      console.log('[notificationService] Notification permissions already granted');
+      return true;
+    }
+
+    // If denied or not determined, request
+    const { status } = await Notifications.requestPermissionsAsync();
+    const granted = status === 'granted';
+    console.log('[notificationService] Notification permission result:', granted);
+    return granted;
   } catch (err) {
-    console.warn('[notificationService] Failed to save notification:', err);
+    console.warn('[notificationService] Failed to request notification permissions:', err);
+    return false;
   }
 }
 
 /**
- * Create a challenge notification (e.g., timed challenge reminder)
+ * Send an immediate local notification
+ * Use for activity completion, achievements, etc.
  */
-export function createChallengeNotification(
+export async function sendImmediateNotification(
   title: string,
-  message: string,
-  activityId?: string
-): Notification {
-  return {
-    id: `challenge_${Date.now()}`,
-    title,
-    message,
-    type: 'challenge',
-    timestamp: Date.now(),
-    read: false,
-    data: { activityId },
-  };
+  body: string,
+  data?: Record<string, any>
+): Promise<string | undefined> {
+  try {
+    const notificationId = await Notifications.scheduleNotificationAsync({
+      content: {
+        title,
+        body,
+        data: data || {},
+        sound: 'default',
+        badge: 1,
+      },
+      trigger: null, // null means immediate
+    });
+    console.log('[notificationService] Immediate notification sent:', notificationId);
+    return notificationId;
+  } catch (err) {
+    console.warn('[notificationService] Failed to send immediate notification:', err);
+    return undefined;
+  }
 }
 
 /**
- * Create an achievement notification (e.g., new high score, milestone)
+ * Schedule a notification to be sent after a delay (in seconds)
+ * Use for reminders, timed challenges, etc.
+ */
+export async function scheduleNotification(
+  title: string,
+  body: string,
+  delaySeconds: number,
+  data?: Record<string, any>
+): Promise<string | undefined> {
+  try {
+    const notificationId = await Notifications.scheduleNotificationAsync({
+      content: {
+        title,
+        body,
+        data: data || {},
+        sound: 'default',
+        badge: 1,
+      },
+      trigger: {
+        seconds: delaySeconds,
+      },
+    });
+    console.log('[notificationService] Scheduled notification set for', delaySeconds, 'seconds:', notificationId);
+    return notificationId;
+  } catch (err) {
+    console.warn('[notificationService] Failed to schedule notification:', err);
+    return undefined;
+  }
+}
+
+/**
+ * Send a notification for activity completion with location
+ * Called when user completes an activity
+ */
+export async function sendActivityCompleteNotification(
+  activityTitle: string,
+  result: string,
+  locationName?: string,
+  data?: Record<string, any>
+): Promise<string | undefined> {
+  const locationPart = locationName ? ` at ${locationName}` : '';
+  const body = `Result: ${result}${locationPart}`;
+
+  return sendImmediateNotification(
+    `🎉 ${activityTitle} Completed`,
+    body,
+    {
+      screen: 'History',
+      ...data,
+    }
+  );
+}
+
+/**
+ * Set up notification response listener
+ * Should be called once at app startup
+ * Returns the listener subscription that can be used to clean up later
+ */
+export function setupNotificationResponseListener(
+  onNotificationTapped: (data: Record<string, any>) => void
+): Notifications.EventSubscription {
+  return Notifications.addNotificationResponseReceivedListener((response) => {
+    const data = response.notification.request.content.data;
+    console.log('[notificationService] Notification tapped:', data);
+    onNotificationTapped(data);
+  });
+}
+
+/**
+ * Create an achievement notification
+ * (for in-app notification state management)
  */
 export function createAchievementNotification(
   title: string,
@@ -70,7 +168,8 @@ export function createAchievementNotification(
 }
 
 /**
- * Create a reminder notification (e.g., activity reminder)
+ * Create a reminder notification
+ * (for in-app notification state management)
  */
 export function createReminderNotification(
   title: string,
@@ -89,7 +188,8 @@ export function createReminderNotification(
 }
 
 /**
- * Create an info notification (e.g., general updates)
+ * Create an info notification
+ * (for in-app notification state management)
  */
 export function createInfoNotification(
   title: string,
@@ -106,118 +206,21 @@ export function createInfoNotification(
 }
 
 /**
- * Send a timed challenge (background task)
- * Call this to schedule a challenge to be sent after a delay
+ * Create a challenge notification
+ * (for in-app notification state management)
  */
-export async function scheduleTimedChallenge(
-  delayMs: number,
+export function createChallengeNotification(
   title: string,
   message: string,
   activityId?: string
-): Promise<void> {
-  try {
-    // Schedule a background task
-    const taskName = `challenge_${Date.now()}`;
-
-    await TaskManager.defineTask(taskName, async () => {
-      const notification = createChallengeNotification(title, message, activityId);
-      await saveNotification(notification);
-      return BackgroundFetch.BackgroundFetchResult.NewData;
-    });
-
-    await BackgroundFetch.registerTaskAsync(taskName, {
-      minimumInterval: delayMs / 1000, // Convert to seconds
-      stopOnTerminate: false,
-      startOnBoot: true,
-    });
-
-    console.log('[notificationService] Timed challenge scheduled:', taskName);
-  } catch (err) {
-    console.warn('[notificationService] Failed to schedule timed challenge:', err);
-  }
-}
-
-/**
- * Send a local notification alert
- * In a real app, this would integrate with native notification libraries
- * For now, just emit/save the notification
- */
-export async function sendLocalNotification(notification: Notification): Promise<void> {
-  try {
-    // TODO: Integrate with native notification APIs if needed
-    // For now, just save it to app state/storage
-    await saveNotification(notification);
-  } catch (err) {
-    console.warn('[notificationService] Failed to send local notification:', err);
-  }
-}
-
-/**
- * Send achievement notification for completing an activity
- */
-export async function notifyActivityComplete(
-  teamName: string,
-  activityName: string
-): Promise<void> {
-  const notification = createAchievementNotification(
-    'Activity Completed! 🎉',
-    `${teamName} has completed ${activityName}. Great work!`,
-    activityName
-  );
-  await sendLocalNotification(notification);
-}
-
-/**
- * Send notification for new high score
- */
-export async function notifyNewHighScore(
-  teamName: string,
-  activityName: string,
-  score: number | string
-): Promise<void> {
-  const notification = createAchievementNotification(
-    'New High Score! 🏆',
-    `${teamName} achieved a new high score in ${activityName}: ${score}`,
-    `${activityName}_score`
-  );
-  await sendLocalNotification(notification);
-}
-
-/**
- * Send challenge reminder
- */
-export async function notifyChallengeReminder(
-  challengeName: string,
-  timeRemaining: string
-): Promise<void> {
-  const notification = createReminderNotification(
-    'Challenge Reminder ⏰',
-    `${challengeName} - ${timeRemaining} remaining`,
-    challengeName
-  );
-  await sendLocalNotification(notification);
-}
-
-/**
- * Send team invitation notification
- */
-export async function notifyTeamEvent(
-  eventType: 'member_joined' | 'new_activity' | 'leaderboard_update',
-  message: string
-): Promise<void> {
-  let title = '';
-  switch (eventType) {
-    case 'member_joined':
-      title = 'Team Member Joined 👋';
-      break;
-    case 'new_activity':
-      title = 'New Activity Available 📋';
-      break;
-    case 'leaderboard_update':
-      title = 'Leaderboard Updated 📊';
-      break;
-  }
-
-  const notification = createInfoNotification(title, message);
-  await sendLocalNotification(notification);
+): Notification {
+  return {
+    id: `challenge_${Date.now()}`,
+    title,
+    message,
+    type: 'challenge',
+    timestamp: Date.now(),
+    read: false,
+    data: { activityId },
+  };
 }

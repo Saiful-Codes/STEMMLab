@@ -15,9 +15,10 @@ import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { useLocation } from '../../context/LocationContext';
 import { saveResult } from '../../storage/results';
+import { sendActivityCompleteNotification } from '../../services/notificationService';
 import { Result } from '../../types/Result';
 import { baseFont } from '../../theme/tokens';
-import { getActivityTitleKey } from '../../utils/activityLabels';
+import { getActivityTitleKey, formatResult } from '../../utils/activityLabels';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ResultSummary'>;
 
@@ -77,6 +78,20 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
 
     try {
       await saveResult(payload);
+
+      // Send notification about activity completion
+      const formattedResult = formatResult(activityId, result);
+      await sendActivityCompleteNotification(
+        activityTitle,
+        formattedResult,
+        currentLocation?.locationName,
+        {
+          activityId,
+          resultId: payload.id,
+          teamName: team.name,
+        }
+      );
+
       navigation.popToTop();
     } catch {
       Alert.alert(
