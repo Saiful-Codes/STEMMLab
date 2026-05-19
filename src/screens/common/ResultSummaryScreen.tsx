@@ -13,6 +13,8 @@ import { activities } from '../../data/activities';
 import { useTeam } from '../../context/TeamContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
+import { useLocation } from '../../context/LocationContext';
+import { getCurrentLocation } from '../../services/gpsService';
 import { saveResult } from '../../storage/results';
 import { Result } from '../../types/Result';
 import { baseFont } from '../../theme/tokens';
@@ -25,6 +27,7 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
   const { team } = useTeam();
   const { colors, fontScale } = useTheme();
   const { t } = useTranslation();
+  const { location, requestPermission } = useLocation();
 
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState('');
@@ -45,6 +48,18 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
     }
 
     setSaving(true);
+
+    // Capture a fresh GPS fix at save time. Falls back to the cached
+    // context value, then to no-location if permission was denied.
+    let currentLocation = location;
+    try {
+      await requestPermission();
+      const fresh = await getCurrentLocation();
+      if (fresh) currentLocation = fresh;
+    } catch (err) {
+      console.warn('[ResultSummaryScreen] Failed to get location:', err);
+    }
+
     const payload: Result = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       activityId,
@@ -54,6 +69,10 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
       timestamp: Date.now(),
       rating: rating > 0 ? rating : undefined,
       comment: comment.trim() ? comment.trim() : undefined,
+      latitude: currentLocation?.latitude,
+      longitude: currentLocation?.longitude,
+      accuracy: currentLocation?.accuracy,
+      locationName: currentLocation?.locationName,
     };
 
     try {

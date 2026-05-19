@@ -6,6 +6,7 @@ import RootNavigator from './src/navigation/RootNavigator';
 import { TeamProvider } from './src/context/TeamContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { LanguageProvider } from './src/context/LanguageContext';
+import { LocationProvider } from './src/context/LocationContext';
 import { initDatabase } from './src/storage/sqliteDb';
 // Side-effect import: registers the background task definition with TaskManager
 // at JS startup so the OS can locate it when the task fires. Don't remove.
@@ -32,9 +33,11 @@ export default function App() {
     <SafeAreaProvider>
       <LanguageProvider>
         <ThemeProvider>
-          <TeamProvider>
-            <ThemedApp />
-          </TeamProvider>
+          <LocationProvider>
+            <TeamProvider>
+              <ThemedApp />
+            </TeamProvider>
+          </LocationProvider>
         </ThemeProvider>
       </LanguageProvider>
     </SafeAreaProvider>
