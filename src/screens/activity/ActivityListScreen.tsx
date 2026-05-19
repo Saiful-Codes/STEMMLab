@@ -12,8 +12,14 @@ import { baseFont } from '../../theme/tokens';
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityList'>;
 
 // Display order for available activities (top section).
-const AVAILABLE_ORDER: string[] = ['parachute', 'sound', 'handfan', 'earthquake', 'reaction'];
-
+const AVAILABLE_ORDER: string[] = [
+  'parachute',
+  'sound',
+  'handfan',
+  'earthquake',
+  'reaction',
+  'breathing'
+];
 type Section = { titleKey: string; data: Activity[] };
 
 export default function ActivityListScreen({ navigation }: Props) {

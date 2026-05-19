@@ -67,6 +67,7 @@ export const activities: Activity[] = [
     domain: 'Medical Science',
     shortDescription:
       'Use the accelerometer to measure breathing rate at rest and after exercise.',
-    comingSoon: true,
+    comingSoon: false,
+    hasDetail: true,
   },
 ];

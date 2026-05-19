@@ -172,6 +172,21 @@ const en: TranslationDict = {
   'activityDetail.reaction.interpreting':
     '• Look at your best, average, and slowest reaction times.\n• Did you get faster after a few attempts? Slower if you were tired?\n• Compare results between teammates and discuss why people differ.\n• Think about real-world activities where fast reactions matter, like sport or driving.',
 
+  // Activity Detail – Breathing Pace Trainer
+  'activityDetail.breathing.gradeLevel': 'Grades 6 – 10',
+  'activityDetail.breathing.estimatedTime': '20 – 30 minutes',
+  'activityDetail.breathing.tags': 'Breathing, Heart Rate, Exercise, Accelerometer, Health, Physiology',
+  'activityDetail.breathing.introduction':
+    "Your breathing rate changes throughout the day and increases when you exercise. In this activity you will measure your breathing rate at rest and after light exercise using the phone's accelerometer to detect chest movements. You will then compare how quickly your breathing recovers.",
+  'activityDetail.breathing.objectives':
+    '• Measure your resting breathing rate in breaths per minute.\n• Perform light exercise (jogging in place, star jumps) and measure breathing rate.\n• Compare resting vs. active breathing rates.\n• Observe how breathing rate recovers after exercise.\n• Discuss the relationship between exercise intensity and respiratory response.',
+  'activityDetail.breathing.materials':
+    '• A smartphone running STEMM Lab with accelerometer support\n• A flat surface (mat or floor) to stand or jog on\n• An open space for safe movement\n• (Optional) A timer or stopwatch for tracking exercise duration',
+  'activityDetail.breathing.instructions':
+    '1. Open Breathing Pace Trainer from the activity list.\n2. Tap the "At Rest" button to select resting mode.\n3. Place the phone gently on your chest (over your shirt, not bare skin).\n4. Tap Start Measurement and stand still for 30–60 seconds.\n5. Tap Stop Measurement and note the breathing rate.\n6. Tap "After Exercise" button.\n7. Perform light exercise: jog in place or do 20 star jumps.\n8. Immediately place the phone back on your chest and tap Start Measurement.\n9. Measure for 30–60 seconds after exercise.\n10. Tap Finish Activity to see your results.',
+  'activityDetail.breathing.interpreting':
+    '• Your resting breathing rate is typically 12–20 breaths per minute in adults and teenagers.\n• After light exercise, your rate should increase significantly (30–50+ breaths per minute).\n• Compare resting vs. active rates — how much did your breathing increase?\n• Try different exercises (walking, running, star jumps) and compare their effects.\n• Discuss why your body increases breathing during and after exercise (increased oxygen demand).\n• Time how long it takes for your breathing to return to resting rate after stopping exercise.',
+
   // Activity Detail – Earthquake-Resistant Structure
   'activityDetail.earthquake.gradeLevel': 'Grades 7 – 11',
   'activityDetail.earthquake.estimatedTime': '45 – 60 minutes',
@@ -376,6 +391,37 @@ const en: TranslationDict = {
   'run.handfan.alert.missingTrialsTitle': 'Designs incomplete',
   'run.handfan.alert.missingTrialsMessage': 'Please complete all 3 designs before finishing.',
 
+  // Run – Breathing Pace Trainer
+  'run.breathing.heading': 'Breathing Pace Trainer',
+  'run.breathing.subheading':
+    'Place the phone on your chest. Pick Rest or Exercise mode, then tap Start to measure your breathing rate.',
+  'run.breathing.mode.rest': 'At Rest',
+  'run.breathing.mode.exercise': 'After Exercise',
+  'run.breathing.meter.live': 'Live breathing rate',
+  'run.breathing.meter.lastRate': 'Last rate',
+  'run.breathing.hint.measuring': 'Measuring… tap Stop when done.',
+  'run.breathing.hint.complete': 'Measurement complete. Add another attempt or finish.',
+  'run.breathing.hint.unavailable': 'Accelerometer not available on this device.',
+  'run.breathing.hint.ready':
+    'Place phone gently on your chest, then tap Start to begin measuring.',
+  'run.breathing.stat.time': 'Time',
+  'run.breathing.stat.breathing': 'Breathing Rate',
+  'run.breathing.sensor.title': 'Live Sensor Values (g)',
+  'run.breathing.start': 'Start Measurement',
+  'run.breathing.stop': 'Stop Measurement',
+  'run.breathing.attemptsHeading': 'Measurements this session ({{count}})',
+  'run.breathing.empty': 'No measurements yet.',
+  'run.breathing.attemptLabel': 'Measurement {{n}}',
+  'run.breathing.entrySub': '{{seconds}} s duration',
+  'run.breathing.finish': 'Finish Activity',
+  'run.breathing.alert.unavailableTitle': 'Accelerometer unavailable',
+  'run.breathing.alert.unavailableMessage':
+    'This device does not provide accelerometer data.',
+  'run.breathing.alert.noDataTitle': 'No data',
+  'run.breathing.alert.noDataMessage': 'No accelerometer samples were captured.',
+  'run.breathing.alert.noEntriesTitle': 'No measurements',
+  'run.breathing.alert.noEntriesMessage': 'Record at least one breathing measurement before finishing.',
+
   // Result screens (per-activity history view)
   'result.common.latest': 'Latest Attempt',
   'result.common.savedAt': 'Saved {{when}}',
@@ -395,6 +441,15 @@ const en: TranslationDict = {
   'result.reaction.average': 'Average',
   'result.reaction.listHeading': 'Reaction times',
   'result.reaction.attemptLabel': 'Attempt {{n}}',
+
+  'result.breathing.lowest': 'Lowest',
+  'result.breathing.highest': 'Highest',
+  'result.breathing.average': 'Average',
+  'result.breathing.comparison': 'Resting vs. Active',
+  'result.breathing.listHeading': 'Breathing measurements',
+  'result.breathing.attemptLabel': 'Measurement {{n}}',
+  'result.breathing.empty': 'No measurements recorded.',
+  'result.breathing.entrySub': '{{seconds}} s duration',
 
   'result.earthquake.tests': 'Tests',
   'result.earthquake.bestPeak': 'Best (lowest peak)',
@@ -656,6 +711,20 @@ const es: TranslationDict = {
   'activityDetail.reaction.interpreting':
     '• Mira tus tiempos mejor, promedio y más lentos.\n• ¿Te volviste más rápido tras varios intentos? ¿Más lento al cansarte?\n• Compara resultados entre compañeros y comenta por qué difieren las personas.\n• Piensa en actividades reales donde una reacción rápida importa, como el deporte o conducir.',
 
+  'activityDetail.breathing.gradeLevel': 'Grados 6 – 10',
+  'activityDetail.breathing.estimatedTime': '20 – 30 minutos',
+  'activityDetail.breathing.tags': 'Respiración, Frecuencia Cardíaca, Ejercicio, Acelerómetro, Salud, Fisiología',
+  'activityDetail.breathing.introduction':
+    'Tu frecuencia respiratoria cambia a lo largo del día y aumenta cuando haces ejercicio. En esta actividad medirás tu frecuencia respiratoria en reposo y después de ejercicio ligero usando el acelerómetro del teléfono para detectar los movimientos del pecho. Luego compararás qué tan rápido se recupera tu respiración.',
+  'activityDetail.breathing.objectives':
+    '• Mide tu frecuencia respiratoria en reposo en respiraciones por minuto.\n• Realiza ejercicio ligero (trotar en el lugar, saltos en estrella) y mide la frecuencia respiratoria.\n• Compara tu respiración en reposo versus durante la actividad.\n• Observa cómo se recupera tu frecuencia respiratoria después del ejercicio.\n• Comenta la relación entre la intensidad del ejercicio y la respuesta respiratoria.',
+  'activityDetail.breathing.materials':
+    '• Un smartphone con STEMM Lab y soporte de acelerómetro\n• Una superficie plana (tapete o piso) para estar de pie o trotar\n• Un espacio abierto para movimiento seguro\n• (Opcional) Un temporizador o cronómetro para rastrear la duración del ejercicio',
+  'activityDetail.breathing.instructions':
+    '1. Abre Entrenador de Ritmo Respiratorio en la lista de actividades.\n2. Toca el botón "En Reposo" para seleccionar modo de descanso.\n3. Coloca el teléfono suavemente sobre tu pecho (sobre la ropa, no en piel desnuda).\n4. Toca Iniciar Medición y mantente quieto durante 30–60 segundos.\n5. Toca Detener Medición y anota la frecuencia respiratoria.\n6. Toca el botón "Después del Ejercicio".\n7. Realiza ejercicio ligero: trota en el lugar o haz 20 saltos en estrella.\n8. Inmediatamente coloca el teléfono de nuevo sobre tu pecho y toca Iniciar Medición.\n9. Mide durante 30–60 segundos después del ejercicio.\n10. Toca Terminar Actividad para ver tus resultados.',
+  'activityDetail.breathing.interpreting':
+    '• Tu frecuencia respiratoria en reposo típicamente está entre 12–20 respiraciones por minuto en adultos y adolescentes.\n• Después de ejercicio ligero, la frecuencia debe aumentar significativamente (30–50+ respiraciones por minuto).\n• Compara tus tasas en reposo versus activas — ¿cuánto aumentó tu respiración?\n• Prueba diferentes ejercicios (caminar, correr, saltos en estrella) y compara sus efectos.\n• Comenta por qué tu cuerpo aumenta la respiración durante y después del ejercicio (mayor demanda de oxígeno).\n• Cronometra cuánto tiempo tarda tu respiración en volver a la tasa de reposo después de dejar de hacer ejercicio.',
+
   'activityDetail.earthquake.gradeLevel': 'Grados 7 – 11',
   'activityDetail.earthquake.estimatedTime': '45 – 60 minutos',
   'activityDetail.earthquake.tags': 'Ingeniería, Vibración, Estructuras, Acelerómetro, Diseño',
@@ -859,6 +928,36 @@ const es: TranslationDict = {
   'run.handfan.alert.missingTrialsTitle': 'Diseños incompletos',
   'run.handfan.alert.missingTrialsMessage': 'Por favor completa los 3 diseños antes de finalizar.',
 
+  'run.breathing.heading': 'Entrenador de Ritmo Respiratorio',
+  'run.breathing.subheading':
+    'Coloca el teléfono sobre tu pecho. Selecciona En Reposo o Después del Ejercicio, luego presiona Iniciar para medir tu frecuencia respiratoria.',
+  'run.breathing.mode.rest': 'En Reposo',
+  'run.breathing.mode.exercise': 'Después del Ejercicio',
+  'run.breathing.meter.live': 'Frecuencia respiratoria en vivo',
+  'run.breathing.meter.lastRate': 'Última frecuencia',
+  'run.breathing.hint.measuring': 'Midiendo… presiona Detener cuando termines.',
+  'run.breathing.hint.complete': 'Medición completa. Agrega otro intento o finaliza.',
+  'run.breathing.hint.unavailable': 'Acelerómetro no disponible en este dispositivo.',
+  'run.breathing.hint.ready':
+    'Coloca el teléfono suavemente sobre tu pecho, luego presiona Iniciar para comenzar.',
+  'run.breathing.stat.time': 'Tiempo',
+  'run.breathing.stat.breathing': 'Frecuencia Respiratoria',
+  'run.breathing.sensor.title': 'Valores del Sensor en Vivo (g)',
+  'run.breathing.start': 'Iniciar Medición',
+  'run.breathing.stop': 'Detener Medición',
+  'run.breathing.attemptsHeading': 'Mediciones esta sesión ({{count}})',
+  'run.breathing.empty': 'Sin mediciones aún.',
+  'run.breathing.attemptLabel': 'Medición {{n}}',
+  'run.breathing.entrySub': 'Duración {{seconds}} s',
+  'run.breathing.finish': 'Finalizar Actividad',
+  'run.breathing.alert.unavailableTitle': 'Acelerómetro no disponible',
+  'run.breathing.alert.unavailableMessage':
+    'Este dispositivo no proporciona datos del acelerómetro.',
+  'run.breathing.alert.noDataTitle': 'Sin datos',
+  'run.breathing.alert.noDataMessage': 'No se capturaron muestras del acelerómetro.',
+  'run.breathing.alert.noEntriesTitle': 'Sin mediciones',
+  'run.breathing.alert.noEntriesMessage': 'Registra al menos una medición respiratoria antes de finalizar.',
+
   'result.common.latest': 'Último Intento',
   'result.common.savedAt': 'Guardado {{when}}',
   'result.common.totalAttempts': 'Total de intentos guardados: {{count}}',
@@ -877,6 +976,15 @@ const es: TranslationDict = {
   'result.reaction.average': 'Promedio',
   'result.reaction.listHeading': 'Tiempos de reacción',
   'result.reaction.attemptLabel': 'Intento {{n}}',
+
+  'result.breathing.lowest': 'Más bajo',
+  'result.breathing.highest': 'Más alto',
+  'result.breathing.average': 'Promedio',
+  'result.breathing.comparison': 'En Reposo vs. Activo',
+  'result.breathing.listHeading': 'Mediciones respiratorias',
+  'result.breathing.attemptLabel': 'Medición {{n}}',
+  'result.breathing.empty': 'Sin mediciones registradas.',
+  'result.breathing.entrySub': 'Duración {{seconds}} s',
 
   'result.earthquake.tests': 'Pruebas',
   'result.earthquake.bestPeak': 'Mejor (pico más bajo)',
@@ -1139,6 +1247,20 @@ const ar: TranslationDict = {
   'activityDetail.reaction.interpreting':
     '• انظر إلى أفضل ومتوسط وأبطأ أزمنة رد الفعل لديك.\n• هل أصبحت أسرع بعد عدة محاولات؟ أبطأ عند التعب؟\n• قارن النتائج بين زملائك وناقش لماذا تختلف الناس.\n• فكّر في الأنشطة الواقعية التي تتطلب رد فعل سريع، مثل الرياضة أو القيادة.',
 
+  'activityDetail.breathing.gradeLevel': 'الصفوف 6 – 10',
+  'activityDetail.breathing.estimatedTime': '20 – 30 دقيقة',
+  'activityDetail.breathing.tags': 'التنفس, معدل ضربات القلب, التمرين, مقياس التسارع, الصحة, الفسيولوجيا',
+  'activityDetail.breathing.introduction':
+    'معدل تنفسك يتغيّر طوال اليوم ويزداد عندما تمارس الرياضة. في هذا النشاط ستقيس معدل تنفسك في الراحة وبعد تمرين خفيف باستخدام مقياس تسارع الهاتف للكشف عن حركات الصدر. ستقارن بعد ذلك مدى سرعة تعافي تنفسك.',
+  'activityDetail.breathing.objectives':
+    '• قِس معدل تنفسك عند الراحة بالنفس في الدقيقة.\n• قم بتمرين خفيف (الجري في المكان أو القفز على نجمة) وقِس معدل التنفس.\n• قارن التنفس في الراحة مقابل التنفس النشط.\n• راقب كيف يتعافى معدل تنفسك بعد التمرين.\n• ناقش العلاقة بين شدة التمرين والاستجابة التنفسية.',
+  'activityDetail.breathing.materials':
+    '• هاتف ذكي يعمل عليه STEMM Lab مع دعم مقياس التسارع\n• سطح مستوٍ (حصيرة أو أرضية) للوقوف أو الجري\n• مساحة مفتوحة للحركة الآمنة\n• (اختياري) مؤقت أو ساعة إيقاف لتتبع مدة التمرين',
+  'activityDetail.breathing.instructions':
+    '1. افتح مدرب وتيرة التنفس من قائمة الأنشطة.\n2. اضغط زر "في الراحة" لاختيار وضع الراحة.\n3. ضع الهاتف برفق على صدرك (فوق ملابسك، وليس على جلد عارٍ).\n4. اضغط ابدأ القياس وقف ساكنًا لمدة 30–60 ثانية.\n5. اضغط إيقاف القياس ولاحظ معدل التنفس.\n6. اضغط زر "بعد التمرين".\n7. قم بتمرين خفيف: جري في المكان أو 20 قفزة على نجمة.\n8. ضع الهاتف على صدرك مرة أخرى واضغط ابدأ القياس.\n9. قِس لمدة 30–60 ثانية بعد التمرين.\n10. اضغط إنهاء النشاط لرؤية النتائج.',
+  'activityDetail.breathing.interpreting':
+    '• معدل تنفسك في الراحة عادةً يكون 12–20 نفسًا في الدقيقة لدى المراهقين والبالغين.\n• بعد تمرين خفيف، يجب أن يزداد معدلك بشكل كبير (30–50+ نفسًا في الدقيقة).\n• قارن معدلاتك في الراحة مقابل النشطة — كم زاد تنفسك؟\n• جرّب تمارين مختلفة (المشي أو الجري أو القفزات النجمية) وقارن تأثيراتها.\n• ناقش لماذا يزيد جسدك التنفس أثناء التمرين وبعده (زيادة الحاجة للأكسجين).\n• احسب الوقت الذي يستغرقه تنفسك للعودة إلى معدل الراحة بعد توقفك عن التمرين.',
+
   'activityDetail.earthquake.gradeLevel': 'الصفوف 7 – 11',
   'activityDetail.earthquake.estimatedTime': '45 – 60 دقيقة',
   'activityDetail.earthquake.tags': 'الهندسة, الاهتزاز, الهياكل, مقياس التسارع, التصميم',
@@ -1339,6 +1461,36 @@ const ar: TranslationDict = {
   'run.handfan.alert.missingTrialsTitle': 'التصاميم غير مكتملة',
   'run.handfan.alert.missingTrialsMessage': 'يرجى إكمال الـ 3 تصاميم قبل الإنهاء.',
 
+  'run.breathing.heading': 'مدرب وتيرة التنفس',
+  'run.breathing.subheading':
+    'ضع الهاتف على صدرك. اختر وضع الراحة أو بعد التمرين، ثم اضغط على ابدأ لقياس معدل تنفسك.',
+  'run.breathing.mode.rest': 'في الراحة',
+  'run.breathing.mode.exercise': 'بعد التمرين',
+  'run.breathing.meter.live': 'معدل التنفس المباشر',
+  'run.breathing.meter.lastRate': 'المعدل الأخير',
+  'run.breathing.hint.measuring': 'جاري القياس… اضغط على إيقاف عند الانتهاء.',
+  'run.breathing.hint.complete': 'اكتمل القياس. أضف محاولة أخرى أو أنهِ.',
+  'run.breathing.hint.unavailable': 'مقياس التسارع غير متاح على هذا الجهاز.',
+  'run.breathing.hint.ready':
+    'ضع الهاتف بلطف على صدرك، ثم اضغط على ابدأ لبدء القياس.',
+  'run.breathing.stat.time': 'الوقت',
+  'run.breathing.stat.breathing': 'معدل التنفس',
+  'run.breathing.sensor.title': 'قيم المستشعر المباشرة (g)',
+  'run.breathing.start': 'ابدأ القياس',
+  'run.breathing.stop': 'إيقاف القياس',
+  'run.breathing.attemptsHeading': 'القياسات في هذه الجلسة ({{count}})',
+  'run.breathing.empty': 'لا توجد قياسات حتى الآن.',
+  'run.breathing.attemptLabel': 'القياس {{n}}',
+  'run.breathing.entrySub': 'مدة {{seconds}} ثانية',
+  'run.breathing.finish': 'إنهاء النشاط',
+  'run.breathing.alert.unavailableTitle': 'مقياس التسارع غير متاح',
+  'run.breathing.alert.unavailableMessage':
+    'هذا الجهاز لا يوفر بيانات مقياس التسارع.',
+  'run.breathing.alert.noDataTitle': 'لا توجد بيانات',
+  'run.breathing.alert.noDataMessage': 'لم تتم أخذ عينات مقياس التسارع.',
+  'run.breathing.alert.noEntriesTitle': 'لا توجد قياسات',
+  'run.breathing.alert.noEntriesMessage': 'سجل قياس تنفس واحد على الأقل قبل الإنهاء.',
+
   'result.common.latest': 'آخر محاولة',
   'result.common.savedAt': 'تم الحفظ {{when}}',
   'result.common.totalAttempts': 'إجمالي المحاولات المحفوظة: {{count}}',
@@ -1357,6 +1509,15 @@ const ar: TranslationDict = {
   'result.reaction.average': 'المتوسط',
   'result.reaction.listHeading': 'أزمنة الاستجابة',
   'result.reaction.attemptLabel': 'المحاولة {{n}}',
+
+  'result.breathing.lowest': 'الأقل',
+  'result.breathing.highest': 'الأعلى',
+  'result.breathing.average': 'المتوسط',
+  'result.breathing.comparison': 'الراحة مقابل النشاط',
+  'result.breathing.listHeading': 'قياسات التنفس',
+  'result.breathing.attemptLabel': 'القياس {{n}}',
+  'result.breathing.empty': 'لم يتم تسجيل قياسات.',
+  'result.breathing.entrySub': 'المدة {{seconds}} ث',
 
   'result.earthquake.tests': 'الاختبارات',
   'result.earthquake.bestPeak': 'الأفضل (أدنى ذروة)',
@@ -1616,6 +1777,20 @@ const zh: TranslationDict = {
   'activityDetail.reaction.interpreting':
     '• 看看你最佳、平均和最慢的反应时间。\n• 几次尝试后你变快了吗？疲劳时变慢了吗？\n• 在队友间比较结果，并讨论为什么人和人会不同。\n• 想想现实中需要快速反应的活动，比如运动或开车。',
 
+  'activityDetail.breathing.gradeLevel': '6 – 10 年级',
+  'activityDetail.breathing.estimatedTime': '20 – 30 分钟',
+  'activityDetail.breathing.tags': '呼吸, 心率, 运动, 加速计, 健康, 生理学',
+  'activityDetail.breathing.introduction':
+    '你的呼吸速率会随着时间变化，在运动时会增加。在此活动中，你将使用手机的加速计检测胸部运动，测量你在静息和轻度运动后的呼吸速率。然后，你将比较呼吸恢复的速度。',
+  'activityDetail.breathing.objectives':
+    '• 测量你在静息时的呼吸速率（每分钟呼吸次数）。\n• 进行轻度运动（原地慢跑或跳星），并测量呼吸速率。\n• 比较静息呼吸速率与活跃呼吸速率。\n• 观察运动后你的呼吸速率如何恢复。\n• 讨论运动强度与呼吸反应之间的关系。',
+  'activityDetail.breathing.materials':
+    '• 一部运行 STEMM Lab 且支持加速计的智能手机\n• 一个平坦的表面（瑜伽垫或地板）用于站立或慢跑\n• 一个开放的空间供安全运动\n• （可选）一个计时器或秒表用于追踪运动时长',
+  'activityDetail.breathing.instructions':
+    '1. 从活动列表中打开「呼吸节奏训练器」。\n2. 点击「静息」按钮以选择静息模式。\n3. 将手机轻轻放在胸部（放在衣服上，不要直接贴皮肤）。\n4. 点击「开始测量」并保持静止 30–60 秒。\n5. 点击「停止测量」并记下呼吸速率。\n6. 点击「运动后」按钮。\n7. 进行轻度运动：原地慢跑或做 20 个跳星。\n8. 立即把手机放回胸部，点击「开始测量」。\n9. 运动后测量 30–60 秒。\n10. 点击「完成活动」查看你的结果。',
+  'activityDetail.breathing.interpreting':
+    '• 青少年和成人的静息呼吸速率通常为每分钟 12–20 次呼吸。\n• 轻度运动后，你的速率应该明显增加（每分钟 30–50+ 次呼吸）。\n• 比较你的静息呼吸速率和活跃呼吸速率——你的呼吸增加了多少？\n• 尝试不同的运动（走路、跑步、跳星），并比较它们的效果。\n• 讨论为什么你的身体在运动期间和之后会增加呼吸（身体需要更多氧气）。\n• 计算停止运动后呼吸速率恢复到静息速率需要多长时间。',
+
   'activityDetail.earthquake.gradeLevel': '7 – 11 年级',
   'activityDetail.earthquake.estimatedTime': '45 – 60 分钟',
   'activityDetail.earthquake.tags': '工程, 振动, 结构, 加速计, 设计',
@@ -1809,6 +1984,36 @@ const zh: TranslationDict = {
   'run.handfan.alert.missingTrialsTitle': '设计未完成',
   'run.handfan.alert.missingTrialsMessage': '请在完成前完成全部3个设计。',
 
+  'run.breathing.heading': '呼吸节奏训练器',
+  'run.breathing.subheading':
+    '将手机轻轻放在胸部。选择静息或运动后模式，然后点击开始以测量呼吸速率。',
+  'run.breathing.mode.rest': '静息',
+  'run.breathing.mode.exercise': '运动后',
+  'run.breathing.meter.live': '实时呼吸速率',
+  'run.breathing.meter.lastRate': '最后速率',
+  'run.breathing.hint.measuring': '测量中…完成时点击停止。',
+  'run.breathing.hint.complete': '测量完成。添加另一次尝试或完成。',
+  'run.breathing.hint.unavailable': '此设备上加速度计不可用。',
+  'run.breathing.hint.ready':
+    '将手机轻轻放在胸部，然后点击开始以开始测量。',
+  'run.breathing.stat.time': '时间',
+  'run.breathing.stat.breathing': '呼吸速率',
+  'run.breathing.sensor.title': '实时传感器值 (g)',
+  'run.breathing.start': '开始测量',
+  'run.breathing.stop': '停止测量',
+  'run.breathing.attemptsHeading': '此会话的测量 ({{count}})',
+  'run.breathing.empty': '尚无测量。',
+  'run.breathing.attemptLabel': '测量 {{n}}',
+  'run.breathing.entrySub': '持续时间 {{seconds}} 秒',
+  'run.breathing.finish': '完成活动',
+  'run.breathing.alert.unavailableTitle': '加速度计不可用',
+  'run.breathing.alert.unavailableMessage':
+    '此设备不提供加速度计数据。',
+  'run.breathing.alert.noDataTitle': '无数据',
+  'run.breathing.alert.noDataMessage': '未捕获加速度计样本。',
+  'run.breathing.alert.noEntriesTitle': '无测量',
+  'run.breathing.alert.noEntriesMessage': '完成前至少记录一次呼吸测量。',
+
   'result.common.latest': '最近一次',
   'result.common.savedAt': '已保存于 {{when}}',
   'result.common.totalAttempts': '已保存的尝试总数：{{count}}',
@@ -1827,6 +2032,15 @@ const zh: TranslationDict = {
   'result.reaction.average': '平均',
   'result.reaction.listHeading': '反应时间',
   'result.reaction.attemptLabel': '第 {{n}} 次',
+
+  'result.breathing.lowest': '最低',
+  'result.breathing.highest': '最高',
+  'result.breathing.average': '平均',
+  'result.breathing.comparison': '静息 vs. 活跃',
+  'result.breathing.listHeading': '呼吸测量',
+  'result.breathing.attemptLabel': '第 {{n}} 次测量',
+  'result.breathing.empty': '未记录测量数据。',
+  'result.breathing.entrySub': '持续 {{seconds}} 秒',
 
   'result.earthquake.tests': '测试数',
   'result.earthquake.bestPeak': '最佳（最低峰值）',
