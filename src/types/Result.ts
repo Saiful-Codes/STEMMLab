@@ -7,4 +7,8 @@ export type Result = {
   timestamp: number;
   rating?: number;
   comment?: string;
+  latitude?: number;
+  longitude?: number;
+  accuracy?: number;
+  locationName?: string;
 };

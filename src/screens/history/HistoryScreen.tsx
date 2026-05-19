@@ -199,7 +199,7 @@ export default function HistoryScreen() {
                   </Text>
                 </Text>
               ) : null}
-              {item.comment ? (
+                            {item.comment ? (
                 <Text
                   style={[
                     styles.comment,
@@ -207,6 +207,16 @@ export default function HistoryScreen() {
                   ]}
                 >
                   “{item.comment}”
+                </Text>
+              ) : null}
+              {item.locationName || (item.latitude != null && item.longitude != null) ? (
+                <Text
+                  style={[
+                    styles.location,
+                    { color: colors.textMuted, fontSize: baseFont.tiny * fontScale },
+                  ]}
+                >
+                  📍 {item.locationName || `${item.latitude?.toFixed(4)}, ${item.longitude?.toFixed(4)}`}
                 </Text>
               ) : null}
             </View>
@@ -299,6 +309,7 @@ const styles = StyleSheet.create({
   meta: {},
   rating: { marginTop: 6 },
   comment: { fontStyle: 'italic', marginTop: 6 },
+  location: { marginTop: 6 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   empty: {
     flex: 1,

@@ -14,6 +14,11 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
 import { EarthquakeEntry } from '../../../storage/attempts';
 import { useTranslation } from '../../../context/LanguageContext';
+import { useLocation } from '../../../context/LocationContext';
+import { useNotifications } from '../../../context/NotificationContext';
+import { useTeam } from '../../../context/TeamContext';
+import { saveActivityResultWithLocation } from '../../../utils/activityResultHelper';
+import type { Result } from '../../../types/Result';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -36,6 +41,9 @@ function shakeMagnitude(x: number, y: number, z: number): number {
 export default function EarthquakeRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
+  const { team } = useTeam();
+  const { location, refreshLocation } = useLocation();
+  const { sendAchievement } = useNotifications();
 
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [mode, setMode] = useState<SimulationMode>('manual');
@@ -62,6 +70,8 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
       .catch(() => {
         if (!cancelled) setIsAvailable(false);
       });
+    // Get location on mount
+    refreshLocation();
     return () => {
       cancelled = true;
       stopSampling();
@@ -158,7 +168,7 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
     setEntries((prev) => [newEntry, ...prev]);
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     if (entries.length === 0) {
       Alert.alert(
         t('run.earthquake.alert.noAttemptsTitle'),
@@ -166,11 +176,50 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
       );
       return;
     }
-    const peak = Math.max(...entries.map((e) => e.peakMagnitude));
-    navigation.replace('ResultSummary', {
-      activityId,
-      result: Number(peak.toFixed(2)),
-    });
+
+    if (!team) {
+      Alert.alert('Error', 'No team information available');
+      return;
+    }
+
+    try {
+      // Refresh location before finishing
+      await refreshLocation();
+
+      const peak = Math.max(...entries.map((e) => e.peakMagnitude));
+
+      // Save result with GPS location
+      const result: Result = {
+        id: `result_${Date.now()}`,
+        activityId,
+        teamName: team.name,
+        members: team.members,
+        result: Number(peak.toFixed(2)),
+        timestamp: Date.now(),
+      };
+
+      await saveActivityResultWithLocation(result, location);
+
+      // Send completion notification
+      await sendAchievement(
+        'Earthquake Structure Complete! 🏗️',
+        `${team.name} tested earthquake resistance${location?.locationName ? ` at ${location.locationName}` : ''}`
+      );
+
+      Alert.alert(
+  'Activity Saved!',
+  `GPS location captured:\n${location?.locationName || 'Unknown location'}`
+);
+
+
+      navigation.replace('ResultSummary', {
+        activityId,
+        result: Number(peak.toFixed(2)),
+      });
+    } catch (err) {
+      console.error('Error finishing activity:', err);
+      Alert.alert('Error', 'Failed to save activity result');
+    }
   };
 
   const liveDisplay = isRunning

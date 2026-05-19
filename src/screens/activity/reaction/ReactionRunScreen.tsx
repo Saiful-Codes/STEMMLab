@@ -12,6 +12,11 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
 import { ReactionEntry } from '../../../storage/attempts';
 import { useTranslation } from '../../../context/LanguageContext';
+import { useLocation } from '../../../context/LocationContext';
+import { useNotifications } from '../../../context/NotificationContext';
+import { useTeam } from '../../../context/TeamContext';
+import { saveActivityResultWithLocation } from '../../../utils/activityResultHelper';
+import type { Result } from '../../../types/Result';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -23,6 +28,9 @@ const MAX_DELAY_MS = 3000;
 export default function ReactionRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
+  const { team } = useTeam();
+  const { location, refreshLocation } = useLocation();
+  const { sendAchievement } = useNotifications();
 
   const [gameState, setGameState] = useState<GameState>('idle');
   const [entries, setEntries] = useState<ReactionEntry[]>([]);
@@ -32,10 +40,12 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
   const waitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    // Get location on mount
+    refreshLocation();
     return () => {
       if (waitTimeoutRef.current) clearTimeout(waitTimeoutRef.current);
     };
-  }, []);
+  }, [refreshLocation]);
 
   const handleStart = () => {
     setLastReactionMs(null);
@@ -78,7 +88,7 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
     setGameState('idle');
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     if (entries.length === 0) {
       Alert.alert(
         t('run.reaction.alert.noAttemptsTitle'),
@@ -86,11 +96,50 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
       );
       return;
     }
-    const bestMs = Math.min(...entries.map((e) => e.reactionMs));
-    navigation.replace('ResultSummary', {
-      activityId,
-      result: bestMs,
-    });
+
+    if (!team) {
+      Alert.alert('Error', 'No team information available');
+      return;
+    }
+
+    try {
+      // Refresh location before finishing
+      await refreshLocation();
+
+      const bestMs = Math.min(...entries.map((e) => e.reactionMs));
+
+      // Save result with GPS location
+      const result: Result = {
+        id: `result_${Date.now()}`,
+        activityId,
+        teamName: team.name,
+        members: team.members,
+        result: bestMs,
+        timestamp: Date.now(),
+      };
+
+      await saveActivityResultWithLocation(result, location);
+
+      // Send completion notification
+      await sendAchievement(
+        'Reaction Challenge Complete! ⚡',
+        `${team.name} tested reaction time${location?.locationName ? ` at ${location.locationName}` : ''}`
+      );
+
+      Alert.alert(
+  'Activity Saved!',
+  `GPS location captured:\n${location?.locationName || 'Unknown location'}`
+);
+
+
+      navigation.replace('ResultSummary', {
+        activityId,
+        result: bestMs,
+      });
+    } catch (err) {
+      console.error('Error finishing activity:', err);
+      Alert.alert('Error', 'Failed to save activity result');
+    }
   };
 
   const areaStyle = [

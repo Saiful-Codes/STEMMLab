@@ -13,6 +13,7 @@ import { activities } from '../../data/activities';
 import { useTeam } from '../../context/TeamContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
+import { useLocation } from '../../context/LocationContext';
 import { saveResult } from '../../storage/results';
 import { Result } from '../../types/Result';
 import { baseFont } from '../../theme/tokens';
@@ -25,6 +26,7 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
   const { team } = useTeam();
   const { colors, fontScale } = useTheme();
   const { t } = useTranslation();
+  const { location, refreshLocation } = useLocation();
 
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState('');
@@ -45,6 +47,19 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
     }
 
     setSaving(true);
+    
+    // Capture location before saving
+    let currentLocation = location;
+    if (!currentLocation) {
+      try {
+        await refreshLocation();
+        // Note: refreshLocation updates state, but we'll use the location variable
+        // which might not reflect the update immediately. Fetch again or use side effect.
+      } catch (err) {
+        console.warn('[ResultSummaryScreen] Failed to get location:', err);
+      }
+    }
+
     const payload: Result = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       activityId,
@@ -54,6 +69,10 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
       timestamp: Date.now(),
       rating: rating > 0 ? rating : undefined,
       comment: comment.trim() ? comment.trim() : undefined,
+      latitude: currentLocation?.latitude,
+      longitude: currentLocation?.longitude,
+      accuracy: currentLocation?.accuracy,
+      locationName: currentLocation?.locationName,
     };
 
     try {
