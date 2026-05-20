@@ -56,3 +56,11 @@ docs/CLAUDE.md
 docs/project-spec.md
 docs/plan.md
 docs/progress.md
+
+# Internal planning/docs
+GPS_NOTIFICATION_GUIDE.md
+GPS_NOTIFICATION_IMPLEMENTATION.md
+testing-plan.md
+
+# Assessment artifacts
+*.pptx
