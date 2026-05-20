@@ -11,7 +11,7 @@ import {
   createAchievementNotification,
   createReminderNotification,
   createInfoNotification,
-  sendLocalNotification,
+  sendImmediateNotification,
 } from '../services/notificationService';
 
 type NotificationContextValue = {
@@ -37,7 +37,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
   const addNotification = useCallback(async (notification: Notification) => {
     setNotifications((prev) => [notification, ...prev]);
-    await sendLocalNotification(notification);
+    // Send system notification
+    await sendImmediateNotification(notification.title, notification.message, notification.data);
   }, []);
 
   const markAsRead = useCallback((id: string) => {

@@ -1,5 +1,9 @@
+import { useEffect, useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createNavigationContainerRef } from '@react-navigation/native';
+import { NavigationContainerRef } from '@react-navigation/native';
+import * as Notifications from 'expo-notifications';
 import WelcomeScreen from '../screens/onboarding/WelcomeScreen';
 import TeamSetupScreen from '../screens/onboarding/TeamSetupScreen';
 import AuthScreen from '../screens/auth/AuthScreen';
@@ -17,10 +21,32 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+// Global navigation ref for notification handling
+
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 export default function RootNavigator() {
   const { team, loading: teamLoading } = useTeam();
   const { loading: themeLoading, colors } = useTheme();
   const { t } = useTranslation();
+
+  // Set up notification response handling for deep linking
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const screen = response.notification.request.content.data?.screen;
+      console.log('[RootNavigator] Notification response with screen:', screen);
+      
+      if (screen === 'History' && navigationRef.isReady()) {
+        // Navigate to MainTabs and then to History tab
+        navigationRef.navigate('MainTabs', {
+          screen: 'History',
+        } as any);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   if (teamLoading || themeLoading) {
     return (
