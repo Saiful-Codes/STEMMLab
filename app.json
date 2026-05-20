@@ -38,6 +38,14 @@
           "locationAlwaysAndWhenInUsePermission": "Allow STEMM Lab to use your location to tag activities with their GPS coordinates for data analysis."
         }
       ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#000000",
+          "sounds": ["default"]
+        }
+      ],
       "expo-sqlite"
     ]
   }

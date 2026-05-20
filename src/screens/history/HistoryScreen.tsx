@@ -199,7 +199,7 @@ export default function HistoryScreen() {
                   </Text>
                 </Text>
               ) : null}
-              {item.comment ? (
+                            {item.comment ? (
                 <Text
                   style={[
                     styles.comment,
