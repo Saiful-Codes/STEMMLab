@@ -6,7 +6,12 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { LocationData, getCurrentLocation, checkLocationPermission, requestLocationPermission } from '../services/gpsService';
+import {
+  LocationData,
+  getCurrentLocation,
+  checkLocationPermission,
+  requestLocationPermission,
+} from '../services/gpsService';
 
 type LocationContextValue = {
   location: LocationData | null;
@@ -25,7 +30,6 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [permissionGranted, setPermissionGranted] = useState(false);
 
-  // Check permission on mount
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -64,7 +68,6 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       setError(null);
 
-      // Request permission if not already granted
       if (!permissionGranted) {
         const granted = await requestPermission();
         if (!granted) {

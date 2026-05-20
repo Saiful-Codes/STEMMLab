@@ -7,9 +7,6 @@ export type LocationData = {
   locationName?: string;
 };
 
-/**
- * Request permission to access device location
- */
 export async function requestLocationPermission(): Promise<boolean> {
   try {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -20,9 +17,6 @@ export async function requestLocationPermission(): Promise<boolean> {
   }
 }
 
-/**
- * Check if location permission is already granted
- */
 export async function checkLocationPermission(): Promise<boolean> {
   try {
     const { status } = await Location.getForegroundPermissionsAsync();
@@ -33,12 +27,8 @@ export async function checkLocationPermission(): Promise<boolean> {
   }
 }
 
-/**
- * Get current device location
- */
 export async function getCurrentLocation(): Promise<LocationData | null> {
   try {
-    // Check permission first
     const hasPermission = await checkLocationPermission();
     if (!hasPermission) {
       console.warn('[gpsService] Location permission not granted');
@@ -55,13 +45,9 @@ export async function getCurrentLocation(): Promise<LocationData | null> {
 
     const { latitude, longitude, accuracy } = location.coords;
 
-    // Try to get human-readable address
     let locationName: string | undefined;
     try {
-      const address = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude,
-      });
+      const address = await Location.reverseGeocodeAsync({ latitude, longitude });
       if (address && address.length > 0) {
         const addr = address[0];
         locationName =
@@ -69,7 +55,6 @@ export async function getCurrentLocation(): Promise<LocationData | null> {
           undefined;
       }
     } catch (err) {
-      // Reverse geocoding failed, but we still have coordinates
       console.warn('[gpsService] Reverse geocoding failed:', err);
     }
 
@@ -85,26 +70,20 @@ export async function getCurrentLocation(): Promise<LocationData | null> {
   }
 }
 
-/**
- * Format location for display
- */
 export function formatLocation(latitude?: number, longitude?: number): string {
-  if (!latitude || !longitude) {
+  if (latitude == null || longitude == null) {
     return 'Location not available';
   }
   return `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
 }
 
-/**
- * Calculate distance between two GPS points (in meters) using Haversine formula
- */
 export function calculateDistance(
   lat1: number,
   lon1: number,
   lat2: number,
   lon2: number
 ): number {
-  const R = 6371000; // Earth radius in meters
+  const R = 6371000;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
   const a =

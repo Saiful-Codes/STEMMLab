@@ -209,14 +209,17 @@ export default function HistoryScreen() {
                   “{item.comment}”
                 </Text>
               ) : null}
-              {item.locationName || (item.latitude != null && item.longitude != null) ? (
+              {item.locationName ||
+              (item.latitude != null && item.longitude != null) ? (
                 <Text
                   style={[
                     styles.location,
                     { color: colors.textMuted, fontSize: baseFont.tiny * fontScale },
                   ]}
                 >
-                  📍 {item.locationName || `${item.latitude?.toFixed(4)}, ${item.longitude?.toFixed(4)}`}
+                  📍{' '}
+                  {item.locationName ||
+                    `${item.latitude?.toFixed(4)}, ${item.longitude?.toFixed(4)}`}
                 </Text>
               ) : null}
             </View>

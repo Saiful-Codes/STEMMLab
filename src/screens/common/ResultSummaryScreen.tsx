@@ -14,6 +14,7 @@ import { useTeam } from '../../context/TeamContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { useLocation } from '../../context/LocationContext';
+import { getCurrentLocation } from '../../services/gpsService';
 import { saveResult } from '../../storage/results';
 import { sendActivityCompleteNotification } from '../../services/notificationService';
 import { Result } from '../../types/Result';
@@ -27,7 +28,7 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
   const { team } = useTeam();
   const { colors, fontScale } = useTheme();
   const { t } = useTranslation();
-  const { location, refreshLocation } = useLocation();
+  const { location, requestPermission } = useLocation();
 
   const [rating, setRating] = useState<number>(0);
   const [comment, setComment] = useState('');
@@ -48,17 +49,16 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
     }
 
     setSaving(true);
-    
-    // Capture location before saving
+
+    // Capture a fresh GPS fix at save time. Falls back to the cached
+    // context value, then to no-location if permission was denied.
     let currentLocation = location;
-    if (!currentLocation) {
-      try {
-        await refreshLocation();
-        // Note: refreshLocation updates state, but we'll use the location variable
-        // which might not reflect the update immediately. Fetch again or use side effect.
-      } catch (err) {
-        console.warn('[ResultSummaryScreen] Failed to get location:', err);
-      }
+    try {
+      await requestPermission();
+      const fresh = await getCurrentLocation();
+      if (fresh) currentLocation = fresh;
+    } catch (err) {
+      console.warn('[ResultSummaryScreen] Failed to get location:', err);
     }
 
     const payload: Result = {

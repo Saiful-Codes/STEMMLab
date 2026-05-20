@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
-import RootNavigator from './src/navigation/RootNavigator';
+import RootNavigator, { navigationRef } from './src/navigation/RootNavigator';
 import { TeamProvider } from './src/context/TeamContext';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
 import { LanguageProvider } from './src/context/LanguageContext';
@@ -17,8 +17,7 @@ import './src/services/backgroundTaskService';
 
 function ThemedApp() {
   const { navTheme, mode } = useTheme();
-  const navigationRef = require('./src/navigation/RootNavigator').navigationRef;
-  
+
   return (
     <NavigationContainer ref={navigationRef} theme={navTheme}>
       <RootNavigator />
@@ -35,26 +34,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    // Request notification permissions at app startup
     let subscription: Notifications.EventSubscription | undefined;
 
     (async () => {
       try {
-        // Request notification permissions
         await requestNotificationPermissions();
-
-        // Set up listener for when notification is tapped
         subscription = setupNotificationResponseListener((data) => {
           console.log('[App] Notification response data:', data);
-          // Navigation handling will be done in RootNavigator
-          // The data contains screen info that can be used for deep linking
         });
       } catch (err) {
         console.warn('[App] Failed to set up notifications:', err);
       }
     })();
 
-    // Cleanup listener on unmount
     return () => {
       subscription?.remove();
     };

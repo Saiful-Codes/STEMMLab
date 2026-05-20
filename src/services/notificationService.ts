@@ -9,7 +9,8 @@ import * as Notifications from 'expo-notifications';
 // Configure notification handler for when app is in foreground
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
   }),
@@ -98,6 +99,7 @@ export async function scheduleNotification(
         badge: 1,
       },
       trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds: delaySeconds,
       },
     });
@@ -129,6 +131,35 @@ export async function sendActivityCompleteNotification(
       screen: 'History',
       ...data,
     }
+  );
+}
+
+/**
+ * Notify that a team has completed an activity
+ */
+export async function notifyActivityComplete(
+  teamName: string,
+  activityName: string
+): Promise<string | undefined> {
+  return sendImmediateNotification(
+    `🎉 ${activityName} Completed`,
+    `${teamName} finished the activity.`,
+    { screen: 'History' }
+  );
+}
+
+/**
+ * Notify that a team has set a new high score for an activity
+ */
+export async function notifyNewHighScore(
+  teamName: string,
+  activityName: string,
+  score: number
+): Promise<string | undefined> {
+  return sendImmediateNotification(
+    `🏆 New High Score!`,
+    `${teamName} set a new record on ${activityName}: ${score}`,
+    { screen: 'History' }
   );
 }
 
