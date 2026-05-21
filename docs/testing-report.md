@@ -1,11 +1,11 @@
 # STEMMLab — Testing Progress Report
 
 **Branch:** `testing`
-**Scope of this report:** Tasks 1–8 of `testing-plan.md` (Phase A complete + first chunk of Phase B utils backfill).
+**Scope of this report:** Tasks 1–9 of `testing-plan.md` (Phase A complete + Phase B utils backfill + authService).
 **Audience:** future developer/maintainer continuing the testing backlog.
 **Source of truth for plan/scope:** `testing-plan.md` at project root.
 
-This document tracks what has been built, what is intentionally out of scope, and what is still pending. It is meant to be appended to as Tasks 9–15 land.
+This document tracks what has been built, what is intentionally out of scope, and what is still pending. It is meant to be appended to as Tasks 10–15 land.
 
 ---
 
@@ -91,19 +91,28 @@ STEMMLab is a React Native + Expo + TypeScript app. The testing strategy is deli
   - `src/utils/parachutePhysics.test.ts` (11 tests) — `getGForceRisk` boundary classification at **4.9, 5, 9.9, 10, 29.9, 30, 49.9, 50, 100**; `calculateTrial` for `primary` (gForce stays 0) and `highschool` no-bounce (gForce = 10 → moderate) with cleanly-roundable inputs.
   - `src/utils/handFanPhysics.test.ts` (8 tests) — `degreesToRadians(180) ≈ π`, `0`, `π/2`; `getMaterial` known + unknown + every entry in `MATERIALS`; `calculateForce(0.5, 90)` → `{ bendAngleRad: 1.57, estimatedForce: 0.79 }`; 0° → both outputs zero; linear scaling with stiffness at fixed angle.
 
+### Task 9 — authService
+- File: `src/services/authService.test.ts` (16 tests).
+- `getFriendlyAuthError` — table-driven coverage for every code in the switch (`auth/invalid-email`, `auth/missing-email`, `auth/missing-password`, `auth/weak-password`, `auth/email-already-in-use`, `auth/user-not-found`, `auth/wrong-password`, `auth/invalid-credential`, `auth/too-many-requests`, `auth/network-request-failed`) + default fallthrough for an unknown code + default fallthrough when `err` has no `code` (Error instance, `null`, plain string).
+- `signInWithEmail` — calls `signInWithEmailAndPassword(auth, trimmedEmail, password)` and returns `cred.user`.
+- `signUpWithEmail` — calls `createUserWithEmailAndPassword(auth, trimmedEmail, password)` and returns `cred.user`. Both trim leading/trailing whitespace including newlines.
+- `signOutUser` — calls `signOut(auth)`.
+- `listenToAuthChanges` — passes the supplied callback to `onAuthStateChanged`, supplies its own error handler, and returns the unsubscribe function untouched.
+- Mocks: inline `jest.mock('./firebase', () => ({ auth: { __mock: 'auth' } }))` (sentinel `auth`) and `jest.mock('firebase/auth')` with `createUserWithEmailAndPassword`, `signInWithEmailAndPassword`, `signOut`, `onAuthStateChanged` stubs. No real Firebase imported.
+
 ---
 
 ## 4. Test categories implemented so far
 
 | Category | Files | Test count |
 |---|---|---|
-| Unit (pure) — resultUtils, activityLabels, parachutePhysics, handFanPhysics, gps formatters/distance | 4 | 7 + 16 + 11 + 8 + 4 (`formatLocation`/`calculateDistance` subset of gps) |
-| Unit (mocked I/O) — gps permission/location, firestoreService, storage/results, storage/team | 4 | 5 (gps) + 6 + 5 + 3 |
+| Unit (pure) — resultUtils, activityLabels, parachutePhysics, handFanPhysics, gps formatters/distance, authService error mapper | 5 | 7 + 16 + 11 + 8 + 4 (`formatLocation`/`calculateDistance` subset of gps) + 12 (`getFriendlyAuthError` cases) |
+| Unit (mocked I/O) — gps permission/location, firestoreService, storage/results, storage/team, authService sign-in/up/out/listen | 5 | 5 (gps) + 6 + 5 + 3 + 4 |
 | Static guardrail — AdMob removal | 1 | 2 |
 | Component / integration | — | not yet (Task 11) |
 | Smoke (`App.tsx`) | — | not yet (Task 12) |
 
-**Current totals: 9 test suites, 65 passing tests, 0 skipped, 0 failing.**
+**Current totals: 10 test suites, 81 passing tests, 0 skipped, 0 failing.**
 
 ---
 
@@ -141,6 +150,9 @@ All Expo native modules are stubbed shallowly — only the surface the source co
 - **G-force band boundaries** — explicit tests at every lower edge (5, 10, 30, 50) confirming `<` semantics in `getGForceRisk` push the boundary into the next band.
 - **Activity ranking default-false** — `isLowerBetter` returns `false` for unknown activity ids, so a future un-metadata'd activity won't silently reverse the leaderboard.
 - **AdMob re-introduction guardrail** — any future import of `react-native-google-mobile-ads` from `src/` or any package.json dependency entry will fail `npm test` immediately.
+- **Auth email trimming** — `signInWithEmail` and `signUpWithEmail` strip leading/trailing whitespace (including newlines) before handing the email to Firebase, so user-entered "  alice@example.com  " never reaches the backend untrimmed.
+- **Auth error mapping** — every Firebase error code referenced in the `getFriendlyAuthError` switch has a corresponding assertion; an unknown code or non-`code`-bearing error falls through to the generic friendly message instead of leaking the raw Firebase string.
+- **`listenToAuthChanges` resilience** — the wrapper installs its own error handler around `onAuthStateChanged` and returns Firebase's unsubscribe verbatim, so callers can always tear the listener down.
 
 ---
 
@@ -155,6 +167,7 @@ All Expo native modules are stubbed shallowly — only the surface the source co
 | `src/utils/resultUtils.ts` | 80.76% | 100% | uncovered: `bestResult` empty-array return (sortedResults.length === 0) |
 | `src/services/gpsService.ts` | 81.08% | 100% | uncovered: outer try/catch warn branches + `if (!location)` null return |
 | `src/services/firestoreService.ts` | 76.92% | 83.33% | uncovered: `getTeamFromFirestore` (out of Task 5 scope) |
+| `src/services/authService.ts` | 90% | 71.42% | uncovered: `getCurrentUser` (out of Task 9 scope) and the `onAuthStateChanged` error-callback `console.warn` line (not worth asserting) |
 | `src/storage/results.ts` | 78.94% | 100% | uncovered: `saveResult`/`clearResults` catch+throw branches |
 | `src/storage/team.ts` | 62.5% | 100% | uncovered: catch+throw branches across all 3 functions |
 | `src/utils/activityLabels.ts` | 54.16% | 40% | uncovered: i18n / translation helpers (out of Task 8 scope) |
@@ -177,13 +190,12 @@ Activities, screens, sensor-driven services, navigation, and SQLite remain at 0%
 
 ---
 
-## 9. Pending tasks (9–15)
+## 9. Pending tasks (10–15)
 
 From `testing-plan.md` §11. Each is self-contained and runnable in isolation.
 
 | # | File(s) | Summary |
 |---|---|---|
-| **9** | `src/services/authService.test.ts` | `getFriendlyAuthError` every code + default; `signInWithEmail` / `signUpWithEmail` trim email; `signOutUser`; `listenToAuthChanges` returns the unsubscribe from `onAuthStateChanged`. |
 | **10** | `src/services/notificationService.test.ts`, `batteryService.test.ts`, `backgroundTaskService.test.ts` | Shallow native-leaning service mocks. |
 | **11** | `src/screens/auth/AuthScreen.test.tsx`, `home/HomeScreen.test.tsx`, `history/HistoryScreen.test.tsx` | First component tests via `@testing-library/react-native`. Will need `react-navigation` hook mocks + minimal context providers (`ThemeProvider`, `LanguageProvider`). |
 | **12** | `App.test.tsx` (project root) | Smoke render — all providers and the navigation container mount without throwing. |
@@ -196,8 +208,8 @@ From `testing-plan.md` §11. Each is self-contained and runnable in isolation.
 ## 10. Current project testing status
 
 - ✅ **Phase A complete** (Tasks 1–7): infrastructure, risky-area Sprint 2 surfaces (GPS, Firestore, storage), AdMob guardrail.
-- ✅ **Phase B partially complete** (Task 8 done): remaining pure utils backfilled.
-- 🟡 **Phase B in progress** (Tasks 9–12 pending): authService + shallow native-service tests + component tests + App smoke.
+- ✅ **Phase B partially complete** (Tasks 8–9 done): remaining pure utils backfilled + authService (mapper + sign-in/up/out/listen) covered.
+- 🟡 **Phase B in progress** (Tasks 10–12 pending): shallow native-service tests + component tests + App smoke.
 - 🔲 **Evidence pass not yet started** (Tasks 13–15): coverage artifacts, manual E2E screenshots, doc updates.
 
 Run anytime:
@@ -223,7 +235,7 @@ package.json   (test scripts)
 .gitignore     (coverage/ ignored)
 ```
 
-**Test files (9 suites, 65 tests)**
+**Test files (10 suites, 81 tests)**
 
 ```
 src/__tests__/adMobRemoved.test.ts
@@ -233,6 +245,7 @@ src/utils/parachutePhysics.test.ts
 src/utils/handFanPhysics.test.ts
 src/services/gpsService.test.ts
 src/services/firestoreService.test.ts
+src/services/authService.test.ts
 src/storage/results.test.ts
 src/storage/team.test.ts
 ```
@@ -246,4 +259,4 @@ docs/testing-report.md   (this file)
 
 ---
 
-*Last updated after Task 8 completion. Append new sections (or extend §3, §4, §7, §9) as Tasks 9–15 land — do not rewrite history.*
+*Last updated after Task 9 completion. Append new sections (or extend §3, §4, §7, §9) as Tasks 10–15 land — do not rewrite history.*
