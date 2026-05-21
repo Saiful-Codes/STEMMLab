@@ -1,11 +1,11 @@
 # STEMMLab — Testing Progress Report
 
 **Branch:** `testing`
-**Scope of this report:** Tasks 1–13 of `testing-plan.md` (Phase A + Phase B complete + coverage / run evidence artifacts captured).
+**Scope of this report:** Tasks 1–15 of `testing-plan.md` — **Sprint 2 testing backlog complete.** Phase A + Phase B automated tests, automated evidence artifacts, manual E2E checklist, and developer-facing documentation are all in place.
 **Audience:** future developer/maintainer continuing the testing backlog.
 **Source of truth for plan/scope:** `testing-plan.md` at project root.
 
-This document tracks what has been built, what is intentionally out of scope, and what is still pending. It is meant to be appended to as Tasks 14–15 land.
+This document is the durable evidence index — automated test inventory, coverage observations, manual E2E pass, and links to artifacts and documentation.
 
 ---
 
@@ -163,6 +163,27 @@ STEMMLab is a React Native + Expo + TypeScript app. The testing strategy is deli
 > - appending `!docs/testing-evidence/coverage/` after line 43 as an explicit exception.
 > The `runs/npm-test-output.txt` file is not affected. This is flagged for the user to decide; **no `.gitignore` change was made automatically** as that is a repo-policy decision.
 
+### Task 14 — Manual E2E execution
+- Executed the 10-scenario manual checklist from `testing-plan.md` §8 on a real device via **Expo Go**. Source of truth for completion status: [`docs/testing-evidence/manual-checklist-completed.md`](./testing-evidence/manual-checklist-completed.md) (all 10 rows ticked).
+- Scenarios covered (each captured as a screenshot at `docs/testing-evidence/manual/NN-<short-name>.png`; screenshot finalisation is handled by the developer outside this report — paths are not verified here):
+  1. **Onboarding** — Welcome → TeamSetup (team name + first member + grade) → Home tab.
+  2. **Sound Pollution Hunter** — mic permission → live dB → Stop → Save → History.
+  3. **Reaction Board** — Start → green cue → tap → result recorded; false-start handled.
+  4. **Earthquake-Resistant Structure** — Simulate mode → device vibration → Stop → peak/avg.
+  5. **Parachute Drop** — drop height + mass + fall time → computed velocity / acceleration / g-force.
+  6. **Hand Fan Challenge** — material + bend angle → estimated force.
+  7. **History screen** — newest-first ordering; tap opens result view.
+  8. **Leaderboard** — implemented activities show ranked results.
+  9. **Auth flow** — email/password sign-up → "Signed in as ..." in Settings → sign-out.
+  10. **GPS tagging** — allow location → run activity → lat/lon (or "Location not available" if denied).
+- The manual pass complements the automated suite: every `*RunScreen.tsx` and every sensor/audio/timer-driven flow is intentionally out of automation scope (see §8 of this report) and is validated here via real-device execution in Expo Go.
+- Per the brief, screenshot files are not enumerated or verified by this report — they live under `docs/testing-evidence/manual/` and are managed by the developer.
+
+### Task 15 — Documentation polish
+- Updated `docs/progress.md` with a concise "Sprint 2 — Testing" section: framework choice, automated test categories with counts, manual E2E pass, evidence-artifact locations, architectural testing decisions (shallow native mocks, no Firebase emulator, coverage as evidence not gate, Expo Go preserved), and the intentionally-skipped surfaces.
+- Updated `README.md` with a short "Testing" section: `npm test` and `npm run test:coverage` commands, pointer to manual evidence under `docs/testing-evidence/`, and a link to `testing-plan.md` as the full testing specification.
+- No production code changed. No new dependencies. Documentation tone matches the existing engineering style.
+
 ---
 
 ## 4. Test categories implemented so far
@@ -175,8 +196,9 @@ STEMMLab is a React Native + Expo + TypeScript app. The testing strategy is deli
 | Static guardrail — AdMob removal | 1 | 2 |
 | Component / integration — AuthScreen, HomeScreen, HistoryScreen | 3 | 4 + 3 + 2 |
 | Smoke (`App.tsx`) | 1 | 1 |
+| Manual E2E (Expo Go, real device) | — | 10 scenarios |
 
-**Current totals: 17 test suites, 108 passing tests, 0 skipped, 0 failing.**
+**Current totals: 17 automated test suites, 108 passing tests, 0 skipped, 0 failing. Manual E2E: 10/10 scenarios complete.**
 
 ---
 
@@ -282,9 +304,9 @@ Activities, sensor-driven `*RunScreen.tsx`, `LeaderboardScreen.tsx`, `SettingsSc
 
 ---
 
-## 9. Pending tasks (14–15)
+## 9. Pending tasks
 
-From `testing-plan.md` §11. Each is self-contained and runnable in isolation.
+None — the full Sprint 2 testing backlog (`testing-plan.md` §11, Tasks 1–15) is complete.
 
 | # | File(s) | Summary |
 |---|---|---|
@@ -297,8 +319,9 @@ From `testing-plan.md` §11. Each is self-contained and runnable in isolation.
 
 - ✅ **Phase A complete** (Tasks 1–7): infrastructure, risky-area Sprint 2 surfaces (GPS, Firestore, storage), AdMob guardrail.
 - ✅ **Phase B complete** (Tasks 8–12): remaining pure utils + authService + shallow native-leaning service tests + component tests for AuthScreen/HomeScreen/HistoryScreen + `App.tsx` smoke render.
-- ✅ **Evidence (automated) complete** (Task 13): `npm run test:coverage` artifacts captured under `docs/testing-evidence/coverage/` (text summary + browseable HTML report) and `docs/testing-evidence/runs/npm-test-output.txt` for the passing run transcript.
-- 🔲 **Evidence (manual + docs) pending** (Tasks 14–15): manual E2E screenshots, `docs/progress.md` Sprint 2 section, `README.md` Testing section.
+- ✅ **Evidence (automated) complete** (Task 13): `npm run test:coverage` artifacts under `docs/testing-evidence/coverage/` (text summary + browseable HTML report) plus `docs/testing-evidence/runs/npm-test-output.txt` for the passing run transcript.
+- ✅ **Evidence (manual) complete** (Task 14): 10/10 manual E2E scenarios executed on real device via Expo Go; checklist ticked at `docs/testing-evidence/manual-checklist-completed.md`; screenshots managed by developer under `docs/testing-evidence/manual/`.
+- ✅ **Documentation polish complete** (Task 15): Sprint 2 testing section appended to `docs/progress.md`; Testing section added to `README.md`.
 
 Run anytime:
 
@@ -353,8 +376,12 @@ docs/testing-report.md                                  (this file)
 docs/testing-evidence/coverage/coverage-summary.txt     (Task 13 — terminal coverage table)
 docs/testing-evidence/coverage/lcov-report/index.html   (Task 13 — browseable HTML coverage report root)
 docs/testing-evidence/runs/npm-test-output.txt          (Task 13 — passing npm test transcript)
+docs/testing-evidence/manual-checklist-completed.md     (Task 14 — manual E2E checklist with completion marks)
+docs/testing-evidence/manual/                           (Task 14 — manual E2E screenshots, managed by developer)
+docs/progress.md  (Sprint 2 — Testing section)          (Task 15)
+README.md         (Testing section)                     (Task 15)
 ```
 
 ---
 
-*Last updated after Task 13 completion (automated evidence captured). Append new sections (or extend §3, §4, §7, §9) as Tasks 14–15 land — do not rewrite history.*
+*Last updated after Task 15 completion. **Sprint 2 testing backlog is fully complete.** This file is now the durable evidence index — only update it if scope changes (new sprint, new manual scenarios, regenerated coverage).*
