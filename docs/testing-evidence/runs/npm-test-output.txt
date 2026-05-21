@@ -1,0 +1,31 @@
+STEMMLab — npm test transcript
+Command: npm test
+Branch: testing
+Tasks completed at capture time: 1–12 (Phase A + Phase B complete)
+
+> stemmlab@1.0.0 test
+> jest
+
+PASS src/services/notificationService.test.ts
+PASS src/__tests__/adMobRemoved.test.ts
+PASS src/services/gpsService.test.ts
+PASS src/utils/activityLabels.test.ts
+PASS src/utils/parachutePhysics.test.ts
+PASS src/services/firestoreService.test.ts
+PASS src/utils/resultUtils.test.ts
+PASS src/services/authService.test.ts
+PASS src/storage/results.test.ts
+PASS src/services/backgroundTaskService.test.ts
+PASS src/storage/team.test.ts
+PASS src/services/batteryService.test.ts
+PASS src/utils/handFanPhysics.test.ts
+PASS src/screens/home/HomeScreen.test.tsx
+PASS src/screens/auth/AuthScreen.test.tsx
+PASS src/screens/history/HistoryScreen.test.tsx
+PASS ./App.test.tsx
+
+Test Suites: 17 passed, 17 total
+Tests:       108 passed, 108 total
+Snapshots:   0 total
+Time:        4.592 s, estimated 6 s
+Ran all test suites.

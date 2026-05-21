@@ -39,6 +39,10 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# test coverage
+# Anchored to repo root so docs/testing-evidence/coverage/ stays trackable.
+/coverage/
+
 # generated native folders
 /ios
 /android
