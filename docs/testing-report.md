@@ -1,11 +1,11 @@
 # STEMMLab — Testing Progress Report
 
 **Branch:** `testing`
-**Scope of this report:** Tasks 1–11 of `testing-plan.md` (Phase A complete + Phase B utils + authService + native-leaning service shallow tests + component tests for the three main user-facing screens).
+**Scope of this report:** Tasks 1–13 of `testing-plan.md` (Phase A + Phase B complete + coverage / run evidence artifacts captured).
 **Audience:** future developer/maintainer continuing the testing backlog.
 **Source of truth for plan/scope:** `testing-plan.md` at project root.
 
-This document tracks what has been built, what is intentionally out of scope, and what is still pending. It is meant to be appended to as Tasks 12–15 land.
+This document tracks what has been built, what is intentionally out of scope, and what is still pending. It is meant to be appended to as Tasks 14–15 land.
 
 ---
 
@@ -134,6 +134,35 @@ STEMMLab is a React Native + Expo + TypeScript app. The testing strategy is deli
   - Mocks: `@react-navigation/native` `useFocusEffect` override (same pattern as HomeScreen); `react-native-gifted-charts` stubbed to a plain `View` so the chart's native imports don't load; `../../storage/results` `getResults` controlled per case.
   - Providers: `ThemeProvider` → `LanguageProvider`.
 
+### Task 12 — `App.tsx` smoke render
+- File: `App.test.tsx` (project root, next to `App.tsx`) — 1 test.
+- Renders `<App />` with the **full real provider tree** (`SafeAreaProvider` → `LanguageProvider` → `ThemeProvider` → `NotificationProvider` → `LocationProvider` → `TeamProvider` → `ThemedApp`/`NavigationContainer` → `RootNavigator`). Because both `TeamProvider.loading` and `ThemeProvider.loading` start `true`, the navigator renders its `ActivityIndicator` loader rather than instantiating any screen — exactly what we want from a smoke test.
+- The single assertion is that `render(<App />).toJSON()` is non-null after a microtask flush (`await act(async () => { await Promise.resolve(); })`). That flush settles the two startup `useEffect`s (`initDatabase` and `requestNotificationPermissions`) so React doesn't emit `act()` warnings.
+- Mocks (all inline in `App.test.tsx`, before `import App from './App'`):
+  - `./src/storage/sqliteDb` — `initDatabase` resolves cleanly (no real SQLite).
+  - `./src/services/backgroundTaskService` — module replaced with `{}` so the `defineTask` side-effect import is a no-op; no real OS task is registered.
+  - `./src/services/notificationService` — `requestNotificationPermissions` resolves `true`; `setupNotificationResponseListener` returns a removable `{ remove: jest.fn() }` subscription so the App's cleanup function works on unmount.
+  - `firebase/auth`, `firebase/firestore`, and `./src/services/firebase` — stubbed surfaces (transitive `AuthScreen` → `authService` → `firebase/auth` would otherwise hit Jest's unparseable-ESM error on `@firebase/util/postinstall.mjs`).
+  - `react-native-gifted-charts` — `BarChart` replaced with a passthrough `View` because the package ships ESM Jest cannot parse (transitive via `MainTabs` → `HistoryScreen` → `PerformanceChart`).
+  - `expo-notifications`, `expo-task-manager`, `expo-background-fetch`, AsyncStorage, and other Expo native modules: covered by the existing global mocks in `jest.setup.ts`.
+- Production code untouched. The test is a single render + null-check + unmount.
+
+### Task 13 — Coverage and run evidence artifacts
+- Ran `npm run test:coverage` and captured the full result to disk; no production code changed.
+- Created evidence folder structure:
+  - `docs/testing-evidence/coverage/`
+  - `docs/testing-evidence/runs/`
+- Generated artifacts:
+  - `docs/testing-evidence/coverage/coverage-summary.txt` — full terminal coverage table (every src/ file with `% Stmts / % Branch / % Funcs / % Lines / Uncovered Line #s`) plus a short prose summary of high-coverage and intentionally-zero files.
+  - `docs/testing-evidence/coverage/lcov-report/` — browseable HTML coverage report copied verbatim from the generated `coverage/lcov-report/` folder. Entry point: `docs/testing-evidence/coverage/lcov-report/index.html`. Subfolders mirror the `src/` tree (`components/`, `context/`, `data/`, `i18n/`, `navigation/`, `screens/...`, `services/`, `storage/`, `theme/`, `types/`, `utils/`) with one `.ts.html`/`.tsx.html` per source file.
+  - `docs/testing-evidence/runs/npm-test-output.txt` — clean transcript of a passing `npm test` run (17 suites, 108 tests, 0 failing, 0 skipped, no warnings).
+- The artifacts above are deterministic and reproducible — re-running `npm run test:coverage` from a clean tree produces the same totals (small wall-clock-time differences aside).
+
+> **Note for the maintainer:** the project `.gitignore` line `coverage/` (line 43) is a relative-anywhere pattern in git — `git check-ignore` confirms it also matches `docs/testing-evidence/coverage/`, so the freshly-generated evidence under that path is currently un-stageable without one of:
+> - rewriting line 43 to `/coverage/` (anchor the pattern to the repo root only), **or**
+> - appending `!docs/testing-evidence/coverage/` after line 43 as an explicit exception.
+> The `runs/npm-test-output.txt` file is not affected. This is flagged for the user to decide; **no `.gitignore` change was made automatically** as that is a repo-policy decision.
+
 ---
 
 ## 4. Test categories implemented so far
@@ -145,9 +174,9 @@ STEMMLab is a React Native + Expo + TypeScript app. The testing strategy is deli
 | Native-leaning shallow — notificationService permission + listener | 1 | 6 |
 | Static guardrail — AdMob removal | 1 | 2 |
 | Component / integration — AuthScreen, HomeScreen, HistoryScreen | 3 | 4 + 3 + 2 |
-| Smoke (`App.tsx`) | — | not yet (Task 12) |
+| Smoke (`App.tsx`) | 1 | 1 |
 
-**Current totals: 16 test suites, 107 passing tests, 0 skipped, 0 failing.**
+**Current totals: 17 test suites, 108 passing tests, 0 skipped, 0 failing.**
 
 ---
 
@@ -202,6 +231,7 @@ All Expo native modules are stubbed shallowly — only the surface the source co
 - **HomeScreen empty-team fallback** — when no team is persisted, the banner shows the localised "Your Team" string instead of crashing on a `null` team.
 - **HistoryScreen empty state** — when `getResults()` returns `[]`, the empty-state title + message both render via the `EmptyState` component (the FlatList path is skipped).
 - **HistoryScreen list rendering** — when `getResults()` returns multiple results, each card renders its team name and the empty-state is absent, proving the focus-effect → setState → FlatList path.
+- **App.tsx full-tree mountability** — the **six** real providers + `NavigationContainer` + `RootNavigator` compose without throwing, and the two startup `useEffect`s (`initDatabase`, `requestNotificationPermissions`) settle cleanly. If a provider import or its initial state regresses (e.g. a missing context default that throws on consumer mount), `npm test` fails immediately.
 
 ---
 
@@ -214,17 +244,27 @@ All Expo native modules are stubbed shallowly — only the surface the source co
 | `src/utils/handFanPhysics.ts` | 100% | 100% | full |
 | `src/utils/parachutePhysics.ts` | 86.36% | 100% | uncovered: `getGForceRisk` unreachable fallback line, bounce branch in `calculateTrial` |
 | `src/utils/resultUtils.ts` | 80.76% | 100% | uncovered: `bestResult` empty-array return (sortedResults.length === 0) |
+| `src/utils/activityLabels.ts` | 62.5% | 60% | screen-driven calls (HomeScreen / HistoryScreen) push branch coverage up; remaining uncovered i18n helper paths are exercised only by run-screens |
 | `src/services/gpsService.ts` | 81.08% | 100% | uncovered: outer try/catch warn branches + `if (!location)` null return |
 | `src/services/firestoreService.ts` | 76.92% | 83.33% | uncovered: `getTeamFromFirestore` (out of Task 5 scope) |
 | `src/services/authService.ts` | 90% | 71.42% | uncovered: `getCurrentUser` (out of Task 9 scope) and the `onAuthStateChanged` error-callback `console.warn` line (not worth asserting) |
 | `src/services/batteryService.ts` | **100%** | **100%** | full — every branch of `stateLabelFor` + every try/catch in `getBatteryStatus` |
 | `src/services/backgroundTaskService.ts` | 46.55% | 50% | covered: `defineTask` side-effect, `getBackgroundTaskStatus` happy/denied/throw paths, `getLastBackgroundRun` empty + populated paths. Uncovered (intentionally): the `defineTask` body itself (lines 22–40), `registerBackgroundTask` / `unregisterBackgroundTask` (lines 71–104), and the `getLastBackgroundRun` catch branch — all out of Task 10 scope per the plan |
 | `src/services/notificationService.ts` | 42.1% | 23.07% | covered: `requestNotificationPermissions` (all branches) and `setupNotificationResponseListener`. Uncovered (intentionally): `sendImmediateNotification`, `scheduleNotification`, `sendActivityCompleteNotification`, `notifyActivityComplete`, `notifyNewHighScore`, and the in-app `create*Notification` factories — all out of Task 10 scope per the plan (UX-driven, used at call sites, no logic worth asserting) |
+| `src/screens/auth/AuthScreen.tsx` | 78.78% | 75% | covered: render + invalid-email rejection + empty-email local validation + loading state. Uncovered: sign-up branch (toggle tab + service call) and the `auth/wrong-password` mapping path — all already covered at the unit layer by `authService.test.ts` |
+| `src/screens/home/HomeScreen.tsx` | 82.6% | 50% | covered: render + four-tile labels + Your-Team fallback + welcome/footer. Uncovered: the four `navigation.navigate` callbacks (Quick-Access tiles) and the `latestResult` populated branch in `useFocusEffect` |
+| `src/screens/history/HistoryScreen.tsx` | 87.87% | 81.81% | covered: render + empty state + populated FlatList + focus-effect data path. Uncovered: the filter-chip press handler and the catch branch around `getResults` |
 | `src/storage/results.ts` | 78.94% | 100% | uncovered: `saveResult`/`clearResults` catch+throw branches |
 | `src/storage/team.ts` | 62.5% | 100% | uncovered: catch+throw branches across all 3 functions |
-| `src/utils/activityLabels.ts` | 54.16% | 40% | uncovered: i18n / translation helpers (out of Task 8 scope) |
+| `src/context/LanguageContext.tsx` | 84% | 87.5% | now exercised by HomeScreen/HistoryScreen tests through the real provider |
+| `src/context/TeamContext.tsx` | 74.07% | 71.42% | exercised by the HomeScreen test through the real provider |
+| `src/context/ThemeContext.tsx` | 65.95% | 46.66% | exercised by every component test through the real provider |
+| `src/components/QuickAccessCard.tsx` | **100%** | 100% | exercised transitively by the HomeScreen test |
+| `src/components/PerformanceChart.tsx` | 81.81% | 62.5% | exercised by HistoryScreen (with `react-native-gifted-charts` stubbed to a View — the chart's drawing logic is intentionally not covered) |
+| `src/data/activities.ts` | **100%** | 100% | static data — covered transitively |
+| `src/theme/tokens.ts` | **100%** | 100% | static design tokens — covered transitively |
 
-Activities, screens, sensor-driven services, navigation, and SQLite remain at 0% by design (covered manually or via component tests scheduled for Tasks 11–12). Overall `services/` jumped from **~31.77%** to **~62.61%** statements after Task 10.
+Activities, sensor-driven `*RunScreen.tsx`, `LeaderboardScreen.tsx`, `SettingsScreen.tsx`, `TeamSetupScreen.tsx`, and SQLite modules remain effectively at 0% by design (covered manually per `testing-plan.md` §3 / §8). After Tasks 10–12, `services/` is **~62.61%** statements, `screens/auth/` **~78.78%**, `screens/home/` **~82.6%**, `screens/history/` **~87.87%**, and project-wide statements are **~23.89%** — exactly the informational band the plan calls for (≈35–45% is the upper bound; we sit lower because every native/sensor `*RunScreen` is in scope only for manual E2E).
 
 ---
 
@@ -242,14 +282,12 @@ Activities, screens, sensor-driven services, navigation, and SQLite remain at 0%
 
 ---
 
-## 9. Pending tasks (12–15)
+## 9. Pending tasks (14–15)
 
 From `testing-plan.md` §11. Each is self-contained and runnable in isolation.
 
 | # | File(s) | Summary |
 |---|---|---|
-| **12** | `App.test.tsx` (project root) | Smoke render — all providers and the navigation container mount without throwing. |
-| **13** | `docs/testing-evidence/...` | Run `npm run test:coverage`, copy the lcov-report folder + terminal summary + npm test transcript into `docs/testing-evidence/`. |
 | **14** | `docs/testing-evidence/manual/` | Execute the 10-scenario manual checklist in Expo Go on a real device; capture one screenshot per scenario. |
 | **15** | `docs/progress.md`, `README.md` | Append a Sprint 2 testing section to `progress.md`; add a short Testing section to `README.md` linking back to `testing-plan.md`. |
 
@@ -258,9 +296,9 @@ From `testing-plan.md` §11. Each is self-contained and runnable in isolation.
 ## 10. Current project testing status
 
 - ✅ **Phase A complete** (Tasks 1–7): infrastructure, risky-area Sprint 2 surfaces (GPS, Firestore, storage), AdMob guardrail.
-- ✅ **Phase B partially complete** (Tasks 8–11 done): remaining pure utils backfilled + authService (mapper + sign-in/up/out/listen) covered + shallow native-leaning service tests (notification, battery, background task) + component tests for AuthScreen, HomeScreen, HistoryScreen.
-- 🟡 **Phase B in progress** (Task 12 pending): App smoke render.
-- 🔲 **Evidence pass not yet started** (Tasks 13–15): coverage artifacts, manual E2E screenshots, doc updates.
+- ✅ **Phase B complete** (Tasks 8–12): remaining pure utils + authService + shallow native-leaning service tests + component tests for AuthScreen/HomeScreen/HistoryScreen + `App.tsx` smoke render.
+- ✅ **Evidence (automated) complete** (Task 13): `npm run test:coverage` artifacts captured under `docs/testing-evidence/coverage/` (text summary + browseable HTML report) and `docs/testing-evidence/runs/npm-test-output.txt` for the passing run transcript.
+- 🔲 **Evidence (manual + docs) pending** (Tasks 14–15): manual E2E screenshots, `docs/progress.md` Sprint 2 section, `README.md` Testing section.
 
 Run anytime:
 
@@ -285,9 +323,10 @@ package.json   (test scripts)
 .gitignore     (coverage/ ignored)
 ```
 
-**Test files (16 suites, 107 tests)**
+**Test files (17 suites, 108 tests)**
 
 ```
+App.test.tsx
 src/__tests__/adMobRemoved.test.ts
 src/utils/resultUtils.test.ts
 src/utils/activityLabels.test.ts
@@ -309,10 +348,13 @@ src/screens/history/HistoryScreen.test.tsx
 **Plan / evidence sources**
 
 ```
-testing-plan.md          (single source of truth for scope)
-docs/testing-report.md   (this file)
+testing-plan.md                                         (single source of truth for scope)
+docs/testing-report.md                                  (this file)
+docs/testing-evidence/coverage/coverage-summary.txt     (Task 13 — terminal coverage table)
+docs/testing-evidence/coverage/lcov-report/index.html   (Task 13 — browseable HTML coverage report root)
+docs/testing-evidence/runs/npm-test-output.txt          (Task 13 — passing npm test transcript)
 ```
 
 ---
 
-*Last updated after Task 11 completion. Append new sections (or extend §3, §4, §7, §9) as Tasks 12–15 land — do not rewrite history.*
+*Last updated after Task 13 completion (automated evidence captured). Append new sections (or extend §3, §4, §7, §9) as Tasks 14–15 land — do not rewrite history.*
