@@ -12,6 +12,7 @@ const META: Record<string, ActivityMeta> = {
   sound: { unit: 'dB', lowerIsBetter: false, precision: 1 },
   earthquake: { unit: 'g', lowerIsBetter: true, precision: 2 },
   handfan: { unit: '°', lowerIsBetter: false, precision: 0 },
+  performance: { unit: '/100', lowerIsBetter: false, precision: 0 },
 };
 
 export const RANKED_ACTIVITY_IDS = Object.keys(META);
