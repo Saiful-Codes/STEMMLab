@@ -36,7 +36,10 @@ const mockedSignIn = signInWithEmail as jest.MockedFunction<typeof signInWithEma
 function makeNavigationStub() {
   return {
     goBack: jest.fn(),
+    canGoBack: jest.fn(() => false),
     navigate: jest.fn(),
+    replace: jest.fn(),
+    reset: jest.fn(),
     addListener: jest.fn(() => () => undefined),
     removeListener: jest.fn(),
     dispatch: jest.fn(),

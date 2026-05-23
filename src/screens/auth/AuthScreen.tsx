@@ -59,14 +59,25 @@ export default function AuthScreen({ navigation, route }: Props) {
         ? await signInWithEmail(email, password)
         : await signUpWithEmail(email, password);
 
-      // When a team already exists, Auth was opened from Settings (the team
-      // branch of RootNavigator). Preserve the existing behaviour: just go back.
+      // This screen has two entry points:
+      //   1. Settings — a local team already exists (RootNavigator is on the
+      //      `team` branch, Auth sits on top of MainTabs). Returning the user to
+      //      where they came from is correct, but only if there is something to
+      //      go back to — guard with canGoBack() so it can never raise the
+      //      "GO_BACK was not handled by any navigator" error.
+      //   2. Welcome / onboarding — there is no team yet and no safe screen to
+      //      go back to, so we must NEVER call goBack() here. Instead we route
+      //      forward (into TeamSetup), or load the cloud team into TeamContext
+      //      and let RootNavigator switch to MainTabs on its own.
       if (team) {
-        navigation.goBack();
+        if (navigation.canGoBack()) {
+          navigation.goBack();
+        }
         return;
       }
 
       // Onboarding flow (no local team yet): decide where to land next.
+      // No goBack() is reachable below this point.
       let cloudTeam = null;
       try {
         cloudTeam = await getTeamFromFirestore(user.uid);
@@ -77,6 +88,7 @@ export default function AuthScreen({ navigation, route }: Props) {
       }
 
       if (cloudTeam) {
+        const loadedTeam = cloudTeam as NonNullable<typeof cloudTeam>;
         Alert.alert(
           t('auth.cloudTeamFound.title'),
           t('auth.cloudTeamFound.message'),
@@ -85,20 +97,38 @@ export default function AuthScreen({ navigation, route }: Props) {
               text: t('auth.cloudTeamFound.load'),
               onPress: () => {
                 // saveTeam writes to AsyncStorage and flips RootNavigator into
-                // the team branch (→ MainTabs) automatically.
-                saveTeam(cloudTeam as NonNullable<typeof cloudTeam>).catch((e) =>
-                  console.warn('[AuthScreen] saveTeam(cloudTeam) failed:', e)
-                );
+                // the team branch. But 'Auth' is registered in BOTH branches,
+                // so RN keeps it focused after the switch instead of landing on
+                // MainTabs. After the team is persisted, explicitly reset onto
+                // MainTabs — deferred to the next tick so the team branch (and
+                // its MainTabs screen) is committed before we reset.
+                saveTeam(loadedTeam)
+                  .then(() => {
+                    setTimeout(() => {
+                      navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'MainTabs' }],
+                      });
+                    }, 0);
+                  })
+                  .catch((e) =>
+                    console.warn('[AuthScreen] saveTeam(cloudTeam) failed:', e)
+                  );
               },
             },
             {
               text: t('auth.cloudTeamFound.create'),
-              onPress: () => navigation.navigate('TeamSetup'),
+              // replace (not navigate) so 'Auth' leaves the stack. The later
+              // TeamSetup save then flips into the team branch with no surviving
+              // shared route, landing on MainTabs — same as the offline path.
+              onPress: () => navigation.replace('TeamSetup'),
             },
           ]
         );
       } else {
-        navigation.navigate('TeamSetup');
+        // No cloud team: go straight to local setup. replace() drops 'Auth' so
+        // the post-save branch flip lands on MainTabs cleanly.
+        navigation.replace('TeamSetup');
       }
     } catch (err) {
       setError(getFriendlyAuthError(err));
