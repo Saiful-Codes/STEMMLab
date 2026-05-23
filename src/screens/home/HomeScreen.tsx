@@ -16,7 +16,7 @@ import QuickAccessCard from '../../components/QuickAccessCard';
 import RecentActivityCard from '../../components/RecentActivityCard';
 
 type Props = CompositeScreenProps<
-  NativeStackScreenProps<ActivityStackParamList, 'Home'>,
+  NativeStackScreenProps<ActivityStackParamList, 'Dashboard'>,
   BottomTabScreenProps<MainTabsParamList>
 >;
 

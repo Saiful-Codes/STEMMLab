@@ -32,12 +32,12 @@ export default function MainTabs() {
         name="Home"
         component={ActivityStack}
         options={({ route }) => {
-          const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'Dashboard';
           return {
             tabBarLabel: t('tab.home'),
             tabBarIcon: renderIcon('home-outline'),
             tabBarStyle:
-              routeName === 'Home' ? { display: 'none' } : undefined,
+              routeName === 'Dashboard' ? { display: 'none' } : undefined,
           };
         }}
       />
