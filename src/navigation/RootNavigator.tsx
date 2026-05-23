@@ -16,7 +16,7 @@ export type RootStackParamList = {
   Welcome: undefined;
   TeamSetup: undefined;
   MainTabs: undefined;
-  Auth: undefined;
+  Auth: { mode?: 'signin' | 'signup' } | undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -82,6 +82,11 @@ export default function RootNavigator() {
             name="TeamSetup"
             component={TeamSetupScreen}
             options={{ title: t('nav.teamSetup') }}
+          />
+          <Stack.Screen
+            name="Auth"
+            component={AuthScreen}
+            options={{ title: 'Account' }}
           />
         </>
       )}

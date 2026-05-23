@@ -18,7 +18,16 @@ jest.mock('../../services/authService', () => ({
   },
 }));
 
+// AuthScreen now imports firestoreService (for the post-auth cloud-team lookup),
+// which transitively pulls in firebase/firestore (an ESM file Jest cannot parse).
+// Mock the one function the screen uses; default to "no cloud team".
+jest.mock('../../services/firestoreService', () => ({
+  getTeamFromFirestore: jest.fn().mockResolvedValue(null),
+}));
+
 import { ThemeProvider } from '../../context/ThemeContext';
+import { LanguageProvider } from '../../context/LanguageContext';
+import { TeamProvider } from '../../context/TeamContext';
 import AuthScreen from './AuthScreen';
 import { signInWithEmail } from '../../services/authService';
 
@@ -40,8 +49,12 @@ function renderAuthScreen() {
   const route = { key: 'Auth', name: 'Auth' as const, params: undefined };
   const utils = render(
     <ThemeProvider>
-      {/* @ts-expect-error — we pass a structural stub instead of the real navigator props */}
-      <AuthScreen navigation={navigation} route={route} />
+      <LanguageProvider>
+        <TeamProvider>
+          {/* @ts-expect-error — we pass a structural stub instead of the real navigator props */}
+          <AuthScreen navigation={navigation} route={route} />
+        </TeamProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
   return { ...utils, navigation };

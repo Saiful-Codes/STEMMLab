@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -13,21 +14,26 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/LanguageContext';
+import { useTeam } from '../../context/TeamContext';
 import { baseFont } from '../../theme/tokens';
 import {
   getFriendlyAuthError,
   signInWithEmail,
   signUpWithEmail,
 } from '../../services/authService';
+import { getTeamFromFirestore } from '../../services/firestoreService';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 
 type Mode = 'signin' | 'signup';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Auth'>;
 
-export default function AuthScreen({ navigation }: Props) {
+export default function AuthScreen({ navigation, route }: Props) {
   const { colors, fontScale } = useTheme();
-  const [mode, setMode] = useState<Mode>('signin');
+  const { t } = useTranslation();
+  const { team, saveTeam } = useTeam();
+  const [mode, setMode] = useState<Mode>(route.params?.mode ?? 'signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -49,12 +55,51 @@ export default function AuthScreen({ navigation }: Props) {
 
     try {
       setSubmitting(true);
-      if (isSignIn) {
-        await signInWithEmail(email, password);
-      } else {
-        await signUpWithEmail(email, password);
+      const user = isSignIn
+        ? await signInWithEmail(email, password)
+        : await signUpWithEmail(email, password);
+
+      // When a team already exists, Auth was opened from Settings (the team
+      // branch of RootNavigator). Preserve the existing behaviour: just go back.
+      if (team) {
+        navigation.goBack();
+        return;
       }
-      navigation.goBack();
+
+      // Onboarding flow (no local team yet): decide where to land next.
+      let cloudTeam = null;
+      try {
+        cloudTeam = await getTeamFromFirestore(user.uid);
+      } catch (lookupErr) {
+        // Cloud lookup failure shouldn't block onboarding — fall through to
+        // local team setup, which is the offline-first safe default.
+        console.warn('[AuthScreen] getTeamFromFirestore failed:', lookupErr);
+      }
+
+      if (cloudTeam) {
+        Alert.alert(
+          t('auth.cloudTeamFound.title'),
+          t('auth.cloudTeamFound.message'),
+          [
+            {
+              text: t('auth.cloudTeamFound.load'),
+              onPress: () => {
+                // saveTeam writes to AsyncStorage and flips RootNavigator into
+                // the team branch (→ MainTabs) automatically.
+                saveTeam(cloudTeam as NonNullable<typeof cloudTeam>).catch((e) =>
+                  console.warn('[AuthScreen] saveTeam(cloudTeam) failed:', e)
+                );
+              },
+            },
+            {
+              text: t('auth.cloudTeamFound.create'),
+              onPress: () => navigation.navigate('TeamSetup'),
+            },
+          ]
+        );
+      } else {
+        navigation.navigate('TeamSetup');
+      }
     } catch (err) {
       setError(getFriendlyAuthError(err));
     } finally {
