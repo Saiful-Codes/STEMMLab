@@ -56,11 +56,12 @@ describe('isLowerBetter', () => {
 });
 
 describe('isRankedActivity', () => {
-  it('is true only for the four ranked activities', () => {
+  it('is true only for the ranked activities', () => {
     expect(isRankedActivity('reaction')).toBe(true);
     expect(isRankedActivity('sound')).toBe(true);
     expect(isRankedActivity('earthquake')).toBe(true);
     expect(isRankedActivity('handfan')).toBe(true);
+    expect(isRankedActivity('performance')).toBe(true);
     expect(isRankedActivity('parachute')).toBe(false);
     expect(isRankedActivity('breathing')).toBe(false);
   });
