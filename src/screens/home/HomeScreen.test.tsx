@@ -37,7 +37,7 @@ function makeNavigationStub() {
 
 function renderHomeScreen() {
   const navigation = makeNavigationStub();
-  const route = { key: 'Dashboard', name: 'Dashboard' as const, params: undefined };
+  const route = { key: 'Home', name: 'Home' as const, params: undefined };
   const utils = render(
     <ThemeProvider>
       <LanguageProvider>

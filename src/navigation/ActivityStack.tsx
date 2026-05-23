@@ -8,7 +8,7 @@ import ResultSummaryScreen from '../screens/common/ResultSummaryScreen';
 import { useTranslation } from '../context/LanguageContext';
 
 export type ActivityStackParamList = {
-  Dashboard: undefined;
+  Home: undefined;
   ActivityList: undefined;
   ActivityDetail: { activityId: string };
   ActivityRun: { activityId: string };
@@ -23,7 +23,7 @@ export default function ActivityStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="Dashboard"
+        name="Home"
         component={HomeScreen}
         options={{ headerShown: false }}
       />
