@@ -6,6 +6,7 @@ import ReactionResultScreen from './reaction/ReactionResultScreen';
 import EarthquakeResultScreen from './earthquake/EarthquakeResultScreen';
 import ParachuteResultScreen from './parachute/ParachuteResultScreen';
 import HandFanResultScreen from './handfan/HandFanResultScreen';
+import PerformanceResultScreen from './performance/PerformanceResultScreen';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
@@ -26,6 +27,8 @@ export default function ActivityResultScreen(props: Props) {
       return <ParachuteResultScreen {...props} />;
     case 'handfan':
       return <HandFanResultScreen {...props} />;
+    case 'performance':
+      return <PerformanceResultScreen {...props} />;
     default:
       return <NoResults />;
   }

@@ -81,7 +81,35 @@ export type HandFanMeta = {
   distance: number;
 };
 
-export type AttemptEntry = SoundEntry | ReactionEntry | EarthquakeEntry | ParachuteEntry | HandFanEntry;
+export type PerformanceBucket = 'low' | 'medium' | 'high';
+
+export type PerformanceEntry = {
+  id: string;
+  movementNumber: 1 | 2 | 3;
+  movementLabel: string;
+  prediction: PerformanceBucket;
+  actualBucket: PerformanceBucket;
+  predictionCorrect: boolean;
+  durationMs: number;
+  peakMagnitude: number;
+  avgMagnitude: number;
+  smoothnessScore: number;
+  samples: number;
+  vibrationFeedbackUsed: boolean;
+  notes?: string;
+};
+
+export type PerformanceMeta = {
+  vibrationFeedbackEnabled: boolean;
+};
+
+export type AttemptEntry =
+  | SoundEntry
+  | ReactionEntry
+  | EarthquakeEntry
+  | ParachuteEntry
+  | HandFanEntry
+  | PerformanceEntry;
 
 export type ActivityAttempt<E extends AttemptEntry = AttemptEntry> = {
   id: string;
