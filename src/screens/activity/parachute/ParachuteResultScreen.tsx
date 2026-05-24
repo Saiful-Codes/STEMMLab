@@ -17,12 +17,16 @@ import {
 } from '../../../storage/attempts';
 import { getGForceRisk } from '../../../utils/parachutePhysics';
 import { useTranslation } from '../../../context/LanguageContext';
+import { useTheme } from '../../../context/ThemeContext';
+import { baseFont, Colors } from '../../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityResult'>;
 
 export default function ParachuteResultScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
+  const { colors, fontScale } = useTheme();
+  const styles = makeStyles(colors, fontScale);
   const [loading, setLoading] = useState(true);
   const [latest, setLatest] = useState<ActivityAttempt<ParachuteEntry> | null>(null);
   const [totalAttempts, setTotalAttempts] = useState(0);
@@ -124,12 +128,14 @@ export default function ParachuteResultScreen({ navigation, route }: Props) {
           label={level === 'primary' ? t('result.parachute.speed') : t('run.parachute.velocity')}
           values={entries.map((e) => `${e.result.finalVelocity} m/s`)}
           bestIndex={entries.indexOf(bestParachute)}
+          styles={styles}
         />
 
         {level === 'primary' && (
           <TableRow
             label={t('result.parachute.fallTimeLabel')}
             values={entries.map((e) => `${e.input.fallTime}s`)}
+            styles={styles}
           />
         )}
 
@@ -138,18 +144,22 @@ export default function ParachuteResultScreen({ navigation, route }: Props) {
             <TableRow
               label={t('run.parachute.acceleration')}
               values={entries.map((e) => `${e.result.acceleration} m/s²`)}
+              styles={styles}
             />
             <TableRow
               label={t('run.parachute.netForce')}
               values={entries.map((e) => `${e.result.netForce} N`)}
+              styles={styles}
             />
             <TableRow
               label={t('run.parachute.dragForce')}
               values={entries.map((e) => `${e.result.dragForce} N`)}
+              styles={styles}
             />
             <GForceRow
               label={t('run.parachute.gForce')}
               entries={entries}
+              styles={styles}
             />
           </>
         )}
@@ -202,13 +212,16 @@ export default function ParachuteResultScreen({ navigation, route }: Props) {
   );
 }
 
+type Styles = ReturnType<typeof makeStyles>;
+
 type TableRowProps = {
   label: string;
   values: string[];
   bestIndex?: number;
+  styles: Styles;
 };
 
-function TableRow({ label, values, bestIndex }: TableRowProps) {
+function TableRow({ label, values, bestIndex, styles }: TableRowProps) {
   return (
     <View style={styles.tableRow}>
       <Text style={[styles.tableCell, styles.tableCellLabel]}>{label}</Text>
@@ -227,7 +240,15 @@ function TableRow({ label, values, bestIndex }: TableRowProps) {
   );
 }
 
-function GForceRow({ label, entries }: { label: string; entries: ParachuteEntry[] }) {
+function GForceRow({
+  label,
+  entries,
+  styles,
+}: {
+  label: string;
+  entries: ParachuteEntry[];
+  styles: Styles;
+}) {
   return (
     <View style={styles.tableRow}>
       <Text style={[styles.tableCell, styles.tableCellLabel]}>{label}</Text>
@@ -249,66 +270,72 @@ function GForceRow({ label, entries }: { label: string; entries: ParachuteEntry[
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { padding: 16, paddingBottom: 32 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  empty: { fontSize: 14, color: '#6b7280' },
-  heading: { fontSize: 20, fontWeight: '700', color: '#0f172a' },
-  meta: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  hero: {
-    backgroundColor: '#6366f1',
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 16,
-    marginBottom: 16,
-  },
-  heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase' },
-  heroValue: { fontSize: 32, fontWeight: '800', color: '#fff', marginTop: 4 },
-  heroSub: { fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 4 },
-  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#0f172a', marginBottom: 8 },
-  table: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 10,
-    overflow: 'hidden',
-    marginBottom: 16,
-  },
-  tableRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
-  },
-  tableHeader: { backgroundColor: '#f8fafc' },
-  headerText: { fontSize: 11, fontWeight: '600', color: '#64748b', textTransform: 'uppercase' },
-  tableCell: {
-    flex: 1,
-    padding: 8,
-    fontSize: 12,
-    color: '#0f172a',
-    textAlign: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  tableCellLabel: { flex: 2, textAlign: 'left', color: '#475569', fontWeight: '500' },
-  tableCellBest: { color: '#22c55e', fontWeight: '600' },
-  gBadgeSmall: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  gBadgeSmallText: { fontSize: 11, fontWeight: '600' },
-  assessmentRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  assessmentCard: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    alignItems: 'center',
-  },
-  assessmentValue: { fontSize: 16, fontWeight: '800' },
-  assessmentLabel: { fontSize: 10, fontWeight: '600', marginTop: 2 },
-  assessmentExample: { fontSize: 10, marginTop: 2, textAlign: 'center' },
-  actions: { marginTop: 12 },
-});
+const makeStyles = (colors: Colors, fontScale: number) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { padding: 16, paddingBottom: 32 },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
+    empty: { fontSize: baseFont.bodySm * fontScale, color: colors.textMuted },
+    heading: { fontSize: baseFont.subheading * fontScale, fontWeight: '700', color: colors.text },
+    meta: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 2 },
+    hero: {
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+      padding: 16,
+      marginTop: 16,
+      marginBottom: 16,
+    },
+    heroLabel: { fontSize: baseFont.micro * fontScale, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase' },
+    heroValue: { fontSize: baseFont.display * fontScale, fontWeight: '800', color: '#fff', marginTop: 4 },
+    heroSub: { fontSize: baseFont.tiny * fontScale, color: 'rgba(255,255,255,0.8)', marginTop: 4 },
+    sectionTitle: { fontSize: baseFont.bodySm * fontScale, fontWeight: '700', color: colors.text, marginBottom: 8 },
+    table: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      overflow: 'hidden',
+      marginBottom: 16,
+    },
+    tableRow: {
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    tableHeader: { backgroundColor: colors.surfaceSubtle },
+    headerText: { fontSize: baseFont.micro * fontScale, fontWeight: '600', color: colors.textMuted, textTransform: 'uppercase' },
+    tableCell: {
+      flex: 1,
+      padding: 8,
+      fontSize: baseFont.tiny * fontScale,
+      color: colors.text,
+      textAlign: 'center',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    tableCellLabel: { flex: 2, textAlign: 'left', color: colors.textMuted, fontWeight: '500' },
+    tableCellBest: { color: colors.success, fontWeight: '600' },
+    gBadgeSmall: {
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 4,
+    },
+    gBadgeSmallText: { fontSize: baseFont.micro * fontScale, fontWeight: '600' },
+    assessmentRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+    assessmentCard: {
+      flex: 1,
+      borderWidth: 1,
+      borderRadius: 8,
+      padding: 10,
+      alignItems: 'center',
+    },
+    assessmentValue: { fontSize: baseFont.body * fontScale, fontWeight: '800' },
+    assessmentLabel: { fontSize: 10 * fontScale, fontWeight: '600', marginTop: 2 },
+    assessmentExample: { fontSize: 10 * fontScale, marginTop: 2, textAlign: 'center' },
+    actions: { marginTop: 12 },
+  });
