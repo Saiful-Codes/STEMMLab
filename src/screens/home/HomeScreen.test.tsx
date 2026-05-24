@@ -19,6 +19,30 @@ jest.mock('../../storage/results', () => ({
   getResults: jest.fn(async () => []),
 }));
 
+// TeamContext now reaches authService → firebase/auth, which ships an ESM
+// postinstall file Jest cannot parse. Stub the firebase surface here, mirroring
+// App.test.tsx. The auth/firestore services are unit-tested separately.
+jest.mock('firebase/auth', () => ({
+  createUserWithEmailAndPassword: jest.fn(),
+  signInWithEmailAndPassword: jest.fn(),
+  signOut: jest.fn(),
+  onAuthStateChanged: jest.fn(() => () => undefined),
+}));
+jest.mock('firebase/firestore', () => ({
+  doc: jest.fn(),
+  setDoc: jest.fn(),
+  getDoc: jest.fn(),
+  getDocs: jest.fn(() => ({ docs: [] })),
+  query: jest.fn(),
+  where: jest.fn(),
+  collection: jest.fn(),
+  serverTimestamp: jest.fn(() => '__server_ts__'),
+}));
+jest.mock('../../services/firebase', () => ({
+  auth: { __mock: 'auth' },
+  db: { __mock: 'db' },
+}));
+
 import { ThemeProvider } from '../../context/ThemeContext';
 import { LanguageProvider } from '../../context/LanguageContext';
 import { TeamProvider } from '../../context/TeamContext';

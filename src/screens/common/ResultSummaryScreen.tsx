@@ -16,6 +16,8 @@ import { useTranslation } from '../../context/LanguageContext';
 import { useLocation } from '../../context/LocationContext';
 import { getCurrentLocation } from '../../services/gpsService';
 import { saveResult } from '../../storage/results';
+import { getCurrentUser } from '../../services/authService';
+import { saveActivityResultToFirestore } from '../../services/firestoreService';
 import { sendActivityCompleteNotification } from '../../services/notificationService';
 import { Result } from '../../types/Result';
 import { baseFont } from '../../theme/tokens';
@@ -78,6 +80,15 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
 
     try {
       await saveResult(payload);
+
+      // Auto-mirror to Firestore when signed in. Fire-and-forget: the local
+      // save above is the source of truth, so a cloud failure must not block
+      // the user or surface an alert.
+      if (getCurrentUser()) {
+        saveActivityResultToFirestore(payload).catch((err) => {
+          console.warn('[ResultSummaryScreen] Cloud result mirror failed:', err);
+        });
+      }
 
       // Send notification about activity completion
       const formattedResult = formatResult(activityId, result);

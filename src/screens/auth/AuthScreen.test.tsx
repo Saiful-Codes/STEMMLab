@@ -113,7 +113,9 @@ describe('AuthScreen', () => {
     mockedSignIn.mockImplementationOnce(
       () =>
         new Promise((resolve) => {
-          resolveSignIn = resolve;
+          // resolve is typed against signInWithEmail's Promise<User>; widen it
+          // to match resolveSignIn — the resolved value is irrelevant here.
+          resolveSignIn = resolve as (value: unknown) => void;
         })
     );
 
