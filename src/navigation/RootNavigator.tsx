@@ -33,8 +33,7 @@ export default function RootNavigator() {
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const screen = response.notification.request.content.data?.screen;
-      console.log('[RootNavigator] Notification response with screen:', screen);
-      
+
       if (screen === 'History' && navigationRef.isReady()) {
         // Navigate to MainTabs and then to History tab
         navigationRef.navigate('MainTabs', {

@@ -96,7 +96,7 @@ export default function ActivityDetailScreen({ navigation, route }: Props) {
         await Speech.stop();
       }
     } catch (error) {
-      console.log('TTS error:', error);
+      console.warn('TTS error:', error);
     }
     setIsSpeaking(false);
   }, []);
@@ -120,7 +120,7 @@ export default function ActivityDetailScreen({ navigation, route }: Props) {
         await Speech.stop();
       }
     } catch (error) {
-      console.log('TTS error:', error);
+      console.warn('TTS error:', error);
     }
 
     setIsSpeaking(true);
@@ -129,7 +129,7 @@ export default function ActivityDetailScreen({ navigation, route }: Props) {
       onDone: () => setIsSpeaking(false),
       onStopped: () => setIsSpeaking(false),
       onError: (error) => {
-        console.log('TTS error:', error);
+        console.warn('TTS error:', error);
         setIsSpeaking(false);
       },
     });

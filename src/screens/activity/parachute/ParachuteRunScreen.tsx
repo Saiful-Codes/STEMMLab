@@ -194,7 +194,7 @@ export default function ParachuteRunScreen({ navigation, route }: Props) {
           meta,
         });
       } catch (e) {
-        console.log('Save attempt error:', e);
+        console.warn('Save attempt error:', e);
       }
 
       // Save result with GPS location
