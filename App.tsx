@@ -39,8 +39,9 @@ export default function App() {
     (async () => {
       try {
         await requestNotificationPermissions();
-        subscription = setupNotificationResponseListener((data) => {
-          console.log('[App] Notification response data:', data);
+        subscription = setupNotificationResponseListener(() => {
+          // Keeps the response subscription alive; RootNavigator owns the
+          // actual deep-link navigation on notification tap.
         });
       } catch (err) {
         console.warn('[App] Failed to set up notifications:', err);
