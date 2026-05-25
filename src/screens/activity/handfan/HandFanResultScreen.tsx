@@ -18,12 +18,16 @@ import {
 } from '../../../storage/attempts';
 import { getMaterial } from '../../../utils/handFanPhysics';
 import { useTranslation } from '../../../context/LanguageContext';
+import { useTheme } from '../../../context/ThemeContext';
+import { baseFont, Colors } from '../../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityResult'>;
 
 export default function HandFanResultScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
+  const { colors, fontScale } = useTheme();
+  const styles = makeStyles(colors, fontScale);
   const [loading, setLoading] = useState(true);
   const [latest, setLatest] = useState<ActivityAttempt<HandFanEntry> | null>(null);
   const [totalAttempts, setTotalAttempts] = useState(0);
@@ -119,21 +123,25 @@ export default function HandFanResultScreen({ navigation, route }: Props) {
         <TableRow
           label={t('result.handfan.designNameRow')}
           values={entries.map((e) => e.input.designName)}
+          styles={styles}
         />
         <TableRow
           label={t('result.handfan.predictedRow')}
           values={entries.map((e) => `${e.input.predictedAngle}°`)}
+          styles={styles}
         />
         <TableRow
           label={t('result.handfan.actualRow')}
           values={entries.map((e) => `${e.input.actualAngle}°`)}
           bestIndex={bestIndex}
+          styles={styles}
         />
         <TableRow
           label={t('result.handfan.differenceRow')}
           values={entries.map(
             (e) => `${(e.input.actualAngle - e.input.predictedAngle) >= 0 ? '+' : ''}${(e.input.actualAngle - e.input.predictedAngle).toFixed(1)}°`,
           )}
+          styles={styles}
         />
       </View>
 
@@ -209,13 +217,16 @@ export default function HandFanResultScreen({ navigation, route }: Props) {
   );
 }
 
+type Styles = ReturnType<typeof makeStyles>;
+
 type TableRowProps = {
   label: string;
   values: string[];
   bestIndex?: number;
+  styles: Styles;
 };
 
-function TableRow({ label, values, bestIndex }: TableRowProps) {
+function TableRow({ label, values, bestIndex, styles }: TableRowProps) {
   return (
     <View style={styles.tableRow}>
       <Text style={[styles.tableCell, styles.tableCellLabel]}>{label}</Text>
@@ -234,92 +245,98 @@ function TableRow({ label, values, bestIndex }: TableRowProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { padding: 16, paddingBottom: 32 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  empty: { fontSize: 14, color: '#6b7280' },
-  heading: { fontSize: 20, fontWeight: '700', color: '#0f172a' },
-  meta: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  metaLine: {
-    fontSize: 12,
-    color: '#64748b',
-    fontStyle: 'italic',
-    marginBottom: 12,
-  },
-  hero: {
-    backgroundColor: '#6366f1',
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 16,
-    marginBottom: 16,
-  },
-  heroLabel: { fontSize: 11, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase' },
-  heroValue: { fontSize: 32, fontWeight: '800', color: '#fff', marginTop: 4 },
-  heroSub: { fontSize: 12, color: 'rgba(255,255,255,0.8)', marginTop: 4 },
-  sectionTitle: { fontSize: 14, fontWeight: '700', color: '#0f172a', marginBottom: 8 },
-  table: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 10,
-    overflow: 'hidden',
-    marginBottom: 16,
-  },
-  tableRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
-  },
-  tableHeader: { backgroundColor: '#f8fafc' },
-  headerText: { fontSize: 11, fontWeight: '600', color: '#64748b', textTransform: 'uppercase' },
-  tableCell: {
-    flex: 1,
-    padding: 8,
-    fontSize: 12,
-    color: '#0f172a',
-    textAlign: 'center',
-  },
-  tableCellLabel: { flex: 2, textAlign: 'left', color: '#475569', fontWeight: '500' },
-  tableCellBest: { color: '#22c55e', fontWeight: '600' },
-  scienceHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 4,
-  },
-  chevron: { fontSize: 14, color: '#64748b' },
-  scienceBody: {
-    backgroundColor: '#f8fafc',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 16,
-  },
-  scienceExplain: { fontSize: 12, color: '#475569', marginBottom: 12, lineHeight: 18 },
-  scienceCard: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  scienceDesign: { fontSize: 13, fontWeight: '700', color: '#0f172a', marginBottom: 4 },
-  scienceDetail: { fontSize: 11, color: '#64748b', marginBottom: 2 },
-  scienceForce: { fontSize: 12, fontWeight: '600', color: '#2563eb', marginTop: 4 },
-  forceRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
-  forceCard: {
-    flex: 1,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 8,
-    padding: 10,
-    alignItems: 'center',
-  },
-  forceCardBest: { borderColor: '#22c55e', borderWidth: 2 },
-  forceValue: { fontSize: 14, fontWeight: '700', color: '#0f172a' },
-  forceValueBest: { color: '#22c55e' },
-  forceLabel: { fontSize: 10, color: '#64748b', marginTop: 2 },
-  actions: { marginTop: 12 },
-});
+const makeStyles = (colors: Colors, fontScale: number) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    content: { padding: 16, paddingBottom: 32 },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
+    empty: { fontSize: baseFont.bodySm * fontScale, color: colors.textMuted },
+    heading: { fontSize: baseFont.subheading * fontScale, fontWeight: '700', color: colors.text },
+    meta: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 2 },
+    metaLine: {
+      fontSize: baseFont.tiny * fontScale,
+      color: colors.textMuted,
+      fontStyle: 'italic',
+      marginBottom: 12,
+    },
+    hero: {
+      backgroundColor: colors.primary,
+      borderRadius: 12,
+      padding: 16,
+      marginTop: 16,
+      marginBottom: 16,
+    },
+    heroLabel: { fontSize: baseFont.micro * fontScale, color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase' },
+    heroValue: { fontSize: baseFont.display * fontScale, fontWeight: '800', color: '#fff', marginTop: 4 },
+    heroSub: { fontSize: baseFont.tiny * fontScale, color: 'rgba(255,255,255,0.8)', marginTop: 4 },
+    sectionTitle: { fontSize: baseFont.bodySm * fontScale, fontWeight: '700', color: colors.text, marginBottom: 8 },
+    table: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 10,
+      overflow: 'hidden',
+      marginBottom: 16,
+    },
+    tableRow: {
+      flexDirection: 'row',
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    tableHeader: { backgroundColor: colors.surfaceSubtle },
+    headerText: { fontSize: baseFont.micro * fontScale, fontWeight: '600', color: colors.textMuted, textTransform: 'uppercase' },
+    tableCell: {
+      flex: 1,
+      padding: 8,
+      fontSize: baseFont.tiny * fontScale,
+      color: colors.text,
+      textAlign: 'center',
+    },
+    tableCellLabel: { flex: 2, textAlign: 'left', color: colors.textMuted, fontWeight: '500' },
+    tableCellBest: { color: colors.success, fontWeight: '600' },
+    scienceHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 4,
+    },
+    chevron: { fontSize: baseFont.bodySm * fontScale, color: colors.textMuted },
+    scienceBody: {
+      backgroundColor: colors.surfaceSubtle,
+      borderRadius: 10,
+      padding: 12,
+      marginBottom: 16,
+    },
+    scienceExplain: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginBottom: 12, lineHeight: 18 },
+    scienceCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 8,
+      padding: 10,
+      marginBottom: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    scienceDesign: { fontSize: baseFont.small * fontScale, fontWeight: '700', color: colors.text, marginBottom: 4 },
+    scienceDetail: { fontSize: baseFont.micro * fontScale, color: colors.textMuted, marginBottom: 2 },
+    scienceForce: { fontSize: baseFont.tiny * fontScale, fontWeight: '600', color: colors.primary, marginTop: 4 },
+    forceRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
+    forceCard: {
+      flex: 1,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 8,
+      padding: 10,
+      alignItems: 'center',
+    },
+    forceCardBest: { borderColor: colors.success, borderWidth: 2 },
+    forceValue: { fontSize: baseFont.bodySm * fontScale, fontWeight: '700', color: colors.text },
+    forceValueBest: { color: colors.success },
+    forceLabel: { fontSize: 10 * fontScale, color: colors.textMuted, marginTop: 2 },
+    actions: { marginTop: 12 },
+  });

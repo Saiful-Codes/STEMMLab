@@ -16,7 +16,7 @@ export type RootStackParamList = {
   Welcome: undefined;
   TeamSetup: undefined;
   MainTabs: undefined;
-  Auth: undefined;
+  Auth: { mode?: 'signin' | 'signup' } | undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -33,8 +33,7 @@ export default function RootNavigator() {
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const screen = response.notification.request.content.data?.screen;
-      console.log('[RootNavigator] Notification response with screen:', screen);
-      
+
       if (screen === 'History' && navigationRef.isReady()) {
         // Navigate to MainTabs and then to History tab
         navigationRef.navigate('MainTabs', {
@@ -82,6 +81,11 @@ export default function RootNavigator() {
             name="TeamSetup"
             component={TeamSetupScreen}
             options={{ title: t('nav.teamSetup') }}
+          />
+          <Stack.Screen
+            name="Auth"
+            component={AuthScreen}
+            options={{ title: 'Account' }}
           />
         </>
       )}

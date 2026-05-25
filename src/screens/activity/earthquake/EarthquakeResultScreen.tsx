@@ -15,12 +15,16 @@ import {
   loadAttempts,
 } from '../../../storage/attempts';
 import { useTranslation } from '../../../context/LanguageContext';
+import { useTheme } from '../../../context/ThemeContext';
+import { baseFont, Colors } from '../../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityResult'>;
 
 export default function EarthquakeResultScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
+  const { colors, fontScale } = useTheme();
+  const styles = makeStyles(colors, fontScale);
   const [loading, setLoading] = useState(true);
   const [latest, setLatest] = useState<ActivityAttempt<EarthquakeEntry> | null>(
     null
@@ -80,22 +84,27 @@ export default function EarthquakeResultScreen({ navigation, route }: Props) {
         <Stat
           label={t('result.earthquake.tests')}
           value={latest.entries.length.toString()}
+          styles={styles}
         />
         <Stat
           label={t('result.earthquake.bestPeak')}
           value={`${lowestPeak.toFixed(2)} g`}
+          styles={styles}
         />
         <Stat
           label={t('result.earthquake.worstPeak')}
           value={`${highestPeak.toFixed(2)} g`}
+          styles={styles}
         />
         <Stat
           label={t('result.earthquake.meanPeak')}
           value={`${meanPeak.toFixed(2)} g`}
+          styles={styles}
         />
         <Stat
           label={t('result.earthquake.meanShake')}
           value={`${meanAvg.toFixed(2)} g`}
+          styles={styles}
         />
       </View>
 
@@ -138,7 +147,17 @@ export default function EarthquakeResultScreen({ navigation, route }: Props) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+type Styles = ReturnType<typeof makeStyles>;
+
+function Stat({
+  label,
+  value,
+  styles,
+}: {
+  label: string;
+  value: string;
+  styles: Styles;
+}) {
   return (
     <View style={styles.stat}>
       <Text style={styles.statValue}>{value}</Text>
@@ -147,43 +166,49 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  empty: { fontSize: 14, color: '#6b7280' },
-  heading: { fontSize: 20, fontWeight: '700' },
-  meta: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  stats: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 16,
-    marginBottom: 16,
-    gap: 8,
-  },
-  stat: {
-    flexGrow: 1,
-    flexBasis: '45%',
-    backgroundColor: '#f3f4f6',
-    padding: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  statValue: { fontSize: 18, fontWeight: '700', color: '#111827' },
-  statLabel: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  listHeading: { fontSize: 14, fontWeight: '600', marginBottom: 6 },
-  list: { flex: 1 },
-  entryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  entryLabel: { fontSize: 15, color: '#111827' },
-  entryRight: { alignItems: 'flex-end' },
-  entryValue: { fontSize: 15, fontWeight: '600', color: '#2563eb' },
-  entrySub: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  actions: { marginTop: 12 },
-});
+const makeStyles = (colors: Colors, fontScale: number) =>
+  StyleSheet.create({
+    container: { flex: 1, padding: 16, backgroundColor: colors.background },
+    center: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
+    empty: { fontSize: baseFont.bodySm * fontScale, color: colors.textMuted },
+    heading: { fontSize: baseFont.subheading * fontScale, fontWeight: '700', color: colors.text },
+    meta: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 2 },
+    stats: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginTop: 16,
+      marginBottom: 16,
+      gap: 8,
+    },
+    stat: {
+      flexGrow: 1,
+      flexBasis: '45%',
+      backgroundColor: colors.surfaceMuted,
+      padding: 12,
+      borderRadius: 10,
+      alignItems: 'center',
+    },
+    statValue: { fontSize: baseFont.bodyLg * fontScale, fontWeight: '700', color: colors.text },
+    statLabel: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 2 },
+    listHeading: { fontSize: baseFont.bodySm * fontScale, fontWeight: '600', marginBottom: 6, color: colors.text },
+    list: { flex: 1 },
+    entryRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    entryLabel: { fontSize: 15 * fontScale, color: colors.text },
+    entryRight: { alignItems: 'flex-end' },
+    entryValue: { fontSize: 15 * fontScale, fontWeight: '600', color: colors.primary },
+    entrySub: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 2 },
+    actions: { marginTop: 12 },
+  });

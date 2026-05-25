@@ -12,6 +12,8 @@ import {
   loadTeam,
   saveTeam as saveTeamStorage,
 } from '../storage/team';
+import { getCurrentUser } from '../services/authService';
+import { saveTeamToFirestore } from '../services/firestoreService';
 
 type TeamContextValue = {
   team: Team | null;
@@ -46,6 +48,14 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   const saveTeam = useCallback(async (next: Team) => {
     await saveTeamStorage(next);
     setTeam(next);
+
+    // Auto-mirror to Firestore when signed in. Fire-and-forget: the local
+    // save above is the source of truth, so a cloud failure must not surface.
+    if (getCurrentUser()) {
+      saveTeamToFirestore(next).catch((err) => {
+        console.warn('[TeamContext] Cloud team mirror failed:', err);
+      });
+    }
   }, []);
 
   const clearTeam = useCallback(async () => {
