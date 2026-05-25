@@ -31,6 +31,14 @@ const en: TranslationDict = {
   'welcome.title': 'Welcome to STEMM Lab',
   'welcome.subtitle': 'Real-world STEMM activities, gamified.',
   'welcome.cta': 'Get Started',
+  'welcome.continueOffline': 'Continue offline',
+  'welcome.signIn': 'Sign in',
+  'welcome.createAccount': 'Create account',
+  'auth.cloudTeamFound.title': 'Cloud team found',
+  'auth.cloudTeamFound.message':
+    'We found a saved team in your account. Load it, or create a new one?',
+  'auth.cloudTeamFound.load': 'Load saved team',
+  'auth.cloudTeamFound.create': 'Create new team',
 
   // Team Setup
   'teamSetup.title': 'Team Setup',
@@ -608,6 +616,14 @@ const es: TranslationDict = {
   'welcome.title': 'Bienvenido a STEMM Lab',
   'welcome.subtitle': 'Actividades STEMM del mundo real, gamificadas.',
   'welcome.cta': 'Comenzar',
+  'welcome.continueOffline': 'Continuar sin conexión',
+  'welcome.signIn': 'Iniciar sesión',
+  'welcome.createAccount': 'Crear cuenta',
+  'auth.cloudTeamFound.title': 'Equipo en la nube encontrado',
+  'auth.cloudTeamFound.message':
+    'Encontramos un equipo guardado en tu cuenta. ¿Cargarlo o crear uno nuevo?',
+  'auth.cloudTeamFound.load': 'Cargar equipo guardado',
+  'auth.cloudTeamFound.create': 'Crear equipo nuevo',
 
   'teamSetup.title': 'Configuración del Equipo',
   'teamSetup.subtitle':
@@ -1179,6 +1195,14 @@ const ar: TranslationDict = {
   'welcome.title': 'مرحبًا بك في STEMM Lab',
   'welcome.subtitle': 'أنشطة STEMM واقعية ومُحوَّلة إلى ألعاب.',
   'welcome.cta': 'ابدأ الآن',
+  'welcome.continueOffline': 'المتابعة دون اتصال',
+  'welcome.signIn': 'تسجيل الدخول',
+  'welcome.createAccount': 'إنشاء حساب',
+  'auth.cloudTeamFound.title': 'تم العثور على فريق في السحابة',
+  'auth.cloudTeamFound.message':
+    'وجدنا فريقًا محفوظًا في حسابك. هل تريد تحميله أم إنشاء فريق جديد؟',
+  'auth.cloudTeamFound.load': 'تحميل الفريق المحفوظ',
+  'auth.cloudTeamFound.create': 'إنشاء فريق جديد',
 
   'teamSetup.title': 'إعداد الفريق',
   'teamSetup.subtitle': 'أخبرنا عن فريقك قبل أن تبدأ في استكشاف الأنشطة.',
@@ -1745,6 +1769,13 @@ const zh: TranslationDict = {
   'welcome.title': '欢迎使用 STEMM Lab',
   'welcome.subtitle': '真实世界的 STEMM 活动，游戏化。',
   'welcome.cta': '开始',
+  'welcome.continueOffline': '离线继续',
+  'welcome.signIn': '登录',
+  'welcome.createAccount': '创建账户',
+  'auth.cloudTeamFound.title': '找到云端团队',
+  'auth.cloudTeamFound.message': '我们在您的账户中找到了已保存的团队。要加载它还是创建一个新团队？',
+  'auth.cloudTeamFound.load': '加载已保存的团队',
+  'auth.cloudTeamFound.create': '创建新团队',
 
   'teamSetup.title': '团队设置',
   'teamSetup.subtitle': '在开始探索活动之前，先告诉我们你的团队信息。',

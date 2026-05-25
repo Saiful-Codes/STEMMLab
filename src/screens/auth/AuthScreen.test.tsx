@@ -18,7 +18,16 @@ jest.mock('../../services/authService', () => ({
   },
 }));
 
+// AuthScreen now imports firestoreService (for the post-auth cloud-team lookup),
+// which transitively pulls in firebase/firestore (an ESM file Jest cannot parse).
+// Mock the one function the screen uses; default to "no cloud team".
+jest.mock('../../services/firestoreService', () => ({
+  getTeamFromFirestore: jest.fn().mockResolvedValue(null),
+}));
+
 import { ThemeProvider } from '../../context/ThemeContext';
+import { LanguageProvider } from '../../context/LanguageContext';
+import { TeamProvider } from '../../context/TeamContext';
 import AuthScreen from './AuthScreen';
 import { signInWithEmail } from '../../services/authService';
 
@@ -27,7 +36,10 @@ const mockedSignIn = signInWithEmail as jest.MockedFunction<typeof signInWithEma
 function makeNavigationStub() {
   return {
     goBack: jest.fn(),
+    canGoBack: jest.fn(() => false),
     navigate: jest.fn(),
+    replace: jest.fn(),
+    reset: jest.fn(),
     addListener: jest.fn(() => () => undefined),
     removeListener: jest.fn(),
     dispatch: jest.fn(),
@@ -40,8 +52,12 @@ function renderAuthScreen() {
   const route = { key: 'Auth', name: 'Auth' as const, params: undefined };
   const utils = render(
     <ThemeProvider>
-      {/* @ts-expect-error — we pass a structural stub instead of the real navigator props */}
-      <AuthScreen navigation={navigation} route={route} />
+      <LanguageProvider>
+        <TeamProvider>
+          {/* @ts-expect-error — we pass a structural stub instead of the real navigator props */}
+          <AuthScreen navigation={navigation} route={route} />
+        </TeamProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
   return { ...utils, navigation };
@@ -97,7 +113,9 @@ describe('AuthScreen', () => {
     mockedSignIn.mockImplementationOnce(
       () =>
         new Promise((resolve) => {
-          resolveSignIn = resolve;
+          // resolve is typed against signInWithEmail's Promise<User>; widen it
+          // to match resolveSignIn — the resolved value is irrelevant here.
+          resolveSignIn = resolve as (value: unknown) => void;
         })
     );
 
