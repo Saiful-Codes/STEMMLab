@@ -90,7 +90,6 @@ export type BreathingEntry = {
   sampleCount: number;
 };
 
-export type AttemptEntry = SoundEntry | ReactionEntry | EarthquakeEntry | ParachuteEntry | HandFanEntry | BreathingEntry;
 export type PerformanceBucket = 'low' | 'medium' | 'high';
 
 export type PerformanceEntry = {
@@ -119,6 +118,7 @@ export type AttemptEntry =
   | EarthquakeEntry
   | ParachuteEntry
   | HandFanEntry
+  | BreathingEntry
   | PerformanceEntry;
 
 export type ActivityAttempt<E extends AttemptEntry = AttemptEntry> = {
