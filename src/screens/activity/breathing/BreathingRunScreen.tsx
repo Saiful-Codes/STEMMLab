@@ -13,6 +13,10 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
 import { BreathingEntry } from '../../../storage/attempts';
 import { useTranslation } from '../../../context/LanguageContext';
+import { useTeam } from '../../../context/TeamContext';
+import { useLocation } from '../../../context/LocationContext';
+import { Result } from '../../../types/Result';
+import { saveActivityResultWithLocation } from '../../../utils/activityResultHelper';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -60,6 +64,8 @@ function estimateBreathingRate(
 export default function BreathingRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
+  const { team } = useTeam();
+  const { location, refreshLocation } = useLocation();
 
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [mode, setMode] = useState<ExerciseMode>('rest');
@@ -190,7 +196,7 @@ export default function BreathingRunScreen({ navigation, route }: Props) {
     setEntries((prev) => [newEntry, ...prev]);
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     if (entries.length === 0) {
       Alert.alert(
         t('run.breathing.alert.noEntriesTitle'),
@@ -199,15 +205,46 @@ export default function BreathingRunScreen({ navigation, route }: Props) {
       return;
     }
 
-    // Calculate result: average breathing rate
-    const avgBpm = Math.round(
-      entries.reduce((sum, e) => sum + e.breathingRate, 0) / entries.length
-    );
+    if (!team) {
+      Alert.alert('Error', 'No team information available');
+      return;
+    }
 
-    navigation.replace('ResultSummary', {
-      activityId,
-      result: avgBpm,
-    });
+    try {
+      // Refresh location before finishing
+      await refreshLocation();
+
+      // Calculate result: average breathing rate
+      const avgBpm = Math.round(
+        entries.reduce((sum, e) => sum + e.breathingRate, 0) / entries.length
+      );
+
+      // Save result with GPS location
+      const result: Result = {
+        id: `result_${Date.now()}`,
+        activityId,
+        teamName: team.name,
+        members: team.members,
+        result: avgBpm,
+        timestamp: Date.now(),
+      };
+
+      await saveActivityResultWithLocation(result, location);
+
+      // Show "Activity Saved" notification
+      Alert.alert(
+        'Activity Saved!',
+        `GPS location captured:\n${location?.locationName || 'Unknown location'}`
+      );
+
+      navigation.replace('ResultSummary', {
+        activityId,
+        result: avgBpm,
+      });
+    } catch (err) {
+      console.error('Error finishing activity:', err);
+      Alert.alert('Error', 'Failed to save activity result');
+    }
   };
 
   const liveDisplay = isRunning
