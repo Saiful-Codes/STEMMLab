@@ -30,7 +30,14 @@ const en: TranslationDict = {
   // Welcome
   'welcome.title': 'Welcome to STEMM Lab',
   'welcome.subtitle': 'Real-world STEMM activities, gamified.',
-  'welcome.cta': 'Get Started',
+  'welcome.continueOffline': 'Continue offline',
+  'welcome.signIn': 'Sign in',
+  'welcome.createAccount': 'Create account',
+  'auth.cloudTeamFound.title': 'Cloud team found',
+  'auth.cloudTeamFound.message':
+    'We found a saved team in your account. Load it, or create a new one?',
+  'auth.cloudTeamFound.load': 'Load saved team',
+  'auth.cloudTeamFound.create': 'Create new team',
 
   // Team Setup
   'teamSetup.title': 'Team Setup',
@@ -559,6 +566,93 @@ const en: TranslationDict = {
   'common.cancel': 'Cancel',
   'common.reset': 'Reset',
   'common.clear': 'Clear',
+
+  // Activity Detail – Human Performance Lab
+  'activityDetail.performance.gradeLevel': 'Grades 5 – 10',
+  'activityDetail.performance.estimatedTime': '20 – 30 minutes',
+  'activityDetail.performance.tags':
+    'Biomechanics, Movement, Accelerometer, Prediction, Data',
+  'activityDetail.performance.introduction':
+    'Your body produces motion every time you move — some movements are smooth, others are shaky. In this activity you will hold the phone and perform three guided movements while the accelerometer measures peak shake, smoothness, and duration. Before each movement you will predict whether it will feel low, medium, or high in shake intensity, then check whether you were right.',
+  'activityDetail.performance.objectives':
+    '• Use the accelerometer to measure body movement.\n• Predict the shake intensity for three different movements.\n• Compare predictions with actual measurements.\n• Track smoothness across movements and across sessions.\n• Optional: enable vibration feedback to feel your motion.',
+  'activityDetail.performance.materials':
+    '• A smartphone running STEMM Lab with accelerometer support\n• Enough space to move your arm safely',
+  'activityDetail.performance.instructions':
+    '1. Open Human Performance Lab.\n2. Choose whether to enable vibration feedback for this session.\n3. For each of the three movements: pick a prediction (Low / Medium / High), tap Start, perform the movement, then tap Stop.\n4. Compare the actual bucket with your prediction.\n5. After all three movements, tap Finish to save your session.',
+  'activityDetail.performance.interpreting':
+    '• Smoothness (0–100) is higher when your movements were steady and lower when they were shaky.\n• Peak g shows the strongest moment of the movement.\n• Compare your predictions against actual buckets — were you right?\n• Repeat the activity to see whether your smoothness improves with practice.',
+
+  // Run – Performance
+  'run.performance.heading': 'Human Performance Lab',
+  'run.performance.subheading':
+    'Predict each movement, record it with the phone, then see how close you were.',
+  'run.performance.setup': 'Session setup',
+  'run.performance.feedbackOff': 'Without feedback',
+  'run.performance.feedbackOn': 'With vibration feedback',
+  'run.performance.feedbackHint': 'Toggle a haptic pulse while you move.',
+  'run.performance.movement1.title': 'Movement 1 – Circles & Figure-8',
+  'run.performance.movement1.sub': 'Rotate your hand in a slow circle, then a figure-8.',
+  'run.performance.movement1.instructions':
+    'Hold the phone in front of you. Trace a slow circle for a few seconds, then a figure-8.',
+  'run.performance.movement2.title': 'Movement 2 – Slow Arm Raise',
+  'run.performance.movement2.sub': 'Raise the phone overhead, then lower it back.',
+  'run.performance.movement2.instructions':
+    'Start with the phone at waist height. Raise it slowly above your head, hold, then lower it back.',
+  'run.performance.movement3.title': 'Movement 3 – Side Rotation',
+  'run.performance.movement3.sub': 'Twist your torso side to side with the phone.',
+  'run.performance.movement3.instructions':
+    'Stand with feet planted. Twist your torso left and right while holding the phone in front of you.',
+  'run.performance.prediction.label': 'Your prediction',
+  'run.performance.prediction.low': 'Low',
+  'run.performance.prediction.medium': 'Medium',
+  'run.performance.prediction.high': 'High',
+  'run.performance.notes': 'Notes (optional)',
+  'run.performance.notesPlaceholder': 'How did the movement feel?',
+  'run.performance.start': 'Start',
+  'run.performance.stop': 'Stop',
+  'run.performance.statPeak': 'Peak',
+  'run.performance.statSmoothness': 'Smoothness',
+  'run.performance.statDuration': 'Duration',
+  'run.performance.statActual': 'Actual',
+  'run.performance.statPrediction': 'Prediction',
+  'run.performance.statCorrect': '✅ Correct',
+  'run.performance.statIncorrect': '❌ Not quite',
+  'run.performance.statusDone': 'Done',
+  'run.performance.statusPending': 'Pending',
+  'run.performance.finish': 'Finish Activity',
+  'run.performance.finishHint': 'Complete all three movements to finish.',
+  'run.performance.live': 'Recording…',
+  'run.performance.alert.unavailableTitle': 'Accelerometer unavailable',
+  'run.performance.alert.unavailableMessage':
+    'This device does not provide accelerometer data.',
+  'run.performance.alert.missingPredictionTitle': 'Pick a prediction',
+  'run.performance.alert.missingPredictionMessage':
+    'Choose Low, Medium, or High before starting.',
+  'run.performance.alert.noDataTitle': 'No data',
+  'run.performance.alert.noDataMessage':
+    'No accelerometer samples were captured. Try again.',
+  'run.performance.alert.notReadyTitle': 'Not finished',
+  'run.performance.alert.notReadyMessage':
+    'Record all three movements before finishing.',
+  'run.performance.bucket.low': 'Low',
+  'run.performance.bucket.medium': 'Medium',
+  'run.performance.bucket.high': 'High',
+
+  // Result – Performance
+  'result.performance.sessions': 'Sessions',
+  'result.performance.bestSmoothness': 'Best avg smoothness',
+  'result.performance.meanPeak': 'Mean peak',
+  'result.performance.accuracy': 'Prediction accuracy',
+  'result.performance.listHeading': 'This session — per movement',
+  'result.performance.thisSessionLabel': 'This session — avg smoothness',
+  'result.performance.thisSessionSub':
+    '{{correct}} / {{total}} predictions correct',
+  'result.performance.overallTitle': 'Overall progress',
+  'result.performance.movementLabel': 'Movement {{n}}',
+  'result.performance.smoothnessValue': '{{value}}/100',
+  'result.performance.peakValue': '{{value}} g',
+  'result.performance.durationValue': '{{seconds}} s',
 };
 
 const es: TranslationDict = {
@@ -575,7 +669,14 @@ const es: TranslationDict = {
 
   'welcome.title': 'Bienvenido a STEMM Lab',
   'welcome.subtitle': 'Actividades STEMM del mundo real, gamificadas.',
-  'welcome.cta': 'Comenzar',
+  'welcome.continueOffline': 'Continuar sin conexión',
+  'welcome.signIn': 'Iniciar sesión',
+  'welcome.createAccount': 'Crear cuenta',
+  'auth.cloudTeamFound.title': 'Equipo en la nube encontrado',
+  'auth.cloudTeamFound.message':
+    'Encontramos un equipo guardado en tu cuenta. ¿Cargarlo o crear uno nuevo?',
+  'auth.cloudTeamFound.load': 'Cargar equipo guardado',
+  'auth.cloudTeamFound.create': 'Crear equipo nuevo',
 
   'teamSetup.title': 'Configuración del Equipo',
   'teamSetup.subtitle':
@@ -1096,6 +1197,93 @@ const es: TranslationDict = {
   'common.cancel': 'Cancelar',
   'common.reset': 'Restablecer',
   'common.clear': 'Borrar',
+
+  // Detalle de Actividad – Laboratorio de Rendimiento Humano
+  'activityDetail.performance.gradeLevel': 'Grados 5 – 10',
+  'activityDetail.performance.estimatedTime': '20 – 30 minutos',
+  'activityDetail.performance.tags':
+    'Biomecánica, Movimiento, Acelerómetro, Predicción, Datos',
+  'activityDetail.performance.introduction':
+    'Tu cuerpo produce movimiento cada vez que te mueves — algunos movimientos son suaves, otros son temblorosos. En esta actividad sostendrás el teléfono y realizarás tres movimientos guiados mientras el acelerómetro mide el pico de sacudida, la suavidad y la duración. Antes de cada movimiento predirás si sentirás una intensidad baja, media o alta, y luego comprobarás si tenías razón.',
+  'activityDetail.performance.objectives':
+    '• Usa el acelerómetro para medir el movimiento corporal.\n• Predice la intensidad de la sacudida para tres movimientos diferentes.\n• Compara predicciones con mediciones reales.\n• Sigue la suavidad entre movimientos y entre sesiones.\n• Opcional: activa la vibración para sentir tu movimiento.',
+  'activityDetail.performance.materials':
+    '• Un smartphone con STEMM Lab y soporte de acelerómetro\n• Espacio suficiente para mover el brazo con seguridad',
+  'activityDetail.performance.instructions':
+    '1. Abre Laboratorio de Rendimiento Humano.\n2. Decide si activar la vibración para esta sesión.\n3. Para cada uno de los tres movimientos: elige una predicción (Bajo / Medio / Alto), pulsa Iniciar, realiza el movimiento y pulsa Detener.\n4. Compara el resultado real con tu predicción.\n5. Tras los tres movimientos, pulsa Finalizar para guardar tu sesión.',
+  'activityDetail.performance.interpreting':
+    '• La suavidad (0–100) es más alta cuando tu movimiento es estable y más baja cuando es tembloroso.\n• El pico g muestra el momento más fuerte del movimiento.\n• Compara tus predicciones con los resultados reales: ¿acertaste?\n• Repite la actividad para ver si mejoras con la práctica.',
+
+  // Ejecución – Rendimiento
+  'run.performance.heading': 'Laboratorio de Rendimiento Humano',
+  'run.performance.subheading':
+    'Predice cada movimiento, grábalo con el teléfono y comprueba qué tan cerca estuviste.',
+  'run.performance.setup': 'Configuración de la sesión',
+  'run.performance.feedbackOff': 'Sin vibración',
+  'run.performance.feedbackOn': 'Con vibración',
+  'run.performance.feedbackHint': 'Activa un pulso háptico mientras te mueves.',
+  'run.performance.movement1.title': 'Movimiento 1 – Círculos y Ocho',
+  'run.performance.movement1.sub': 'Gira la mano en un círculo lento, luego un ocho.',
+  'run.performance.movement1.instructions':
+    'Sostén el teléfono frente a ti. Traza un círculo lento durante unos segundos y luego un ocho.',
+  'run.performance.movement2.title': 'Movimiento 2 – Brazo Levantado Lento',
+  'run.performance.movement2.sub': 'Levanta el teléfono sobre la cabeza y bájalo.',
+  'run.performance.movement2.instructions':
+    'Empieza con el teléfono a la altura de la cintura. Súbelo lentamente sobre la cabeza, mantén y bájalo.',
+  'run.performance.movement3.title': 'Movimiento 3 – Giro Lateral',
+  'run.performance.movement3.sub': 'Gira el torso de lado a lado con el teléfono.',
+  'run.performance.movement3.instructions':
+    'Mantén los pies firmes. Gira el torso a izquierda y derecha sosteniendo el teléfono al frente.',
+  'run.performance.prediction.label': 'Tu predicción',
+  'run.performance.prediction.low': 'Bajo',
+  'run.performance.prediction.medium': 'Medio',
+  'run.performance.prediction.high': 'Alto',
+  'run.performance.notes': 'Notas (opcional)',
+  'run.performance.notesPlaceholder': '¿Cómo se sintió el movimiento?',
+  'run.performance.start': 'Iniciar',
+  'run.performance.stop': 'Detener',
+  'run.performance.statPeak': 'Pico',
+  'run.performance.statSmoothness': 'Suavidad',
+  'run.performance.statDuration': 'Duración',
+  'run.performance.statActual': 'Real',
+  'run.performance.statPrediction': 'Predicción',
+  'run.performance.statCorrect': '✅ Correcto',
+  'run.performance.statIncorrect': '❌ No del todo',
+  'run.performance.statusDone': 'Listo',
+  'run.performance.statusPending': 'Pendiente',
+  'run.performance.finish': 'Finalizar Actividad',
+  'run.performance.finishHint': 'Completa los tres movimientos para finalizar.',
+  'run.performance.live': 'Grabando…',
+  'run.performance.alert.unavailableTitle': 'Acelerómetro no disponible',
+  'run.performance.alert.unavailableMessage':
+    'Este dispositivo no proporciona datos del acelerómetro.',
+  'run.performance.alert.missingPredictionTitle': 'Elige una predicción',
+  'run.performance.alert.missingPredictionMessage':
+    'Elige Bajo, Medio o Alto antes de iniciar.',
+  'run.performance.alert.noDataTitle': 'Sin datos',
+  'run.performance.alert.noDataMessage':
+    'No se capturaron muestras del acelerómetro. Inténtalo de nuevo.',
+  'run.performance.alert.notReadyTitle': 'No terminado',
+  'run.performance.alert.notReadyMessage':
+    'Graba los tres movimientos antes de finalizar.',
+  'run.performance.bucket.low': 'Bajo',
+  'run.performance.bucket.medium': 'Medio',
+  'run.performance.bucket.high': 'Alto',
+
+  // Resultado – Rendimiento
+  'result.performance.sessions': 'Sesiones',
+  'result.performance.bestSmoothness': 'Mejor suavidad media',
+  'result.performance.meanPeak': 'Pico medio',
+  'result.performance.accuracy': 'Precisión de predicción',
+  'result.performance.listHeading': 'Esta sesión — por movimiento',
+  'result.performance.thisSessionLabel': 'Esta sesión — suavidad media',
+  'result.performance.thisSessionSub':
+    '{{correct}} / {{total}} predicciones correctas',
+  'result.performance.overallTitle': 'Progreso general',
+  'result.performance.movementLabel': 'Movimiento {{n}}',
+  'result.performance.smoothnessValue': '{{value}}/100',
+  'result.performance.peakValue': '{{value}} g',
+  'result.performance.durationValue': '{{seconds}} s',
 };
 
 const ar: TranslationDict = {
@@ -1112,7 +1300,14 @@ const ar: TranslationDict = {
 
   'welcome.title': 'مرحبًا بك في STEMM Lab',
   'welcome.subtitle': 'أنشطة STEMM واقعية ومُحوَّلة إلى ألعاب.',
-  'welcome.cta': 'ابدأ الآن',
+  'welcome.continueOffline': 'المتابعة دون اتصال',
+  'welcome.signIn': 'تسجيل الدخول',
+  'welcome.createAccount': 'إنشاء حساب',
+  'auth.cloudTeamFound.title': 'تم العثور على فريق في السحابة',
+  'auth.cloudTeamFound.message':
+    'وجدنا فريقًا محفوظًا في حسابك. هل تريد تحميله أم إنشاء فريق جديد؟',
+  'auth.cloudTeamFound.load': 'تحميل الفريق المحفوظ',
+  'auth.cloudTeamFound.create': 'إنشاء فريق جديد',
 
   'teamSetup.title': 'إعداد الفريق',
   'teamSetup.subtitle': 'أخبرنا عن فريقك قبل أن تبدأ في استكشاف الأنشطة.',
@@ -1628,6 +1823,93 @@ const ar: TranslationDict = {
   'common.cancel': 'إلغاء',
   'common.reset': 'إعادة تعيين',
   'common.clear': 'مسح',
+
+  // تفاصيل النشاط – مختبر الأداء البشري
+  'activityDetail.performance.gradeLevel': 'الصفوف 5 – 10',
+  'activityDetail.performance.estimatedTime': '20 – 30 دقيقة',
+  'activityDetail.performance.tags':
+    'الميكانيكا الحيوية، الحركة، مقياس التسارع، التوقع، البيانات',
+  'activityDetail.performance.introduction':
+    'ينتج جسمك حركة في كل مرة تتحرك فيها — بعض الحركات سلسة وأخرى مهتزة. في هذا النشاط ستمسك الهاتف وتؤدي ثلاث حركات موجهة بينما يقيس مقياس التسارع ذروة الاهتزاز والسلاسة والمدة. قبل كل حركة ستتوقع ما إذا كانت ستشعر بشدة منخفضة أو متوسطة أو عالية، ثم تتحقق إذا كنت محقًا.',
+  'activityDetail.performance.objectives':
+    '• استخدم مقياس التسارع لقياس حركة الجسم.\n• توقع شدة الاهتزاز لثلاث حركات مختلفة.\n• قارن التوقعات بالقياسات الفعلية.\n• تتبع السلاسة عبر الحركات وعبر الجلسات.\n• اختياري: قم بتمكين الاهتزاز للشعور بحركتك.',
+  'activityDetail.performance.materials':
+    '• هاتف ذكي يعمل بتطبيق STEMM Lab مع دعم مقياس التسارع\n• مساحة كافية لتحريك ذراعك بأمان',
+  'activityDetail.performance.instructions':
+    '1. افتح مختبر الأداء البشري.\n2. اختر ما إذا كنت تريد تمكين الاهتزاز لهذه الجلسة.\n3. لكل من الحركات الثلاث: اختر توقعًا (منخفض / متوسط / مرتفع)، اضغط ابدأ، نفذ الحركة، ثم اضغط إيقاف.\n4. قارن النتيجة الفعلية بتوقعك.\n5. بعد الحركات الثلاث، اضغط إنهاء لحفظ جلستك.',
+  'activityDetail.performance.interpreting':
+    '• السلاسة (0–100) تكون أعلى عندما تكون حركتك ثابتة وأقل عندما تكون مهتزة.\n• ذروة g تظهر اللحظة الأقوى في الحركة.\n• قارن توقعاتك بالنتائج الفعلية — هل كنت محقًا؟\n• كرر النشاط لترى إذا تحسنت سلاستك مع التمرين.',
+
+  // التشغيل – الأداء
+  'run.performance.heading': 'مختبر الأداء البشري',
+  'run.performance.subheading':
+    'توقع كل حركة، سجلها بالهاتف، ثم انظر إلى مدى دقتك.',
+  'run.performance.setup': 'إعداد الجلسة',
+  'run.performance.feedbackOff': 'بدون اهتزاز',
+  'run.performance.feedbackOn': 'مع اهتزاز',
+  'run.performance.feedbackHint': 'فعّل نبضة لمسية أثناء حركتك.',
+  'run.performance.movement1.title': 'الحركة 1 – دوائر ورقم 8',
+  'run.performance.movement1.sub': 'أدر يدك في دائرة بطيئة، ثم على شكل رقم 8.',
+  'run.performance.movement1.instructions':
+    'امسك الهاتف أمامك. ارسم دائرة بطيئة لبضع ثوان، ثم ارسم شكل رقم 8.',
+  'run.performance.movement2.title': 'الحركة 2 – رفع الذراع البطيء',
+  'run.performance.movement2.sub': 'ارفع الهاتف فوق رأسك، ثم أنزله.',
+  'run.performance.movement2.instructions':
+    'ابدأ بالهاتف عند مستوى الخصر. ارفعه ببطء فوق رأسك، احتفظ به، ثم أنزله.',
+  'run.performance.movement3.title': 'الحركة 3 – الدوران الجانبي',
+  'run.performance.movement3.sub': 'أدر جذعك من جانب إلى آخر مع الهاتف.',
+  'run.performance.movement3.instructions':
+    'قف بقدمين ثابتتين. أدر جذعك يمينًا ويسارًا وأنت تمسك الهاتف أمامك.',
+  'run.performance.prediction.label': 'توقعك',
+  'run.performance.prediction.low': 'منخفض',
+  'run.performance.prediction.medium': 'متوسط',
+  'run.performance.prediction.high': 'مرتفع',
+  'run.performance.notes': 'ملاحظات (اختياري)',
+  'run.performance.notesPlaceholder': 'كيف شعرت بالحركة؟',
+  'run.performance.start': 'ابدأ',
+  'run.performance.stop': 'إيقاف',
+  'run.performance.statPeak': 'الذروة',
+  'run.performance.statSmoothness': 'السلاسة',
+  'run.performance.statDuration': 'المدة',
+  'run.performance.statActual': 'الفعلي',
+  'run.performance.statPrediction': 'التوقع',
+  'run.performance.statCorrect': '✅ صحيح',
+  'run.performance.statIncorrect': '❌ ليس تمامًا',
+  'run.performance.statusDone': 'تم',
+  'run.performance.statusPending': 'قيد الانتظار',
+  'run.performance.finish': 'إنهاء النشاط',
+  'run.performance.finishHint': 'أكمل الحركات الثلاث للإنهاء.',
+  'run.performance.live': 'جاري التسجيل…',
+  'run.performance.alert.unavailableTitle': 'مقياس التسارع غير متوفر',
+  'run.performance.alert.unavailableMessage':
+    'لا يوفر هذا الجهاز بيانات مقياس التسارع.',
+  'run.performance.alert.missingPredictionTitle': 'اختر توقعًا',
+  'run.performance.alert.missingPredictionMessage':
+    'اختر منخفض أو متوسط أو مرتفع قبل البدء.',
+  'run.performance.alert.noDataTitle': 'لا توجد بيانات',
+  'run.performance.alert.noDataMessage':
+    'لم يتم التقاط أي عينات من مقياس التسارع. حاول مرة أخرى.',
+  'run.performance.alert.notReadyTitle': 'لم تنته',
+  'run.performance.alert.notReadyMessage':
+    'سجل الحركات الثلاث قبل الإنهاء.',
+  'run.performance.bucket.low': 'منخفض',
+  'run.performance.bucket.medium': 'متوسط',
+  'run.performance.bucket.high': 'مرتفع',
+
+  // النتيجة – الأداء
+  'result.performance.sessions': 'الجلسات',
+  'result.performance.bestSmoothness': 'أفضل متوسط سلاسة',
+  'result.performance.meanPeak': 'متوسط الذروة',
+  'result.performance.accuracy': 'دقة التوقع',
+  'result.performance.listHeading': 'هذه الجلسة — لكل حركة',
+  'result.performance.thisSessionLabel': 'هذه الجلسة — متوسط السلاسة',
+  'result.performance.thisSessionSub':
+    '{{correct}} / {{total}} توقعات صحيحة',
+  'result.performance.overallTitle': 'التقدم العام',
+  'result.performance.movementLabel': 'الحركة {{n}}',
+  'result.performance.smoothnessValue': '{{value}}/100',
+  'result.performance.peakValue': '{{value}} g',
+  'result.performance.durationValue': '{{seconds}} ث',
 };
 
 const zh: TranslationDict = {
@@ -1644,7 +1926,13 @@ const zh: TranslationDict = {
 
   'welcome.title': '欢迎使用 STEMM Lab',
   'welcome.subtitle': '真实世界的 STEMM 活动，游戏化。',
-  'welcome.cta': '开始',
+  'welcome.continueOffline': '离线继续',
+  'welcome.signIn': '登录',
+  'welcome.createAccount': '创建账户',
+  'auth.cloudTeamFound.title': '找到云端团队',
+  'auth.cloudTeamFound.message': '我们在您的账户中找到了已保存的团队。要加载它还是创建一个新团队？',
+  'auth.cloudTeamFound.load': '加载已保存的团队',
+  'auth.cloudTeamFound.create': '创建新团队',
 
   'teamSetup.title': '团队设置',
   'teamSetup.subtitle': '在开始探索活动之前，先告诉我们你的团队信息。',
@@ -2144,6 +2432,93 @@ const zh: TranslationDict = {
   'common.cancel': '取消',
   'common.reset': '重置',
   'common.clear': '清除',
+
+  // 活动详情 – 人体表现实验室
+  'activityDetail.performance.gradeLevel': '5 – 10 年级',
+  'activityDetail.performance.estimatedTime': '20 – 30 分钟',
+  'activityDetail.performance.tags':
+    '生物力学、运动、加速度计、预测、数据',
+  'activityDetail.performance.introduction':
+    '每当你移动时，身体都会产生动作 —— 有些动作平稳，有些则颤抖。在本活动中，你将握住手机执行三个引导动作，加速度计会测量峰值抖动、平稳度和持续时间。每个动作之前，你会预测它的抖动强度是低、中还是高，然后看看你猜得对不对。',
+  'activityDetail.performance.objectives':
+    '• 使用加速度计测量身体运动。\n• 预测三种不同动作的抖动强度。\n• 将预测与实际测量进行比较。\n• 跟踪各动作和各次会话中的平稳度。\n• 可选：启用震动反馈来感受你的运动。',
+  'activityDetail.performance.materials':
+    '• 运行 STEMM Lab 且支持加速度计的智能手机\n• 足够的空间安全地挥动手臂',
+  'activityDetail.performance.instructions':
+    '1. 打开人体表现实验室。\n2. 选择本次会话是否启用震动反馈。\n3. 对每一个动作：选择预测（低/中/高），点击"开始"，执行动作，然后点击"停止"。\n4. 将实际类别与你的预测进行比较。\n5. 三个动作完成后，点击"完成"以保存本次会话。',
+  'activityDetail.performance.interpreting':
+    '• 平稳度（0–100）越高，表示你的动作越稳定；越低则越颤抖。\n• 峰值 g 显示动作中最强烈的瞬间。\n• 将你的预测与实际类别进行比较 —— 你猜对了吗？\n• 重复活动，看看你的平稳度是否随着练习提高。',
+
+  // 运行 – 表现
+  'run.performance.heading': '人体表现实验室',
+  'run.performance.subheading':
+    '预测每个动作，用手机记录它，然后看看你有多接近。',
+  'run.performance.setup': '会话设置',
+  'run.performance.feedbackOff': '不使用震动',
+  'run.performance.feedbackOn': '使用震动反馈',
+  'run.performance.feedbackHint': '运动时切换触觉脉冲。',
+  'run.performance.movement1.title': '动作 1 – 画圆和 8 字',
+  'run.performance.movement1.sub': '先慢慢转动手画圆，再画 8 字。',
+  'run.performance.movement1.instructions':
+    '把手机举在身前。先慢慢画一个圆几秒钟，然后画一个 8 字。',
+  'run.performance.movement2.title': '动作 2 – 缓慢举臂',
+  'run.performance.movement2.sub': '把手机举过头顶，然后放下。',
+  'run.performance.movement2.instructions':
+    '手机起始在腰部高度。慢慢举过头顶，保持，然后放下。',
+  'run.performance.movement3.title': '动作 3 – 侧身旋转',
+  'run.performance.movement3.sub': '握着手机，左右扭动躯干。',
+  'run.performance.movement3.instructions':
+    '双脚站稳。握着手机举在身前，左右扭动躯干。',
+  'run.performance.prediction.label': '你的预测',
+  'run.performance.prediction.low': '低',
+  'run.performance.prediction.medium': '中',
+  'run.performance.prediction.high': '高',
+  'run.performance.notes': '备注（可选）',
+  'run.performance.notesPlaceholder': '动作感觉如何？',
+  'run.performance.start': '开始',
+  'run.performance.stop': '停止',
+  'run.performance.statPeak': '峰值',
+  'run.performance.statSmoothness': '平稳度',
+  'run.performance.statDuration': '时长',
+  'run.performance.statActual': '实际',
+  'run.performance.statPrediction': '预测',
+  'run.performance.statCorrect': '✅ 正确',
+  'run.performance.statIncorrect': '❌ 不太对',
+  'run.performance.statusDone': '完成',
+  'run.performance.statusPending': '待完成',
+  'run.performance.finish': '完成活动',
+  'run.performance.finishHint': '完成三个动作后才能结束。',
+  'run.performance.live': '录制中…',
+  'run.performance.alert.unavailableTitle': '加速度计不可用',
+  'run.performance.alert.unavailableMessage':
+    '此设备不提供加速度计数据。',
+  'run.performance.alert.missingPredictionTitle': '请先选择预测',
+  'run.performance.alert.missingPredictionMessage':
+    '开始前请选择低、中或高。',
+  'run.performance.alert.noDataTitle': '没有数据',
+  'run.performance.alert.noDataMessage':
+    '未捕获到加速度计数据。请重试。',
+  'run.performance.alert.notReadyTitle': '尚未完成',
+  'run.performance.alert.notReadyMessage':
+    '请先记录三个动作再结束。',
+  'run.performance.bucket.low': '低',
+  'run.performance.bucket.medium': '中',
+  'run.performance.bucket.high': '高',
+
+  // 结果 – 表现
+  'result.performance.sessions': '会话数',
+  'result.performance.bestSmoothness': '最佳平均平稳度',
+  'result.performance.meanPeak': '平均峰值',
+  'result.performance.accuracy': '预测准确率',
+  'result.performance.listHeading': '本次会话 — 各动作详情',
+  'result.performance.thisSessionLabel': '本次会话 — 平均平稳度',
+  'result.performance.thisSessionSub':
+    '{{correct}} / {{total}} 项预测正确',
+  'result.performance.overallTitle': '整体进度',
+  'result.performance.movementLabel': '动作 {{n}}',
+  'result.performance.smoothnessValue': '{{value}}/100',
+  'result.performance.peakValue': '{{value}} g',
+  'result.performance.durationValue': '{{seconds}} 秒',
 };
 
 export const translations: Record<LanguageCode, TranslationDict> = { en, es, ar, zh };

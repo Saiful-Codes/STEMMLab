@@ -48,7 +48,8 @@ export const activities: Activity[] = [
     domain: 'Medical Science + Biomechanics',
     shortDescription:
       'Use accelerometer to measure smoothness during slow vs. fast movements.',
-    comingSoon: true,
+    comingSoon: false,
+    hasDetail: true,
   },
   {
     id: 'reaction',

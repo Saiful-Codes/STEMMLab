@@ -32,6 +32,20 @@
           "microphonePermission": "Allow STEMM Lab to use the microphone so you can measure sound levels for the Sound Pollution Hunter activity."
         }
       ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow STEMM Lab to use your location to tag activities with their GPS coordinates for data analysis."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#000000",
+          "sounds": ["default"]
+        }
+      ],
       "expo-sqlite"
     ]
   }

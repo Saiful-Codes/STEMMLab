@@ -20,6 +20,8 @@ const AVAILABLE_ORDER: string[] = [
   'reaction',
   'breathing'
 ];
+const AVAILABLE_ORDER: string[] = ['parachute', 'sound', 'handfan', 'earthquake', 'performance', 'reaction'];
+
 type Section = { titleKey: string; data: Activity[] };
 
 export default function ActivityListScreen({ navigation }: Props) {

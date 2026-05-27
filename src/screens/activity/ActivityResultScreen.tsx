@@ -7,6 +7,7 @@ import EarthquakeResultScreen from './earthquake/EarthquakeResultScreen';
 import ParachuteResultScreen from './parachute/ParachuteResultScreen';
 import HandFanResultScreen from './handfan/HandFanResultScreen';
 import BreathingResultScreen from './breathing/BreathingResultScreen';
+import PerformanceResultScreen from './performance/PerformanceResultScreen';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
@@ -29,6 +30,8 @@ export default function ActivityResultScreen(props: Props) {
       return <HandFanResultScreen {...props} />;
     case 'breathing':
       return <BreathingResultScreen {...props} />;
+    case 'performance':
+      return <PerformanceResultScreen {...props} />;
     default:
       return <NoResults />;
   }

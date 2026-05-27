@@ -67,6 +67,9 @@ export default function ReactionResultScreen({ navigation, route }: Props) {
       <Text style={styles.meta}>
         {t('result.common.totalAttempts', { count: totalAttempts })}
       </Text>
+      
+
+      
 
       <View style={styles.stats}>
         <Stat
