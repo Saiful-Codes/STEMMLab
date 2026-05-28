@@ -453,10 +453,28 @@ const en: TranslationDict = {
   'result.breathing.highest': 'Highest',
   'result.breathing.average': 'Average',
   'result.breathing.comparison': 'Resting vs. Active',
-  'result.breathing.listHeading': 'Breathing measurements',
+  'result.breathing.listHeading': 'Breathing measurements ({{count}})',
   'result.breathing.attemptLabel': 'Measurement {{n}}',
   'result.breathing.empty': 'No measurements recorded.',
   'result.breathing.entrySub': '{{seconds}} s duration',
+  'result.breathing.measurementCount': '{{count}} measurement(s) recorded',
+  'result.breathing.summaryTitle': 'Summary',
+  'result.breathing.summary.measurements': 'Measurements',
+  'result.breathing.summary.avgRest': 'Avg Resting',
+  'result.breathing.summary.avgExercise': 'Avg After Exercise',
+  'result.breathing.summary.difference': 'Difference',
+  'result.breathing.insightTitle': 'What this means',
+  'result.breathing.insight.exerciseHigher':
+    'Your breathing rate increased after exercise. This is expected — your body needs more oxygen when it works harder, so you breathe faster.',
+  'result.breathing.insight.restHigher':
+    'Your resting rate was higher than after exercise. That is unusual — try recording again and stay still while measuring at rest.',
+  'result.breathing.insight.tryLonger':
+    'The difference between resting and active breathing was small. Try a longer measurement, or do more movement before the second reading.',
+  'result.breathing.insight.needsData':
+    'Record at least one "At Rest" and one "After Exercise" measurement to compare how breathing rate changes with activity.',
+  'result.breathing.performance.good': 'Good comparison',
+  'result.breathing.performance.tryLonger': 'Try longer measurement',
+  'result.breathing.performance.needsData': 'Needs more data',
 
   'result.earthquake.tests': 'Tests',
   'result.earthquake.bestPeak': 'Best (lowest peak)',
@@ -1082,10 +1100,28 @@ const es: TranslationDict = {
   'result.breathing.highest': 'Más alto',
   'result.breathing.average': 'Promedio',
   'result.breathing.comparison': 'En Reposo vs. Activo',
-  'result.breathing.listHeading': 'Mediciones respiratorias',
+  'result.breathing.listHeading': 'Mediciones respiratorias ({{count}})',
   'result.breathing.attemptLabel': 'Medición {{n}}',
   'result.breathing.empty': 'Sin mediciones registradas.',
   'result.breathing.entrySub': 'Duración {{seconds}} s',
+  'result.breathing.measurementCount': '{{count}} medición(es) registrada(s)',
+  'result.breathing.summaryTitle': 'Resumen',
+  'result.breathing.summary.measurements': 'Mediciones',
+  'result.breathing.summary.avgRest': 'Prom. en Reposo',
+  'result.breathing.summary.avgExercise': 'Prom. Después del Ejercicio',
+  'result.breathing.summary.difference': 'Diferencia',
+  'result.breathing.insightTitle': 'Qué significa esto',
+  'result.breathing.insight.exerciseHigher':
+    'Tu frecuencia respiratoria aumentó después del ejercicio. Es esperado: el cuerpo necesita más oxígeno cuando trabaja más, así que respiras más rápido.',
+  'result.breathing.insight.restHigher':
+    'Tu frecuencia en reposo fue mayor que después del ejercicio. Eso es inusual: intenta medir de nuevo y quédate quieto durante la medición en reposo.',
+  'result.breathing.insight.tryLonger':
+    'La diferencia entre la respiración en reposo y activa fue pequeña. Intenta una medición más larga o muévete más antes de la segunda lectura.',
+  'result.breathing.insight.needsData':
+    'Registra al menos una medición "En Reposo" y una "Después del Ejercicio" para comparar cómo cambia tu respiración con la actividad.',
+  'result.breathing.performance.good': 'Buena comparación',
+  'result.breathing.performance.tryLonger': 'Intenta una medición más larga',
+  'result.breathing.performance.needsData': 'Se necesitan más datos',
 
   'result.earthquake.tests': 'Pruebas',
   'result.earthquake.bestPeak': 'Mejor (pico más bajo)',
@@ -1709,10 +1745,28 @@ const ar: TranslationDict = {
   'result.breathing.highest': 'الأعلى',
   'result.breathing.average': 'المتوسط',
   'result.breathing.comparison': 'الراحة مقابل النشاط',
-  'result.breathing.listHeading': 'قياسات التنفس',
+  'result.breathing.listHeading': 'قياسات التنفس ({{count}})',
   'result.breathing.attemptLabel': 'القياس {{n}}',
   'result.breathing.empty': 'لم يتم تسجيل قياسات.',
   'result.breathing.entrySub': 'المدة {{seconds}} ث',
+  'result.breathing.measurementCount': 'تم تسجيل {{count}} قياس',
+  'result.breathing.summaryTitle': 'ملخص',
+  'result.breathing.summary.measurements': 'القياسات',
+  'result.breathing.summary.avgRest': 'متوسط الراحة',
+  'result.breathing.summary.avgExercise': 'متوسط بعد التمرين',
+  'result.breathing.summary.difference': 'الفرق',
+  'result.breathing.insightTitle': 'ماذا يعني هذا',
+  'result.breathing.insight.exerciseHigher':
+    'زاد معدل تنفسك بعد التمرين. هذا متوقع — يحتاج جسمك إلى مزيد من الأكسجين عندما يعمل بجهد أكبر، فتتنفس أسرع.',
+  'result.breathing.insight.restHigher':
+    'كان معدل تنفسك أثناء الراحة أعلى من بعد التمرين. هذا غير عادي — جرب تسجيل القياس مرة أخرى وابقَ ساكنًا أثناء قياس الراحة.',
+  'result.breathing.insight.tryLonger':
+    'كان الفرق بين التنفس أثناء الراحة والنشاط صغيرًا. جرب قياسًا أطول أو قم بحركة أكثر قبل القياس الثاني.',
+  'result.breathing.insight.needsData':
+    'سجل قياسًا واحدًا على الأقل "في الراحة" وآخر "بعد التمرين" لمقارنة كيف يتغير معدل التنفس مع النشاط.',
+  'result.breathing.performance.good': 'مقارنة جيدة',
+  'result.breathing.performance.tryLonger': 'جرب قياسًا أطول',
+  'result.breathing.performance.needsData': 'يحتاج إلى مزيد من البيانات',
 
   'result.earthquake.tests': 'الاختبارات',
   'result.earthquake.bestPeak': 'الأفضل (أدنى ذروة)',
@@ -2325,10 +2379,28 @@ const zh: TranslationDict = {
   'result.breathing.highest': '最高',
   'result.breathing.average': '平均',
   'result.breathing.comparison': '静息 vs. 活跃',
-  'result.breathing.listHeading': '呼吸测量',
+  'result.breathing.listHeading': '呼吸测量 ({{count}})',
   'result.breathing.attemptLabel': '第 {{n}} 次测量',
   'result.breathing.empty': '未记录测量数据。',
   'result.breathing.entrySub': '持续 {{seconds}} 秒',
+  'result.breathing.measurementCount': '已记录 {{count}} 次测量',
+  'result.breathing.summaryTitle': '总结',
+  'result.breathing.summary.measurements': '测量次数',
+  'result.breathing.summary.avgRest': '静息平均',
+  'result.breathing.summary.avgExercise': '运动后平均',
+  'result.breathing.summary.difference': '差值',
+  'result.breathing.insightTitle': '这意味着什么',
+  'result.breathing.insight.exerciseHigher':
+    '运动后你的呼吸频率上升了。这是正常的——身体在更努力工作时需要更多氧气，所以你呼吸得更快。',
+  'result.breathing.insight.restHigher':
+    '你的静息呼吸频率比运动后还高，这不太正常——请再测一次，并在静息测量时保持静止。',
+  'result.breathing.insight.tryLonger':
+    '静息和活动呼吸之间的差异很小。试着进行更长时间的测量，或在第二次测量前增加运动量。',
+  'result.breathing.insight.needsData':
+    '请至少记录一次"静息"和一次"运动后"测量，以便比较呼吸频率如何随活动变化。',
+  'result.breathing.performance.good': '良好对比',
+  'result.breathing.performance.tryLonger': '尝试更长时间的测量',
+  'result.breathing.performance.needsData': '需要更多数据',
 
   'result.earthquake.tests': '测试数',
   'result.earthquake.bestPeak': '最佳（最低峰值）',

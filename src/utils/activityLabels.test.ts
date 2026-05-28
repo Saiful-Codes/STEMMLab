@@ -62,8 +62,8 @@ describe('isRankedActivity', () => {
     expect(isRankedActivity('earthquake')).toBe(true);
     expect(isRankedActivity('handfan')).toBe(true);
     expect(isRankedActivity('performance')).toBe(true);
+    expect(isRankedActivity('breathing')).toBe(true);
     expect(isRankedActivity('parachute')).toBe(false);
-    expect(isRankedActivity('breathing')).toBe(false);
   });
 });
 
