@@ -66,7 +66,7 @@ describe('bestResult', () => {
       makeResult({ activityId: 'parachute', result: 9.8 }),
     ];
     expect(bestResult(results, 'parachute')).toBeNull();
-    expect(bestResult(results, 'breathing')).toBeNull();
+    expect(bestResult(results, 'not-an-activity')).toBeNull();
   });
 });
 
