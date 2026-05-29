@@ -17,6 +17,7 @@ const AVAILABLE_ORDER: string[] = [
   'sound',
   'handfan',
   'earthquake',
+  'performance',
   'reaction',
   'breathing'
 ];
