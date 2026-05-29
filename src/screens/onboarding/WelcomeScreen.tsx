@@ -43,7 +43,47 @@ export default function WelcomeScreen({ navigation }: Props) {
             { color: colors.primaryText, fontSize: baseFont.body * fontScale },
           ]}
         >
-          {t('welcome.cta')}
+          {t('welcome.continueOffline')}
+        </Text>
+      </Pressable>
+
+      <Pressable
+        onPress={() => navigation.navigate('Auth', { mode: 'signin' })}
+        style={({ pressed }) => [
+          styles.btnOutline,
+          {
+            borderColor: colors.primary,
+            backgroundColor: pressed ? colors.surfaceMuted : 'transparent',
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.btnText,
+            { color: colors.primary, fontSize: baseFont.body * fontScale },
+          ]}
+        >
+          {t('welcome.signIn')}
+        </Text>
+      </Pressable>
+
+      <Pressable
+        onPress={() => navigation.navigate('Auth', { mode: 'signup' })}
+        style={({ pressed }) => [
+          styles.btnOutline,
+          {
+            borderColor: colors.primary,
+            backgroundColor: pressed ? colors.surfaceMuted : 'transparent',
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.btnText,
+            { color: colors.primary, fontSize: baseFont.body * fontScale },
+          ]}
+        >
+          {t('welcome.createAccount')}
         </Text>
       </Pressable>
     </SafeAreaView>
@@ -54,6 +94,22 @@ const styles = StyleSheet.create({
   container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   title: { fontWeight: '600', marginBottom: 8, textAlign: 'center' },
   subtitle: { marginBottom: 24, textAlign: 'center' },
-  btn: { paddingHorizontal: 24, paddingVertical: 12, borderRadius: 10 },
+  btn: {
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 10,
+    marginBottom: 12,
+  },
+  btnOutline: {
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    marginBottom: 12,
+  },
   btnText: { fontWeight: '700' },
 });

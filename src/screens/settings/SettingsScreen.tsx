@@ -151,7 +151,10 @@ export default function SettingsScreen() {
   const handleSignOut = async () => {
     try {
       setSigningOut(true);
+      // Local team stays intact — sign-out only clears the cloud session.
+      // Auto-mirror simply stops firing until the user signs back in.
       await signOutUser();
+      Alert.alert('Signed out', 'Signed out — saves are local only.');
     } catch (err) {
       Alert.alert('Sign out failed', getFriendlyAuthError(err));
     } finally {
@@ -617,6 +620,17 @@ export default function SettingsScreen() {
       <Section title="Account" colors={colors} fontScale={fontScale}>
         <Text
           style={[
+            styles.syncStatus,
+            {
+              color: authUser ? colors.primary : colors.textMuted,
+              fontSize: baseFont.bodySm * fontScale,
+            },
+          ]}
+        >
+          {authUser ? 'Cloud sync: ON ✓' : 'Cloud sync: OFF'}
+        </Text>
+        <Text
+          style={[
             styles.helper,
             { color: colors.textMuted, fontSize: baseFont.small * fontScale },
           ]}
@@ -942,6 +956,7 @@ const styles = StyleSheet.create({
   rowLabel: { fontWeight: '600' },
   rowHint: { marginTop: 2 },
   divider: { height: StyleSheet.hairlineWidth, marginVertical: 4 },
+  syncStatus: { fontWeight: '700', marginBottom: 4 },
   helper: { marginBottom: 12 },
   langRow: {
     flexDirection: 'row',

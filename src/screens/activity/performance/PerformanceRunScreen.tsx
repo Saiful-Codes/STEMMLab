@@ -270,7 +270,7 @@ export default function PerformanceRunScreen({ navigation, route }: Props) {
         meta,
       });
     } catch (e) {
-      console.log('Save attempt error:', e);
+      console.warn('Save attempt error:', e);
     }
 
     setIsFinishing(false);

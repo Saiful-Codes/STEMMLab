@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -13,21 +14,26 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTheme } from '../../context/ThemeContext';
+import { useTranslation } from '../../context/LanguageContext';
+import { useTeam } from '../../context/TeamContext';
 import { baseFont } from '../../theme/tokens';
 import {
   getFriendlyAuthError,
   signInWithEmail,
   signUpWithEmail,
 } from '../../services/authService';
+import { getTeamFromFirestore } from '../../services/firestoreService';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 
 type Mode = 'signin' | 'signup';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Auth'>;
 
-export default function AuthScreen({ navigation }: Props) {
+export default function AuthScreen({ navigation, route }: Props) {
   const { colors, fontScale } = useTheme();
-  const [mode, setMode] = useState<Mode>('signin');
+  const { t } = useTranslation();
+  const { team, saveTeam } = useTeam();
+  const [mode, setMode] = useState<Mode>(route.params?.mode ?? 'signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -49,12 +55,81 @@ export default function AuthScreen({ navigation }: Props) {
 
     try {
       setSubmitting(true);
-      if (isSignIn) {
-        await signInWithEmail(email, password);
-      } else {
-        await signUpWithEmail(email, password);
+      const user = isSignIn
+        ? await signInWithEmail(email, password)
+        : await signUpWithEmail(email, password);
+
+      // This screen has two entry points:
+      //   1. Settings — a local team already exists (RootNavigator is on the
+      //      `team` branch, Auth sits on top of MainTabs). Returning the user to
+      //      where they came from is correct, but only if there is something to
+      //      go back to — guard with canGoBack() so it can never raise the
+      //      "GO_BACK was not handled by any navigator" error.
+      //   2. Welcome / onboarding — there is no team yet and no safe screen to
+      //      go back to, so we must NEVER call goBack() here. Instead we route
+      //      forward (into TeamSetup), or load the cloud team into TeamContext
+      //      and let RootNavigator switch to MainTabs on its own.
+      if (team) {
+        if (navigation.canGoBack()) {
+          navigation.goBack();
+        }
+        return;
       }
-      navigation.goBack();
+
+      // Onboarding flow (no local team yet): decide where to land next.
+      // No goBack() is reachable below this point.
+      let cloudTeam = null;
+      try {
+        cloudTeam = await getTeamFromFirestore(user.uid);
+      } catch (lookupErr) {
+        // Cloud lookup failure shouldn't block onboarding — fall through to
+        // local team setup, which is the offline-first safe default.
+        console.warn('[AuthScreen] getTeamFromFirestore failed:', lookupErr);
+      }
+
+      if (cloudTeam) {
+        const loadedTeam = cloudTeam as NonNullable<typeof cloudTeam>;
+        Alert.alert(
+          t('auth.cloudTeamFound.title'),
+          t('auth.cloudTeamFound.message'),
+          [
+            {
+              text: t('auth.cloudTeamFound.load'),
+              onPress: () => {
+                // saveTeam writes to AsyncStorage and flips RootNavigator into
+                // the team branch. But 'Auth' is registered in BOTH branches,
+                // so RN keeps it focused after the switch instead of landing on
+                // MainTabs. After the team is persisted, explicitly reset onto
+                // MainTabs — deferred to the next tick so the team branch (and
+                // its MainTabs screen) is committed before we reset.
+                saveTeam(loadedTeam)
+                  .then(() => {
+                    setTimeout(() => {
+                      navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'MainTabs' }],
+                      });
+                    }, 0);
+                  })
+                  .catch((e) =>
+                    console.warn('[AuthScreen] saveTeam(cloudTeam) failed:', e)
+                  );
+              },
+            },
+            {
+              text: t('auth.cloudTeamFound.create'),
+              // replace (not navigate) so 'Auth' leaves the stack. The later
+              // TeamSetup save then flips into the team branch with no surviving
+              // shared route, landing on MainTabs — same as the offline path.
+              onPress: () => navigation.replace('TeamSetup'),
+            },
+          ]
+        );
+      } else {
+        // No cloud team: go straight to local setup. replace() drops 'Auth' so
+        // the post-save branch flip lands on MainTabs cleanly.
+        navigation.replace('TeamSetup');
+      }
     } catch (err) {
       setError(getFriendlyAuthError(err));
     } finally {
