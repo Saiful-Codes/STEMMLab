@@ -13,6 +13,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
 import { BreathingEntry, saveAttempt } from '../../../storage/attempts';
 import { useTranslation } from '../../../context/LanguageContext';
+import { useTheme } from '../../../context/ThemeContext';
+import { baseFont, Colors } from '../../../theme/tokens';
 import { useTeam } from '../../../context/TeamContext';
 import { useLocation } from '../../../context/LocationContext';
 
@@ -62,6 +64,8 @@ function estimateBreathingRate(
 export default function BreathingRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
+  const { colors, fontScale } = useTheme();
+  const styles = makeStyles(colors, fontScale);
   const { team } = useTeam();
   const { refreshLocation } = useLocation();
   const [isFinishing, setIsFinishing] = useState(false);
@@ -260,12 +264,14 @@ export default function BreathingRunScreen({ navigation, route }: Props) {
           selected={mode === 'rest'}
           disabled={isRunning}
           onPress={() => setMode('rest')}
+          styles={styles}
         />
         <ModeButton
           label={t('run.breathing.mode.exercise')}
           selected={mode === 'exercise'}
           disabled={isRunning}
           onPress={() => setMode('exercise')}
+          styles={styles}
         />
       </View>
 
@@ -282,9 +288,9 @@ export default function BreathingRunScreen({ navigation, route }: Props) {
       <View style={styles.sensorBox}>
         <Text style={styles.sensorLabel}>{t('run.breathing.sensor.title')}</Text>
         <View style={styles.sensorRow}>
-          <SensorValue label="X" value={liveX.toFixed(2)} />
-          <SensorValue label="Y" value={liveY.toFixed(2)} />
-          <SensorValue label="Z" value={liveZ.toFixed(2)} />
+          <SensorValue label="X" value={liveX.toFixed(2)} styles={styles} />
+          <SensorValue label="Y" value={liveY.toFixed(2)} styles={styles} />
+          <SensorValue label="Z" value={liveZ.toFixed(2)} styles={styles} />
         </View>
       </View>
 
@@ -292,10 +298,12 @@ export default function BreathingRunScreen({ navigation, route }: Props) {
         <Stat
           label={t('run.breathing.stat.time')}
           value={`${(elapsedMs / 1000).toFixed(1)} s`}
+          styles={styles}
         />
         <Stat
           label={t('run.breathing.stat.breathing')}
           value={`${breathingRate} BPM`}
+          styles={styles}
         />
       </View>
 
@@ -305,7 +313,7 @@ export default function BreathingRunScreen({ navigation, route }: Props) {
             isRunning ? t('run.breathing.stop') : t('run.breathing.start')
           }
           onPress={isRunning ? handleStop : handleStart}
-          color={isRunning ? '#dc2626' : undefined}
+          color={isRunning ? colors.danger : undefined}
           disabled={isAvailable === false}
         />
       </View>
@@ -355,7 +363,17 @@ export default function BreathingRunScreen({ navigation, route }: Props) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+type Styles = ReturnType<typeof makeStyles>;
+
+function Stat({
+  label,
+  value,
+  styles,
+}: {
+  label: string;
+  value: string;
+  styles: Styles;
+}) {
   return (
     <View style={styles.stat}>
       <Text style={styles.statValue}>{value}</Text>
@@ -364,7 +382,15 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SensorValue({ label, value }: { label: string; value: string }) {
+function SensorValue({
+  label,
+  value,
+  styles,
+}: {
+  label: string;
+  value: string;
+  styles: Styles;
+}) {
   return (
     <View style={styles.sensorValue}>
       <Text style={styles.sensorValueLabel}>{label}</Text>
@@ -378,11 +404,13 @@ function ModeButton({
   selected,
   disabled,
   onPress,
+  styles,
 }: {
   label: string;
   selected: boolean;
   disabled: boolean;
   onPress: () => void;
+  styles: Styles;
 }) {
   return (
     <Pressable
@@ -403,84 +431,85 @@ function ModeButton({
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  heading: { fontSize: 20, fontWeight: '700' },
-  subheading: { fontSize: 14, color: '#6b7280', marginBottom: 12 },
-  modeRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
-  modeButton: {
-    flexGrow: 1,
-    flexBasis: 0,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    backgroundColor: '#fff',
-    alignItems: 'center',
-  },
-  modeButtonSelected: {
-    backgroundColor: '#2563eb',
-    borderColor: '#2563eb',
-  },
-  modeButtonDisabled: { opacity: 0.5 },
-  modeButtonText: { fontSize: 14, fontWeight: '600', color: '#111827' },
-  modeButtonTextSelected: { color: '#fff' },
-  meterBox: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 12,
-    backgroundColor: '#fff',
-    paddingVertical: 18,
-    paddingHorizontal: 12,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  meterLabel: { fontSize: 12, color: '#6b7280' },
-  meterValue: { fontSize: 36, fontWeight: '800', color: '#2563eb', marginTop: 4 },
-  meterHint: { fontSize: 12, color: '#6b7280', marginTop: 6, textAlign: 'center' },
-  sensorBox: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 10,
-    backgroundColor: '#f3f4f6',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    marginBottom: 12,
-  },
-  sensorLabel: { fontSize: 12, fontWeight: '600', color: '#6b7280', marginBottom: 8 },
-  sensorRow: { flexDirection: 'row', gap: 8, justifyContent: 'space-around' },
-  sensorValue: { alignItems: 'center' },
-  sensorValueLabel: { fontSize: 11, color: '#6b7280', fontWeight: '600' },
-  sensorValueText: { fontSize: 13, fontWeight: '700', color: '#111827', marginTop: 2 },
-  statsRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
-  stat: {
-    flexGrow: 1,
-    flexBasis: 0,
-    backgroundColor: '#f3f4f6',
-    padding: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  statValue: { fontSize: 16, fontWeight: '700', color: '#111827' },
-  statLabel: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  controls: { marginBottom: 12 },
-  listHeading: { fontSize: 14, fontWeight: '600', marginBottom: 6 },
-  list: { flex: 1 },
-  emptyText: { color: '#9ca3af', fontStyle: 'italic', paddingVertical: 8 },
-  entryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  entryLabel: { fontSize: 15, fontWeight: '600', color: '#111827' },
-  entryMode: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  entryRight: { alignItems: 'flex-end' },
-  entryValue: { fontSize: 15, fontWeight: '600', color: '#2563eb' },
-  entrySub: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  finishButton: { marginTop: 12 },
-});
+const makeStyles = (colors: Colors, fontScale: number) =>
+  StyleSheet.create({
+    container: { flex: 1, padding: 16, backgroundColor: colors.background },
+    heading: { fontSize: baseFont.subheading * fontScale, fontWeight: '700', color: colors.text },
+    subheading: { fontSize: baseFont.bodySm * fontScale, color: colors.textMuted, marginBottom: 12 },
+    modeRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
+    modeButton: {
+      flexGrow: 1,
+      flexBasis: 0,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+    },
+    modeButtonSelected: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    modeButtonDisabled: { opacity: 0.5 },
+    modeButtonText: { fontSize: baseFont.bodySm * fontScale, fontWeight: '600', color: colors.text },
+    modeButtonTextSelected: { color: colors.primaryText },
+    meterBox: {
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      borderRadius: 12,
+      backgroundColor: colors.surface,
+      paddingVertical: 18,
+      paddingHorizontal: 12,
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    meterLabel: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted },
+    meterValue: { fontSize: 36 * fontScale, fontWeight: '800', color: colors.primary, marginTop: 4 },
+    meterHint: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 6, textAlign: 'center' },
+    sensorBox: {
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      borderRadius: 10,
+      backgroundColor: colors.surfaceMuted,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      marginBottom: 12,
+    },
+    sensorLabel: { fontSize: baseFont.tiny * fontScale, fontWeight: '600', color: colors.textMuted, marginBottom: 8 },
+    sensorRow: { flexDirection: 'row', gap: 8, justifyContent: 'space-around' },
+    sensorValue: { alignItems: 'center' },
+    sensorValueLabel: { fontSize: baseFont.micro * fontScale, color: colors.textMuted, fontWeight: '600' },
+    sensorValueText: { fontSize: baseFont.small * fontScale, fontWeight: '700', color: colors.text, marginTop: 2 },
+    statsRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
+    stat: {
+      flexGrow: 1,
+      flexBasis: 0,
+      backgroundColor: colors.surfaceMuted,
+      padding: 10,
+      borderRadius: 10,
+      alignItems: 'center',
+    },
+    statValue: { fontSize: baseFont.body * fontScale, fontWeight: '700', color: colors.text },
+    statLabel: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 2 },
+    controls: { marginBottom: 12 },
+    listHeading: { fontSize: baseFont.bodySm * fontScale, fontWeight: '600', marginBottom: 6, color: colors.text },
+    list: { flex: 1 },
+    emptyText: { color: colors.textSubtle, fontStyle: 'italic', paddingVertical: 8 },
+    entryRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    entryLabel: { fontSize: 15 * fontScale, fontWeight: '600', color: colors.text },
+    entryMode: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 2 },
+    entryRight: { alignItems: 'flex-end' },
+    entryValue: { fontSize: 15 * fontScale, fontWeight: '600', color: colors.primary },
+    entrySub: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 2 },
+    finishButton: { marginTop: 12 },
+  });

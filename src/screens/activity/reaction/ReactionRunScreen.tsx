@@ -10,13 +10,11 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
-import { ReactionEntry } from '../../../storage/attempts';
+import { ReactionEntry, saveAttempt } from '../../../storage/attempts';
 import { useTranslation } from '../../../context/LanguageContext';
-import { useLocation } from '../../../context/LocationContext';
-import { useNotifications } from '../../../context/NotificationContext';
+import { useTheme } from '../../../context/ThemeContext';
 import { useTeam } from '../../../context/TeamContext';
-import { saveActivityResultWithLocation } from '../../../utils/activityResultHelper';
-import type { Result } from '../../../types/Result';
+import { baseFont, Colors } from '../../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -28,10 +26,11 @@ const MAX_DELAY_MS = 3000;
 export default function ReactionRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
+  const { colors, fontScale } = useTheme();
   const { team } = useTeam();
-  const { location, refreshLocation } = useLocation();
-  const { sendAchievement } = useNotifications();
+  const styles = makeStyles(colors, fontScale);
 
+  const [isFinishing, setIsFinishing] = useState(false);
   const [gameState, setGameState] = useState<GameState>('idle');
   const [entries, setEntries] = useState<ReactionEntry[]>([]);
   const [lastReactionMs, setLastReactionMs] = useState<number | null>(null);
@@ -40,12 +39,10 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
   const waitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    // Get location on mount
-    refreshLocation();
     return () => {
       if (waitTimeoutRef.current) clearTimeout(waitTimeoutRef.current);
     };
-  }, [refreshLocation]);
+  }, []);
 
   const handleStart = () => {
     setLastReactionMs(null);
@@ -102,43 +99,27 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
       return;
     }
 
+    setIsFinishing(true);
+
     try {
-      // Refresh location before finishing
-      await refreshLocation();
+      const baseId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      // entries state holds newest-first; persist in chronological order so
+      // the result screen reads oldest-first.
+      const ordered = [...entries].reverse();
 
-      const bestMs = Math.min(...entries.map((e) => e.reactionMs));
-
-      // Save result with GPS location
-      const result: Result = {
-        id: `result_${Date.now()}`,
+      await saveAttempt<ReactionEntry>({
+        id: baseId,
         activityId,
-        teamName: team.name,
-        members: team.members,
-        result: bestMs,
-        timestamp: Date.now(),
-      };
-
-      await saveActivityResultWithLocation(result, location);
-
-      // Send completion notification
-      await sendAchievement(
-        'Reaction Challenge Complete! ⚡',
-        `${team.name} tested reaction time${location?.locationName ? ` at ${location.locationName}` : ''}`
-      );
-
-      Alert.alert(
-  'Activity Saved!',
-  `GPS location captured:\n${location?.locationName || 'Unknown location'}`
-);
-
-
-      navigation.replace('ResultSummary', {
-        activityId,
-        result: bestMs,
+        finishedAt: Date.now(),
+        entries: ordered,
       });
+
+      navigation.replace('ActivityResult', { activityId });
     } catch (err) {
       console.error('Error finishing activity:', err);
       Alert.alert('Error', 'Failed to save activity result');
+    } finally {
+      setIsFinishing(false);
     }
   };
 
@@ -208,7 +189,7 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
           <Button
             title={t('run.reaction.cancel')}
             onPress={handleReset}
-            color="#dc2626"
+            color={colors.danger}
           />
         )}
       </View>
@@ -217,14 +198,17 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
         <Stat
           label={t('run.reaction.stat.attempts')}
           value={entries.length.toString()}
+          styles={styles}
         />
         <Stat
           label={t('run.reaction.stat.best')}
           value={best != null ? `${best} ms` : '—'}
+          styles={styles}
         />
         <Stat
           label={t('run.reaction.stat.average')}
           value={avg != null ? `${Math.round(avg)} ms` : '—'}
+          styles={styles}
         />
       </View>
 
@@ -252,14 +236,24 @@ export default function ReactionRunScreen({ navigation, route }: Props) {
         <Button
           title={t('run.reaction.finish')}
           onPress={handleFinish}
-          disabled={isInteractive}
+          disabled={isInteractive || isFinishing}
         />
       </View>
     </View>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+type Styles = ReturnType<typeof makeStyles>;
+
+function Stat({
+  label,
+  value,
+  styles,
+}: {
+  label: string;
+  value: string;
+  styles: Styles;
+}) {
   return (
     <View style={styles.stat}>
       <Text style={styles.statValue}>{value}</Text>
@@ -268,55 +262,56 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  heading: { fontSize: 20, fontWeight: '700' },
-  subheading: { fontSize: 14, color: '#6b7280', marginBottom: 12 },
-  area: {
-    borderRadius: 12,
-    paddingVertical: 36,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-    minHeight: 160,
-  },
-  areaIdle: { backgroundColor: '#e5e7eb' },
-  areaWaiting: { backgroundColor: '#f59e0b' },
-  areaGo: { backgroundColor: '#16a34a' },
-  areaTooSoon: { backgroundColor: '#dc2626' },
-  areaResult: { backgroundColor: '#2563eb' },
-  areaText: { fontSize: 18, fontWeight: '600', color: '#fff' },
-  areaTextLarge: { fontSize: 36, fontWeight: '800', color: '#fff' },
-  areaSubText: { fontSize: 14, color: '#fff', marginTop: 4, opacity: 0.9 },
-  controls: { marginBottom: 12 },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 12,
-  },
-  stat: {
-    flexGrow: 1,
-    flexBasis: 0,
-    backgroundColor: '#f3f4f6',
-    padding: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  statValue: { fontSize: 16, fontWeight: '700', color: '#111827' },
-  statLabel: { fontSize: 12, color: '#6b7280', marginTop: 2 },
-  listHeading: { fontSize: 14, fontWeight: '600', marginBottom: 6 },
-  list: { flex: 1 },
-  emptyText: { color: '#9ca3af', fontStyle: 'italic', paddingVertical: 8 },
-  entryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  entryLabel: { fontSize: 15, color: '#111827' },
-  entryValue: { fontSize: 15, fontWeight: '600', color: '#2563eb' },
-  finishButton: { marginTop: 12 },
-});
+const makeStyles = (colors: Colors, fontScale: number) =>
+  StyleSheet.create({
+    container: { flex: 1, padding: 16, backgroundColor: colors.background },
+    heading: { fontSize: baseFont.subheading * fontScale, fontWeight: '700', color: colors.text },
+    subheading: { fontSize: baseFont.bodySm * fontScale, color: colors.textMuted, marginBottom: 12 },
+    area: {
+      borderRadius: 12,
+      paddingVertical: 36,
+      paddingHorizontal: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: 12,
+      minHeight: 160,
+    },
+    areaIdle: { backgroundColor: colors.surfaceMuted },
+    areaWaiting: { backgroundColor: colors.accent },
+    areaGo: { backgroundColor: colors.success },
+    areaTooSoon: { backgroundColor: colors.danger },
+    areaResult: { backgroundColor: colors.primary },
+    areaText: { fontSize: baseFont.bodyLg * fontScale, fontWeight: '600', color: colors.primaryText },
+    areaTextLarge: { fontSize: 36 * fontScale, fontWeight: '800', color: colors.primaryText },
+    areaSubText: { fontSize: baseFont.bodySm * fontScale, color: colors.primaryText, marginTop: 4, opacity: 0.9 },
+    controls: { marginBottom: 12 },
+    statsRow: {
+      flexDirection: 'row',
+      gap: 8,
+      marginBottom: 12,
+    },
+    stat: {
+      flexGrow: 1,
+      flexBasis: 0,
+      backgroundColor: colors.surfaceMuted,
+      padding: 10,
+      borderRadius: 10,
+      alignItems: 'center',
+    },
+    statValue: { fontSize: baseFont.body * fontScale, fontWeight: '700', color: colors.text },
+    statLabel: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 2 },
+    listHeading: { fontSize: baseFont.bodySm * fontScale, fontWeight: '600', marginBottom: 6, color: colors.text },
+    list: { flex: 1 },
+    emptyText: { color: colors.textSubtle, fontStyle: 'italic', paddingVertical: 8 },
+    entryRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    entryLabel: { fontSize: 15 * fontScale, color: colors.text },
+    entryValue: { fontSize: 15 * fontScale, fontWeight: '600', color: colors.primary },
+    finishButton: { marginTop: 12 },
+  });
