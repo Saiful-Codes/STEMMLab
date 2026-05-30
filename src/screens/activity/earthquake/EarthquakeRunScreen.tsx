@@ -12,15 +12,11 @@ import {
 import { Accelerometer } from 'expo-sensors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
-import { EarthquakeEntry } from '../../../storage/attempts';
+import { EarthquakeEntry, saveAttempt } from '../../../storage/attempts';
 import { useTranslation } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
-import { baseFont, Colors } from '../../../theme/tokens';
-import { useLocation } from '../../../context/LocationContext';
-import { useNotifications } from '../../../context/NotificationContext';
 import { useTeam } from '../../../context/TeamContext';
-import { saveActivityResultWithLocation } from '../../../utils/activityResultHelper';
-import type { Result } from '../../../types/Result';
+import { baseFont, Colors } from '../../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -44,11 +40,10 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
   const { colors, fontScale } = useTheme();
-  const styles = makeStyles(colors, fontScale);
   const { team } = useTeam();
-  const { location, refreshLocation } = useLocation();
-  const { sendAchievement } = useNotifications();
+  const styles = makeStyles(colors, fontScale);
 
+  const [isFinishing, setIsFinishing] = useState(false);
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
   const [mode, setMode] = useState<SimulationMode>('manual');
   const [isRunning, setIsRunning] = useState(false);
@@ -74,8 +69,6 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
       .catch(() => {
         if (!cancelled) setIsAvailable(false);
       });
-    // Get location on mount
-    refreshLocation();
     return () => {
       cancelled = true;
       stopSampling();
@@ -186,43 +179,27 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
       return;
     }
 
+    setIsFinishing(true);
+
     try {
-      // Refresh location before finishing
-      await refreshLocation();
+      const baseId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      // entries state holds newest-first; persist in chronological order so
+      // the result screen reads oldest-first.
+      const ordered = [...entries].reverse();
 
-      const peak = Math.max(...entries.map((e) => e.peakMagnitude));
-
-      // Save result with GPS location
-      const result: Result = {
-        id: `result_${Date.now()}`,
+      await saveAttempt<EarthquakeEntry>({
+        id: baseId,
         activityId,
-        teamName: team.name,
-        members: team.members,
-        result: Number(peak.toFixed(2)),
-        timestamp: Date.now(),
-      };
-
-      await saveActivityResultWithLocation(result, location);
-
-      // Send completion notification
-      await sendAchievement(
-        'Earthquake Structure Complete! 🏗️',
-        `${team.name} tested earthquake resistance${location?.locationName ? ` at ${location.locationName}` : ''}`
-      );
-
-      Alert.alert(
-  'Activity Saved!',
-  `GPS location captured:\n${location?.locationName || 'Unknown location'}`
-);
-
-
-      navigation.replace('ResultSummary', {
-        activityId,
-        result: Number(peak.toFixed(2)),
+        finishedAt: Date.now(),
+        entries: ordered,
       });
+
+      navigation.replace('ActivityResult', { activityId });
     } catch (err) {
       console.error('Error finishing activity:', err);
       Alert.alert('Error', 'Failed to save activity result');
+    } finally {
+      setIsFinishing(false);
     }
   };
 
@@ -341,7 +318,7 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
         <Button
           title={t('run.earthquake.finish')}
           onPress={handleFinish}
-          disabled={isRunning}
+          disabled={isRunning || isFinishing}
         />
       </View>
     </View>

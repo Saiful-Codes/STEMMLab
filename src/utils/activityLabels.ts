@@ -14,6 +14,7 @@ const META: Record<string, ActivityMeta> = {
   handfan: { unit: '°', lowerIsBetter: false, precision: 0 },
   performance: { unit: '/100', lowerIsBetter: false, precision: 0 },
   breathing: { unit: 'BPM', lowerIsBetter: true, precision: 0 },
+  parachute: { unit: 'm/s', lowerIsBetter: true, precision: 2 },
 };
 
 export const RANKED_ACTIVITY_IDS = Object.keys(META);

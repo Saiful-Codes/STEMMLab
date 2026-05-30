@@ -62,10 +62,9 @@ describe('sortResultsForRanking', () => {
 describe('bestResult', () => {
   it('returns null for non-ranked activity ids', () => {
     const results: Result[] = [
-      makeResult({ activityId: 'parachute', result: 12.3 }),
-      makeResult({ activityId: 'parachute', result: 9.8 }),
+      makeResult({ activityId: 'not-an-activity', result: 12.3 }),
+      makeResult({ activityId: 'not-an-activity', result: 9.8 }),
     ];
-    expect(bestResult(results, 'parachute')).toBeNull();
     expect(bestResult(results, 'not-an-activity')).toBeNull();
   });
 });

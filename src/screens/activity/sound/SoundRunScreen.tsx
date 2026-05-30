@@ -17,13 +17,11 @@ import {
   useAudioRecorderState,
 } from 'expo-audio';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
-import { SoundEntry } from '../../../storage/attempts';
+import { SoundEntry, saveAttempt } from '../../../storage/attempts';
 import { useTranslation } from '../../../context/LanguageContext';
-import { useLocation } from '../../../context/LocationContext';
-import { useNotifications } from '../../../context/NotificationContext';
+import { useTheme } from '../../../context/ThemeContext';
 import { useTeam } from '../../../context/TeamContext';
-import { saveActivityResultWithLocation } from '../../../utils/activityResultHelper';
-import type { Result } from '../../../types/Result';
+import { baseFont, Colors } from '../../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
@@ -40,9 +38,10 @@ function meteringToApproxDb(metering: number | null | undefined): number | null 
 export default function SoundRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
+  const { colors, fontScale } = useTheme();
   const { team } = useTeam();
-  const { location, refreshLocation } = useLocation();
-  const { sendAchievement } = useNotifications();
+  const styles = makeStyles(colors, fontScale);
+  const [isFinishing, setIsFinishing] = useState(false);
 
   const audioRecorder = useAudioRecorder({
     ...RecordingPresets.HIGH_QUALITY,
@@ -71,8 +70,6 @@ export default function SoundRunScreen({ navigation, route }: Props) {
         allowsRecording: true,
       });
     })();
-    // Get location on mount
-    refreshLocation();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -152,46 +149,27 @@ export default function SoundRunScreen({ navigation, route }: Props) {
       return;
     }
 
+    setIsFinishing(true);
+
     try {
-      // Refresh location before finishing
-      await refreshLocation();
-      Alert.alert(
-  'GPS Test',
-  `Lat: ${location?.latitude}\nLng: ${location?.longitude}\nLocation: ${location?.locationName || 'Unknown'}`
-);
+      const baseId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      // entries state holds newest-first; persist in chronological order so
+      // the result screen reads oldest-first.
+      const ordered = [...entries].reverse();
 
-      const peakDb = Math.max(...entries.map((e) => e.decibels));
-
-      // Save result with GPS location
-      const result: Result = {
-        id: `result_${Date.now()}`,
+      await saveAttempt<SoundEntry>({
+        id: baseId,
         activityId,
-        teamName: team.name,
-        members: team.members,
-        result: peakDb,
-        timestamp: Date.now(),
-      };
-
-      await saveActivityResultWithLocation(result, location);
-
-      // Send completion notification
-      await sendAchievement(
-  'Sound Pollution Hunter Complete! 🔊',
-  `${team.name} measured sound levels${location?.locationName ? ` at ${location.locationName}` : ''}`
-);
-
-Alert.alert(
-  'Activity Saved!',
-  `GPS location captured:\n${location?.locationName || 'Unknown location'}`
-);
-
-navigation.replace('ResultSummary', {
-        activityId,
-        result: peakDb,
+        finishedAt: Date.now(),
+        entries: ordered,
       });
+
+      navigation.replace('ActivityResult', { activityId });
     } catch (err) {
       console.error('Error finishing activity:', err);
       Alert.alert('Error', 'Failed to save activity result');
+    } finally {
+      setIsFinishing(false);
     }
   };
 
@@ -220,6 +198,7 @@ navigation.replace('ResultSummary', {
           value={action}
           onChangeText={setAction}
           placeholder={t('run.sound.actionPlaceholder')}
+          placeholderTextColor={colors.textSubtle}
           style={styles.input}
         />
 
@@ -236,7 +215,7 @@ navigation.replace('ResultSummary', {
             }
             onPress={recorderState.isRecording ? stopRecording : startRecording}
             disabled={permissionGranted === false}
-            color={recorderState.isRecording ? '#dc2626' : undefined}
+            color={recorderState.isRecording ? colors.danger : undefined}
           />
         </View>
 
@@ -271,61 +250,63 @@ navigation.replace('ResultSummary', {
         <Button
           title={t('run.sound.finish')}
           onPress={handleFinish}
-          disabled={recorderState.isRecording}
+          disabled={recorderState.isRecording || isFinishing}
         />
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  heading: { fontSize: 20, fontWeight: '700' },
-  subheading: { fontSize: 14, color: '#6b7280', marginBottom: 16 },
-  form: {
-    backgroundColor: '#f9fafb',
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    marginBottom: 16,
-  },
-  label: { fontSize: 13, fontWeight: '600', marginBottom: 4, marginTop: 4 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    backgroundColor: '#fff',
-    marginBottom: 8,
-  },
-  meterBox: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  meterValue: { fontSize: 28, fontWeight: '700', color: '#2563eb' },
-  meterHint: { fontSize: 12, color: '#6b7280', marginTop: 4 },
-  recordButton: { marginTop: 4, marginBottom: 6 },
-  addButton: { marginTop: 4 },
-  listHeading: { fontSize: 14, fontWeight: '600', marginBottom: 6 },
-  list: { flex: 1 },
-  emptyText: { color: '#9ca3af', fontStyle: 'italic', paddingVertical: 8 },
-  entryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  entryAction: { fontSize: 15, color: '#111827' },
-  entryDb: { fontSize: 15, fontWeight: '600', color: '#2563eb' },
-  finishButton: { marginTop: 12 },
-});
+const makeStyles = (colors: Colors, fontScale: number) =>
+  StyleSheet.create({
+    container: { flex: 1, padding: 16, backgroundColor: colors.background },
+    heading: { fontSize: baseFont.subheading * fontScale, fontWeight: '700', color: colors.text },
+    subheading: { fontSize: baseFont.bodySm * fontScale, color: colors.textMuted, marginBottom: 16 },
+    form: {
+      backgroundColor: colors.surfaceSubtle,
+      padding: 12,
+      borderRadius: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: 16,
+    },
+    label: { fontSize: baseFont.small * fontScale, fontWeight: '600', marginBottom: 4, marginTop: 4, color: colors.text },
+    input: {
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      borderRadius: 8,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      backgroundColor: colors.inputBg,
+      color: colors.text,
+      marginBottom: 8,
+    },
+    meterBox: {
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      borderRadius: 8,
+      backgroundColor: colors.surface,
+      paddingVertical: 14,
+      paddingHorizontal: 12,
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    meterValue: { fontSize: 28 * fontScale, fontWeight: '700', color: colors.primary },
+    meterHint: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 4 },
+    recordButton: { marginTop: 4, marginBottom: 6 },
+    addButton: { marginTop: 4 },
+    listHeading: { fontSize: baseFont.bodySm * fontScale, fontWeight: '600', marginBottom: 6, color: colors.text },
+    list: { flex: 1 },
+    emptyText: { color: colors.textSubtle, fontStyle: 'italic', paddingVertical: 8 },
+    entryRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    entryAction: { fontSize: 15 * fontScale, color: colors.text },
+    entryDb: { fontSize: 15 * fontScale, fontWeight: '600', color: colors.primary },
+    finishButton: { marginTop: 12 },
+  });

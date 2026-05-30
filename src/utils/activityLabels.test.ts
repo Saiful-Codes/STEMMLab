@@ -49,8 +49,11 @@ describe('isLowerBetter', () => {
     expect(isLowerBetter('handfan')).toBe(false);
   });
 
+  it('returns true for parachute', () => {
+    expect(isLowerBetter('parachute')).toBe(true);
+  });
+
   it('returns false (default) for unknown activity id', () => {
-    expect(isLowerBetter('parachute')).toBe(false);
     expect(isLowerBetter('not-an-activity')).toBe(false);
   });
 });
@@ -63,7 +66,7 @@ describe('isRankedActivity', () => {
     expect(isRankedActivity('handfan')).toBe(true);
     expect(isRankedActivity('performance')).toBe(true);
     expect(isRankedActivity('breathing')).toBe(true);
-    expect(isRankedActivity('parachute')).toBe(false);
+    expect(isRankedActivity('parachute')).toBe(true);
   });
 });
 

@@ -91,12 +91,10 @@ export default function SettingsScreen() {
       await registerBackgroundTask();
       await refreshBackgroundStatus();
     } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Could not register background task.';
-      setBgError(message);
-      Alert.alert('Register failed', message);
+      const friendly =
+        'Background tasks are not available in this app build. Use a development build to enable this feature.';
+      setBgError(friendly);
+      Alert.alert('Register failed', friendly);
     } finally {
       setBgLoading(false);
     }
@@ -454,6 +452,20 @@ export default function SettingsScreen() {
             {bgError}
           </Text>
         ) : null}
+        {bgStatus?.available === false ? (
+          <Text
+            style={[
+              styles.helper,
+              {
+                color: colors.textMuted,
+                fontSize: baseFont.small * fontScale,
+              },
+            ]}
+          >
+            Background tasks require a development build. They are not available
+            in Expo Go.
+          </Text>
+        ) : null}
         <Row
           label="Registered"
           colors={colors}
@@ -521,7 +533,11 @@ export default function SettingsScreen() {
         />
         <Pressable
           onPress={handleRegisterBackground}
-          disabled={bgLoading || bgStatus?.registered === true}
+          disabled={
+            bgLoading ||
+            bgStatus?.registered === true ||
+            bgStatus?.available === false
+          }
           style={({ pressed }) => [
             styles.primaryBtn,
             {
@@ -529,7 +545,9 @@ export default function SettingsScreen() {
                 ? colors.primaryPressed
                 : colors.primary,
             },
-            (bgLoading || bgStatus?.registered === true) &&
+            (bgLoading ||
+              bgStatus?.registered === true ||
+              bgStatus?.available === false) &&
               styles.dangerBtnDisabled,
           ]}
         >
