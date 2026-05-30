@@ -30,7 +30,6 @@ export default function ParachuteResultScreen({ navigation, route }: Props) {
   const [loading, setLoading] = useState(true);
   const [latest, setLatest] = useState<ActivityAttempt<ParachuteEntry> | null>(null);
   const [totalAttempts, setTotalAttempts] = useState(0);
-
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -201,7 +200,7 @@ export default function ParachuteResultScreen({ navigation, route }: Props) {
         <Button
           title={t('summary.save')}
           onPress={() =>
-            navigation.replace('ResultSummary', {
+            navigation.replace('MediaCapture', {
               activityId,
               result: bestParachute.result.finalVelocity,
             })

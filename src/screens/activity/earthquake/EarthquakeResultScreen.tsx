@@ -39,7 +39,6 @@ export default function EarthquakeResultScreen({ navigation, route }: Props) {
     null
   );
   const [totalAttempts, setTotalAttempts] = useState(0);
-
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -209,7 +208,7 @@ export default function EarthquakeResultScreen({ navigation, route }: Props) {
 
       <Pressable
         onPress={() =>
-          navigation.replace('ResultSummary', {
+          navigation.replace('MediaCapture', {
             activityId,
             result: headlineResult,
           })
