@@ -11,4 +11,5 @@ export type Result = {
   longitude?: number;
   accuracy?: number;
   locationName?: string;
+  images?: Array<{ uri: string; label?: string }>;
 };

@@ -5,6 +5,7 @@ import ActivityDetailScreen from '../screens/activity/ActivityDetailScreen';
 import ActivityRunScreen from '../screens/activity/ActivityRunScreen';
 import ActivityResultScreen from '../screens/activity/ActivityResultScreen';
 import ResultSummaryScreen from '../screens/common/ResultSummaryScreen';
+import MediaCaptureScreen from '../screens/common/MediaCaptureScreen';
 import { useTranslation } from '../context/LanguageContext';
 
 export type ActivityStackParamList = {
@@ -13,7 +14,12 @@ export type ActivityStackParamList = {
   ActivityDetail: { activityId: string };
   ActivityRun: { activityId: string };
   ActivityResult: { activityId: string };
-  ResultSummary: { activityId: string; result: number | string };
+  MediaCapture: { activityId: string; result: number | string };
+  ResultSummary: {
+    activityId: string;
+    result: number | string;
+    images?: Array<{ uri: string; label?: string }>;
+  };
 };
 
 const Stack = createNativeStackNavigator<ActivityStackParamList>();
@@ -46,6 +52,11 @@ export default function ActivityStack() {
         name="ActivityResult"
         component={ActivityResultScreen}
         options={{ title: t('nav.activityResult') }}
+      />
+      <Stack.Screen
+        name="MediaCapture"
+        component={MediaCaptureScreen}
+        options={{ title: 'Add Photos' }}
       />
       <Stack.Screen
         name="ResultSummary"

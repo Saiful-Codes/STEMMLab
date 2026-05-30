@@ -206,7 +206,7 @@ export default function HandFanResultScreen({ navigation, route }: Props) {
         <Button
           title={t('summary.save')}
           onPress={() =>
-            navigation.replace('ResultSummary', {
+            navigation.replace('MediaCapture', {
               activityId,
               result: bestAngle,
             })

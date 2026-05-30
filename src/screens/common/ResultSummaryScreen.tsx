@@ -26,7 +26,7 @@ import { getActivityTitleKey, formatResult } from '../../utils/activityLabels';
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ResultSummary'>;
 
 export default function ResultSummaryScreen({ navigation, route }: Props) {
-  const { activityId, result } = route.params;
+  const { activityId, result, images } = route.params;
   const { team } = useTeam();
   const { colors, fontScale } = useTheme();
   const { t } = useTranslation();
@@ -76,6 +76,7 @@ export default function ResultSummaryScreen({ navigation, route }: Props) {
       longitude: currentLocation?.longitude,
       accuracy: currentLocation?.accuracy,
       locationName: currentLocation?.locationName,
+      images: images && images.length > 0 ? images : undefined,
     };
 
     try {
