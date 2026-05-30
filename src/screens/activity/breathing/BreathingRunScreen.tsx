@@ -6,58 +6,84 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  Vibration,
   View,
 } from 'react-native';
 import { Accelerometer } from 'expo-sensors';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
-import { EarthquakeEntry, saveAttempt } from '../../../storage/attempts';
+import { BreathingEntry, saveAttempt } from '../../../storage/attempts';
 import { useTranslation } from '../../../context/LanguageContext';
 import { useTheme } from '../../../context/ThemeContext';
-import { useTeam } from '../../../context/TeamContext';
 import { baseFont, Colors } from '../../../theme/tokens';
+import { useTeam } from '../../../context/TeamContext';
+import { useLocation } from '../../../context/LocationContext';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityRun'>;
 
 const SAMPLE_INTERVAL_MS = 50;
 
-// Looping vibration pattern. Android reads this as [wait, vibrate, wait,
-// vibrate, …]; iOS reads every value as a wait between fixed ~400 ms pulses.
-// Either way it produces a rhythmic shake while the test is running.
-const SIMULATION_PATTERN = [0, 800, 150, 800];
+type ExerciseMode = 'rest' | 'exercise';
 
-type SimulationMode = 'manual' | 'simulate';
+// Detect breathing peaks from acceleration magnitude
+// A breath typically corresponds to a small cyclic motion (0.1 to 0.3g range)
+function estimateBreathingRate(
+  samples: { magnitude: number; timestamp: number }[],
+  durationMs: number
+): number {
+  if (samples.length < 10 || durationMs < 1000) return 0;
 
-// Phone at rest reads ~1g on its dominant axis. The "shake" component is the
-// deviation of the total acceleration vector magnitude from 1g.
-function shakeMagnitude(x: number, y: number, z: number): number {
-  const total = Math.sqrt(x * x + y * y + z * z);
-  return Math.abs(total - 1);
+  // Find peaks in magnitude (breathing cycles)
+  let peakCount = 0;
+  const threshold = 0.05; // Minimum magnitude change to detect movement
+  const minPeakDistance = 300; // Minimum ms between peaks (min breathing rate ~20 BPM = 300ms per breath)
+
+  let lastPeakTime = -minPeakDistance;
+  let lastMagnitude = samples[0].magnitude;
+
+  for (let i = 1; i < samples.length; i++) {
+    const currentMagnitude = samples[i].magnitude;
+    const magnitudeDiff = Math.abs(currentMagnitude - lastMagnitude);
+
+    // Detect a peak (change in movement)
+    if (magnitudeDiff > threshold && samples[i].timestamp - lastPeakTime >= minPeakDistance) {
+      peakCount++;
+      lastPeakTime = samples[i].timestamp;
+    }
+
+    lastMagnitude = currentMagnitude;
+  }
+
+  // Convert peaks to BPM (2 peaks per breath cycle = 1 breath)
+  const breathCount = Math.max(1, Math.floor(peakCount / 2));
+  const minutes = durationMs / 60000;
+  const bpm = Math.round(breathCount / minutes);
+
+  return Math.min(bpm, 120); // Cap at 120 BPM for sanity
 }
 
-export default function EarthquakeRunScreen({ navigation, route }: Props) {
+export default function BreathingRunScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
   const { colors, fontScale } = useTheme();
-  const { team } = useTeam();
   const styles = makeStyles(colors, fontScale);
-
+  const { team } = useTeam();
+  const { refreshLocation } = useLocation();
   const [isFinishing, setIsFinishing] = useState(false);
+
   const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
-  const [mode, setMode] = useState<SimulationMode>('manual');
+  const [mode, setMode] = useState<ExerciseMode>('rest');
   const [isRunning, setIsRunning] = useState(false);
+  const [liveX, setLiveX] = useState(0);
+  const [liveY, setLiveY] = useState(0);
+  const [liveZ, setLiveZ] = useState(0);
   const [liveMagnitude, setLiveMagnitude] = useState(0);
-  const [peakMagnitude, setPeakMagnitude] = useState(0);
-  const [avgMagnitude, setAvgMagnitude] = useState(0);
+  const [breathingRate, setBreathingRate] = useState(0);
   const [elapsedMs, setElapsedMs] = useState(0);
-  const [entries, setEntries] = useState<EarthquakeEntry[]>([]);
+  const [entries, setEntries] = useState<BreathingEntry[]>([]);
 
   const subscriptionRef = useRef<ReturnType<typeof Accelerometer.addListener> | null>(null);
   const startTimeRef = useRef<number | null>(null);
-  const peakRef = useRef(0);
-  const sumRef = useRef(0);
-  const samplesRef = useRef(0);
+  const samplesRef = useRef<{ magnitude: number; timestamp: number }[]>([]);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -72,7 +98,6 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
     return () => {
       cancelled = true;
       stopSampling();
-      Vibration.cancel();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -88,79 +113,88 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
     }
   };
 
+  const calculateMagnitude = (x: number, y: number, z: number) => {
+    // Subtract 1g from the dominant axis (typically z when phone is on chest)
+    // to measure just the breathing movement
+    const adjustedZ = Math.abs(z - 1);
+    return Math.sqrt(x * x + y * y + adjustedZ * adjustedZ);
+  };
+
   const handleStart = () => {
     if (isAvailable === false) {
       Alert.alert(
-        t('run.earthquake.alert.unavailableTitle'),
-        t('run.earthquake.alert.unavailableMessage')
+        t('run.breathing.alert.unavailableTitle'),
+        t('run.breathing.alert.unavailableMessage')
       );
       return;
     }
 
-    peakRef.current = 0;
-    sumRef.current = 0;
-    samplesRef.current = 0;
+    samplesRef.current = [];
     startTimeRef.current = Date.now();
 
-    setPeakMagnitude(0);
-    setAvgMagnitude(0);
+    setLiveX(0);
+    setLiveY(0);
+    setLiveZ(0);
     setLiveMagnitude(0);
+    setBreathingRate(0);
     setElapsedMs(0);
     setIsRunning(true);
 
     Accelerometer.setUpdateInterval(SAMPLE_INTERVAL_MS);
     subscriptionRef.current = Accelerometer.addListener(({ x, y, z }) => {
-      const m = shakeMagnitude(x, y, z);
-      sumRef.current += m;
-      samplesRef.current += 1;
-      if (m > peakRef.current) peakRef.current = m;
-      setLiveMagnitude(m);
+      const magnitude = calculateMagnitude(x, y, z);
+      setLiveX(x);
+      setLiveY(y);
+      setLiveZ(z);
+      setLiveMagnitude(magnitude);
+
+      const now = Date.now();
+      samplesRef.current.push({
+        magnitude,
+        timestamp: now,
+      });
     });
 
     tickRef.current = setInterval(() => {
       if (startTimeRef.current == null) return;
-      setElapsedMs(Date.now() - startTimeRef.current);
-      setPeakMagnitude(peakRef.current);
-      setAvgMagnitude(
-        samplesRef.current > 0 ? sumRef.current / samplesRef.current : 0
-      );
-    }, 100);
+      const elapsed = Date.now() - startTimeRef.current;
+      setElapsedMs(elapsed);
 
-    if (mode === 'simulate') {
-      Vibration.vibrate(SIMULATION_PATTERN, true);
-    }
+      // Update breathing rate every 2 seconds
+      if (elapsed % 2000 < SAMPLE_INTERVAL_MS) {
+        const bpm = estimateBreathingRate(samplesRef.current, elapsed);
+        setBreathingRate(bpm);
+      }
+    }, SAMPLE_INTERVAL_MS);
   };
 
   const handleStop = () => {
     if (!isRunning || startTimeRef.current == null) return;
 
     const durationMs = Date.now() - startTimeRef.current;
-    const samples = samplesRef.current;
-    const peak = peakRef.current;
-    const avg = samples > 0 ? sumRef.current / samples : 0;
+    const samples = samplesRef.current.length;
+    const bpm = estimateBreathingRate(samplesRef.current, durationMs);
 
     stopSampling();
-    Vibration.cancel();
     setIsRunning(false);
     setElapsedMs(durationMs);
-    setPeakMagnitude(peak);
-    setAvgMagnitude(avg);
+    setBreathingRate(bpm);
 
     if (samples === 0) {
       Alert.alert(
-        t('run.earthquake.alert.noDataTitle'),
-        t('run.earthquake.alert.noDataMessage')
+        t('run.breathing.alert.noDataTitle'),
+        t('run.breathing.alert.noDataMessage')
       );
       return;
     }
 
-    const newEntry: EarthquakeEntry = {
+    const newEntry: BreathingEntry = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       attemptNumber: entries.length + 1,
+      mode,
       durationMs,
-      peakMagnitude: peak,
-      avgMagnitude: avg,
-      samples,
+      breathingRate: bpm,
+      sampleCount: samples,
     };
     setEntries((prev) => [newEntry, ...prev]);
   };
@@ -168,8 +202,8 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
   const handleFinish = async () => {
     if (entries.length === 0) {
       Alert.alert(
-        t('run.earthquake.alert.noAttemptsTitle'),
-        t('run.earthquake.alert.noAttemptsMessage')
+        t('run.breathing.alert.noEntriesTitle'),
+        t('run.breathing.alert.noEntriesMessage')
       );
       return;
     }
@@ -182,12 +216,14 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
     setIsFinishing(true);
 
     try {
+      await refreshLocation();
+
       const baseId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       // entries state holds newest-first; persist in chronological order so
-      // the result screen reads oldest-first.
+      // attemptNumber 1 is first in the result screen.
       const ordered = [...entries].reverse();
 
-      await saveAttempt<EarthquakeEntry>({
+      await saveAttempt<BreathingEntry>({
         id: baseId,
         activityId,
         finishedAt: Date.now(),
@@ -204,41 +240,37 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
   };
 
   const liveDisplay = isRunning
-    ? `${liveMagnitude.toFixed(2)} g`
-    : peakMagnitude > 0
-    ? `${peakMagnitude.toFixed(2)} g`
-    : '-- g';
+    ? `${breathingRate} BPM`
+    : breathingRate > 0
+    ? `${breathingRate} BPM`
+    : '-- BPM';
 
   const liveHint = isRunning
-    ? mode === 'simulate'
-      ? t('run.earthquake.hint.simulating')
-      : t('run.earthquake.hint.shaking')
-    : peakMagnitude > 0
-    ? t('run.earthquake.hint.complete')
+    ? t('run.breathing.hint.measuring')
+    : breathingRate > 0
+    ? t('run.breathing.hint.complete')
     : isAvailable === false
-    ? t('run.earthquake.hint.unavailable')
-    : mode === 'simulate'
-    ? t('run.earthquake.hint.simulatePrompt')
-    : t('run.earthquake.hint.manualPrompt');
+    ? t('run.breathing.hint.unavailable')
+    : t('run.breathing.hint.ready');
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>{t('run.earthquake.heading')}</Text>
-      <Text style={styles.subheading}>{t('run.earthquake.subheading')}</Text>
+      <Text style={styles.heading}>{t('run.breathing.heading')}</Text>
+      <Text style={styles.subheading}>{t('run.breathing.subheading')}</Text>
 
       <View style={styles.modeRow}>
         <ModeButton
-          label={t('run.earthquake.mode.manual')}
-          selected={mode === 'manual'}
+          label={t('run.breathing.mode.rest')}
+          selected={mode === 'rest'}
           disabled={isRunning}
-          onPress={() => setMode('manual')}
+          onPress={() => setMode('rest')}
           styles={styles}
         />
         <ModeButton
-          label={t('run.earthquake.mode.simulate')}
-          selected={mode === 'simulate'}
+          label={t('run.breathing.mode.exercise')}
+          selected={mode === 'exercise'}
           disabled={isRunning}
-          onPress={() => setMode('simulate')}
+          onPress={() => setMode('exercise')}
           styles={styles}
         />
       </View>
@@ -246,27 +278,31 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
       <View style={styles.meterBox}>
         <Text style={styles.meterLabel}>
           {isRunning
-            ? t('run.earthquake.meter.live')
-            : t('run.earthquake.meter.lastPeak')}
+            ? t('run.breathing.meter.live')
+            : t('run.breathing.meter.lastRate')}
         </Text>
         <Text style={styles.meterValue}>{liveDisplay}</Text>
         <Text style={styles.meterHint}>{liveHint}</Text>
       </View>
 
+      <View style={styles.sensorBox}>
+        <Text style={styles.sensorLabel}>{t('run.breathing.sensor.title')}</Text>
+        <View style={styles.sensorRow}>
+          <SensorValue label="X" value={liveX.toFixed(2)} styles={styles} />
+          <SensorValue label="Y" value={liveY.toFixed(2)} styles={styles} />
+          <SensorValue label="Z" value={liveZ.toFixed(2)} styles={styles} />
+        </View>
+      </View>
+
       <View style={styles.statsRow}>
         <Stat
-          label={t('run.earthquake.stat.time')}
+          label={t('run.breathing.stat.time')}
           value={`${(elapsedMs / 1000).toFixed(1)} s`}
           styles={styles}
         />
         <Stat
-          label={t('run.earthquake.stat.peak')}
-          value={`${peakMagnitude.toFixed(2)} g`}
-          styles={styles}
-        />
-        <Stat
-          label={t('run.earthquake.stat.average')}
-          value={`${avgMagnitude.toFixed(2)} g`}
+          label={t('run.breathing.stat.breathing')}
+          value={`${breathingRate} BPM`}
           styles={styles}
         />
       </View>
@@ -274,7 +310,7 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
       <View style={styles.controls}>
         <Button
           title={
-            isRunning ? t('run.earthquake.stop') : t('run.earthquake.start')
+            isRunning ? t('run.breathing.stop') : t('run.breathing.start')
           }
           onPress={isRunning ? handleStop : handleStart}
           color={isRunning ? colors.danger : undefined}
@@ -283,29 +319,31 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
       </View>
 
       <Text style={styles.listHeading}>
-        {t('run.earthquake.attemptsHeading', { count: entries.length })}
+        {t('run.breathing.attemptsHeading', { count: entries.length })}
       </Text>
       <FlatList
         data={entries}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>{t('run.earthquake.empty')}</Text>
+          <Text style={styles.emptyText}>{t('run.breathing.empty')}</Text>
         }
         renderItem={({ item }) => (
           <View style={styles.entryRow}>
-            <Text style={styles.entryLabel}>
-              {t('run.earthquake.attemptLabel', { n: item.attemptNumber })}
-            </Text>
-            <View style={styles.entryRight}>
-              <Text style={styles.entryValue}>
-                {t('run.earthquake.entryPeak', {
-                  value: item.peakMagnitude.toFixed(2),
-                })}
+            <View>
+              <Text style={styles.entryLabel}>
+                {t('run.breathing.attemptLabel', { n: item.attemptNumber })}
               </Text>
+              <Text style={styles.entryMode}>
+                {item.mode === 'rest'
+                  ? t('run.breathing.mode.rest')
+                  : t('run.breathing.mode.exercise')}
+              </Text>
+            </View>
+            <View style={styles.entryRight}>
+              <Text style={styles.entryValue}>{item.breathingRate} BPM</Text>
               <Text style={styles.entrySub}>
-                {t('run.earthquake.entrySub', {
+                {t('run.breathing.entrySub', {
                   seconds: (item.durationMs / 1000).toFixed(1),
-                  avg: item.avgMagnitude.toFixed(2),
                 })}
               </Text>
             </View>
@@ -316,7 +354,7 @@ export default function EarthquakeRunScreen({ navigation, route }: Props) {
 
       <View style={styles.finishButton}>
         <Button
-          title={t('run.earthquake.finish')}
+          title={t('run.breathing.finish')}
           onPress={handleFinish}
           disabled={isRunning || isFinishing}
         />
@@ -340,6 +378,23 @@ function Stat({
     <View style={styles.stat}>
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function SensorValue({
+  label,
+  value,
+  styles,
+}: {
+  label: string;
+  value: string;
+  styles: Styles;
+}) {
+  return (
+    <View style={styles.sensorValue}>
+      <Text style={styles.sensorValueLabel}>{label}</Text>
+      <Text style={styles.sensorValueText}>{value}</Text>
     </View>
   );
 }
@@ -413,6 +468,20 @@ const makeStyles = (colors: Colors, fontScale: number) =>
     meterLabel: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted },
     meterValue: { fontSize: 36 * fontScale, fontWeight: '800', color: colors.primary, marginTop: 4 },
     meterHint: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 6, textAlign: 'center' },
+    sensorBox: {
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      borderRadius: 10,
+      backgroundColor: colors.surfaceMuted,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      marginBottom: 12,
+    },
+    sensorLabel: { fontSize: baseFont.tiny * fontScale, fontWeight: '600', color: colors.textMuted, marginBottom: 8 },
+    sensorRow: { flexDirection: 'row', gap: 8, justifyContent: 'space-around' },
+    sensorValue: { alignItems: 'center' },
+    sensorValueLabel: { fontSize: baseFont.micro * fontScale, color: colors.textMuted, fontWeight: '600' },
+    sensorValueText: { fontSize: baseFont.small * fontScale, fontWeight: '700', color: colors.text, marginTop: 2 },
     statsRow: { flexDirection: 'row', gap: 8, marginBottom: 12 },
     stat: {
       flexGrow: 1,
@@ -437,7 +506,8 @@ const makeStyles = (colors: Colors, fontScale: number) =>
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
-    entryLabel: { fontSize: 15 * fontScale, color: colors.text },
+    entryLabel: { fontSize: 15 * fontScale, fontWeight: '600', color: colors.text },
+    entryMode: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 2 },
     entryRight: { alignItems: 'flex-end' },
     entryValue: { fontSize: 15 * fontScale, fontWeight: '600', color: colors.primary },
     entrySub: { fontSize: baseFont.tiny * fontScale, color: colors.textMuted, marginTop: 2 },

@@ -12,7 +12,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ActivityStackParamList } from '../../../navigation/ActivityStack';
 import {
   ActivityAttempt,
-  EarthquakeEntry,
+  BreathingEntry,
   loadAttempts,
 } from '../../../storage/attempts';
 import { useTranslation } from '../../../context/LanguageContext';
@@ -21,21 +21,64 @@ import { baseFont, Colors } from '../../../theme/tokens';
 
 type Props = NativeStackScreenProps<ActivityStackParamList, 'ActivityResult'>;
 
-type EarthquakeTier = 'excellent' | 'moderate' | 'needsWork';
+type Summary = {
+  count: number;
+  restCount: number;
+  exerciseCount: number;
+  avgRest: number | null;
+  avgExercise: number | null;
+  difference: number | null;
+  highest: number;
+  lowest: number;
+  totalDurationSec: number;
+};
 
-function gradeEarthquake(lowestPeak: number): EarthquakeTier {
-  if (lowestPeak < 0.5) return 'excellent';
-  if (lowestPeak <= 1.5) return 'moderate';
-  return 'needsWork';
+type PerformanceTier = 'good' | 'needsData' | 'tryLonger';
+
+function summarise(entries: BreathingEntry[]): Summary {
+  const rates = entries.map((e) => e.breathingRate);
+  const rest = entries.filter((e) => e.mode === 'rest');
+  const exercise = entries.filter((e) => e.mode === 'exercise');
+  const avgRest = rest.length
+    ? Math.round(rest.reduce((s, e) => s + e.breathingRate, 0) / rest.length)
+    : null;
+  const avgExercise = exercise.length
+    ? Math.round(
+        exercise.reduce((s, e) => s + e.breathingRate, 0) / exercise.length
+      )
+    : null;
+  return {
+    count: entries.length,
+    restCount: rest.length,
+    exerciseCount: exercise.length,
+    avgRest,
+    avgExercise,
+    difference:
+      avgRest != null && avgExercise != null ? avgExercise - avgRest : null,
+    highest: Math.max(...rates),
+    lowest: Math.min(...rates),
+    totalDurationSec: entries.reduce((s, e) => s + e.durationMs / 1000, 0),
+  };
 }
 
-export default function EarthquakeResultScreen({ navigation, route }: Props) {
+function gradePerformance(summary: Summary): PerformanceTier {
+  if (summary.avgRest == null || summary.avgExercise == null) {
+    return 'needsData';
+  }
+  if (summary.difference != null && Math.abs(summary.difference) < 3) {
+    return 'tryLonger';
+  }
+  return 'good';
+}
+
+export default function BreathingResultScreen({ navigation, route }: Props) {
   const { activityId } = route.params;
   const { t } = useTranslation();
   const { colors, fontScale } = useTheme();
   const styles = makeStyles(colors, fontScale);
+
   const [loading, setLoading] = useState(true);
-  const [latest, setLatest] = useState<ActivityAttempt<EarthquakeEntry> | null>(
+  const [latest, setLatest] = useState<ActivityAttempt<BreathingEntry> | null>(
     null
   );
   const [totalAttempts, setTotalAttempts] = useState(0);
@@ -43,7 +86,7 @@ export default function EarthquakeResultScreen({ navigation, route }: Props) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const attempts = await loadAttempts<EarthquakeEntry>(activityId);
+      const attempts = await loadAttempts<BreathingEntry>(activityId);
       if (cancelled) return;
       setTotalAttempts(attempts.length);
       setLatest(attempts[0] ?? null);
@@ -70,54 +113,47 @@ export default function EarthquakeResultScreen({ navigation, route }: Props) {
     );
   }
 
-  const peaks = latest.entries.map((e) => e.peakMagnitude);
-  const avgs = latest.entries.map((e) => e.avgMagnitude);
-  const lowestPeak = Math.min(...peaks);
-  const highestPeak = Math.max(...peaks);
-  const meanPeak = peaks.reduce((a, b) => a + b, 0) / peaks.length;
-  const meanAvg = avgs.reduce((a, b) => a + b, 0) / avgs.length;
-  const headlineResult = Number(lowestPeak.toFixed(2));
+  const summary = summarise(latest.entries);
+  const tier = gradePerformance(summary);
 
-  const tier = gradeEarthquake(lowestPeak);
-  const tierLabel =
-    tier === 'excellent'
-      ? 'Excellent absorption'
-      : tier === 'moderate'
-      ? 'Moderate absorption'
-      : 'Needs improvement';
-  const tierColor =
-    tier === 'excellent'
+  const insightKey =
+    tier === 'needsData'
+      ? 'result.breathing.insight.needsData'
+      : tier === 'tryLonger'
+      ? 'result.breathing.insight.tryLonger'
+      : (summary.difference ?? 0) > 0
+      ? 'result.breathing.insight.exerciseHigher'
+      : 'result.breathing.insight.restHigher';
+
+  const performanceKey =
+    tier === 'good'
+      ? 'result.breathing.performance.good'
+      : tier === 'tryLonger'
+      ? 'result.breathing.performance.tryLonger'
+      : 'result.breathing.performance.needsData';
+
+  const performanceColor =
+    tier === 'good'
       ? colors.success
-      : tier === 'moderate'
+      : tier === 'tryLonger'
       ? colors.accent
       : colors.textMuted;
-  const tierBg =
-    tier === 'excellent'
+  const performanceBg =
+    tier === 'good'
       ? colors.successBg
-      : tier === 'moderate'
+      : tier === 'tryLonger'
       ? colors.warningBg
       : colors.surfaceMuted;
 
-  const count = latest.entries.length;
-  const multiText =
-    count > 1
-      ? ` Across ${count} tests, your average peak was ${meanPeak.toFixed(2)} g.`
-      : '';
-  const insight =
-    `Your best structure absorbed vibrations down to ` +
-    `${lowestPeak.toFixed(2)} g peak movement.${multiText} Lower readings ` +
-    `mean your structure absorbed more of the earthquake energy.`;
-
-  const science =
-    'Real earthquake-resistant buildings use flexible materials and base ' +
-    'isolation to absorb seismic energy. The accelerometer in your phone ' +
-    "measures acceleration in units of g (where 1g = Earth's gravity). A " +
-    'well-designed vibration absorber converts kinetic energy into heat ' +
-    'through material deformation.';
+  // Average across all measurements is what we save to the leaderboard / history.
+  const overallAvg = Math.round(
+    latest.entries.reduce((s, e) => s + e.breathingRate, 0) /
+      latest.entries.length
+  );
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.heading}>{t('result.common.latest')}</Text>
+      <Text style={styles.heading}>{t('run.breathing.heading')}</Text>
       <Text style={styles.meta}>
         {t('result.common.savedAt', {
           when: new Date(latest.finishedAt).toLocaleString(),
@@ -128,78 +164,99 @@ export default function EarthquakeResultScreen({ navigation, route }: Props) {
       </Text>
 
       <View style={styles.hero}>
-        <Text style={styles.heroLabel}>Best peak</Text>
-        <Text style={styles.heroValue}>{lowestPeak.toFixed(2)} g</Text>
+        <Text style={styles.heroLabel}>{t('result.breathing.average')}</Text>
+        <Text style={styles.heroValue}>{overallAvg} BPM</Text>
         <Text style={styles.heroSub}>
-          {count} test{count === 1 ? '' : 's'}
+          {t('result.breathing.measurementCount', { count: summary.count })}
         </Text>
       </View>
 
-      <View style={[styles.tierPill, { backgroundColor: tierBg }]}>
-        <Text style={[styles.tierText, { color: tierColor }]}>{tierLabel}</Text>
-      </View>
-
-      <Text style={styles.sectionTitle}>Summary</Text>
-      <View style={styles.statsGrid}>
-        <Stat
-          styles={styles}
-          label={t('result.earthquake.tests')}
-          value={count.toString()}
-        />
-        <Stat
-          styles={styles}
-          label={t('result.earthquake.bestPeak')}
-          value={`${lowestPeak.toFixed(2)} g`}
-        />
-        <Stat
-          styles={styles}
-          label={t('result.earthquake.worstPeak')}
-          value={`${highestPeak.toFixed(2)} g`}
-        />
-        <Stat
-          styles={styles}
-          label={t('result.earthquake.meanPeak')}
-          value={`${meanPeak.toFixed(2)} g`}
-        />
-        <Stat
-          styles={styles}
-          label={t('result.earthquake.meanShake')}
-          value={`${meanAvg.toFixed(2)} g`}
-        />
-      </View>
-
-      <View style={styles.insightCard}>
-        <Text style={styles.insightTitle}>What does this mean?</Text>
-        <Text style={styles.insightBody}>{insight}</Text>
-      </View>
-
-      <View style={styles.insightCard}>
-        <Text style={styles.insightTitle}>The science</Text>
-        <Text style={styles.insightBody}>{science}</Text>
+      <View
+        style={[styles.tierPill, { backgroundColor: performanceBg }]}
+      >
+        <Text style={[styles.tierText, { color: performanceColor }]}>
+          {t(performanceKey)}
+        </Text>
       </View>
 
       <Text style={styles.sectionTitle}>
-        {t('result.earthquake.listHeading')}
+        {t('result.breathing.summaryTitle')}
+      </Text>
+      <View style={styles.statsGrid}>
+        <Stat
+          styles={styles}
+          label={t('result.breathing.summary.measurements')}
+          value={summary.count.toString()}
+        />
+        <Stat
+          styles={styles}
+          label={t('result.breathing.summary.avgRest')}
+          value={summary.avgRest != null ? `${summary.avgRest} BPM` : '—'}
+        />
+        <Stat
+          styles={styles}
+          label={t('result.breathing.summary.avgExercise')}
+          value={
+            summary.avgExercise != null ? `${summary.avgExercise} BPM` : '—'
+          }
+        />
+        <Stat
+          styles={styles}
+          label={t('result.breathing.summary.difference')}
+          value={
+            summary.difference != null
+              ? `${summary.difference >= 0 ? '+' : ''}${summary.difference} BPM`
+              : '—'
+          }
+        />
+        <Stat
+          styles={styles}
+          label={t('result.breathing.highest')}
+          value={`${summary.highest} BPM`}
+        />
+        <Stat
+          styles={styles}
+          label={t('result.breathing.lowest')}
+          value={`${summary.lowest} BPM`}
+        />
+      </View>
+
+      <View style={styles.insightCard}>
+        <Text style={styles.insightTitle}>
+          {t('result.breathing.insightTitle')}
+        </Text>
+        <Text style={styles.insightBody}>{t(insightKey)}</Text>
+      </View>
+
+      <Text style={styles.sectionTitle}>
+        {t('result.breathing.listHeading', { count: latest.entries.length })}
       </Text>
       <FlatList
         data={latest.entries}
         keyExtractor={(item) => item.id}
         scrollEnabled={false}
+        ListEmptyComponent={
+          <Text style={styles.emptyRowText}>
+            {t('result.breathing.empty')}
+          </Text>
+        }
         renderItem={({ item }) => (
           <View style={styles.entryRow}>
-            <Text style={styles.entryLabel}>
-              {t('result.earthquake.attemptLabel', { n: item.attemptNumber })}
-            </Text>
-            <View style={styles.entryRight}>
-              <Text style={styles.entryValue}>
-                {t('result.earthquake.entryPeak', {
-                  value: item.peakMagnitude.toFixed(2),
-                })}
+            <View>
+              <Text style={styles.entryLabel}>
+                {t('result.breathing.attemptLabel', { n: item.attemptNumber })}
               </Text>
+              <Text style={styles.entryMode}>
+                {item.mode === 'rest'
+                  ? t('run.breathing.mode.rest')
+                  : t('run.breathing.mode.exercise')}
+              </Text>
+            </View>
+            <View style={styles.entryRight}>
+              <Text style={styles.entryValue}>{item.breathingRate} BPM</Text>
               <Text style={styles.entrySub}>
-                {t('result.earthquake.entrySub', {
+                {t('result.breathing.entrySub', {
                   seconds: (item.durationMs / 1000).toFixed(1),
-                  avg: item.avgMagnitude.toFixed(2),
                 })}
               </Text>
             </View>
@@ -211,12 +268,14 @@ export default function EarthquakeResultScreen({ navigation, route }: Props) {
         onPress={() =>
           navigation.replace('ResultSummary', {
             activityId,
-            result: headlineResult,
+            result: overallAvg,
           })
         }
         style={({ pressed }) => [
           styles.saveBtn,
-          { backgroundColor: pressed ? colors.primaryPressed : colors.primary },
+          {
+            backgroundColor: pressed ? colors.primaryPressed : colors.primary,
+          },
         ]}
       >
         <Text style={styles.saveBtnText}>{t('summary.save')}</Text>
@@ -355,6 +414,11 @@ const makeStyles = (colors: Colors, fontScale: number) =>
       color: colors.textMuted,
       lineHeight: 20,
     },
+    emptyRowText: {
+      color: colors.textSubtle,
+      fontStyle: 'italic',
+      paddingVertical: 8,
+    },
     entryRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -364,9 +428,22 @@ const makeStyles = (colors: Colors, fontScale: number) =>
       borderBottomWidth: 1,
       borderBottomColor: colors.border,
     },
-    entryLabel: { fontSize: 15 * fontScale, color: colors.text },
+    entryLabel: {
+      fontSize: baseFont.bodySm * fontScale,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    entryMode: {
+      fontSize: baseFont.tiny * fontScale,
+      color: colors.textMuted,
+      marginTop: 2,
+    },
     entryRight: { alignItems: 'flex-end' },
-    entryValue: { fontSize: 15 * fontScale, fontWeight: '600', color: colors.primary },
+    entryValue: {
+      fontSize: baseFont.bodySm * fontScale,
+      fontWeight: '700',
+      color: colors.primary,
+    },
     entrySub: {
       fontSize: baseFont.tiny * fontScale,
       color: colors.textMuted,

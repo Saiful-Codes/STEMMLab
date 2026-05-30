@@ -81,6 +81,15 @@ export type HandFanMeta = {
   distance: number;
 };
 
+export type BreathingEntry = {
+  id: string;
+  attemptNumber: number;
+  mode: 'rest' | 'exercise';
+  durationMs: number;
+  breathingRate: number;
+  sampleCount: number;
+};
+
 export type PerformanceBucket = 'low' | 'medium' | 'high';
 
 export type PerformanceEntry = {
@@ -109,6 +118,7 @@ export type AttemptEntry =
   | EarthquakeEntry
   | ParachuteEntry
   | HandFanEntry
+  | BreathingEntry
   | PerformanceEntry;
 
 export type ActivityAttempt<E extends AttemptEntry = AttemptEntry> = {

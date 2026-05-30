@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CompositeScreenProps, useFocusEffect } from '@react-navigation/native';
@@ -15,6 +15,13 @@ import { getResults } from '../../storage/results';
 import QuickAccessCard from '../../components/QuickAccessCard';
 import RecentActivityCard from '../../components/RecentActivityCard';
 
+const TIPS = [
+  'Try all 7 activities to complete your STEMM journey!',
+  'Run activities in different locations for GPS-tagged results.',
+  "Rate and comment on activities to record your team's reflections.",
+  'Check the leaderboard to see how your team ranks!',
+];
+
 type Props = CompositeScreenProps<
   NativeStackScreenProps<ActivityStackParamList, 'Home'>,
   BottomTabScreenProps<MainTabsParamList>
@@ -25,10 +32,13 @@ export default function HomeScreen({ navigation }: Props) {
   const { team } = useTeam();
   const { t } = useTranslation();
   const [latestResult, setLatestResult] = useState<Result | null>(null);
+  const tipCounter = useRef<number>(0);
 
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
+      // Advance the tip on every visit so each return shows the next one.
+      tipCounter.current += 1;
       (async () => {
         const stored = await getResults();
         if (!cancelled) setLatestResult(stored[0] ?? null);
@@ -38,6 +48,8 @@ export default function HomeScreen({ navigation }: Props) {
       };
     }, [])
   );
+
+  const tip = TIPS[tipCounter.current % TIPS.length];
 
   const goToActivities = () => navigation.navigate('ActivityList');
   const goToLeaderboard = () => navigation.navigate('Leaderboard');
@@ -149,6 +161,16 @@ export default function HomeScreen({ navigation }: Props) {
         >
           {t('home.tapHint')}
         </Text>
+
+        {/* TIP LINE */}
+        <Text
+          style={[
+            styles.tipLine,
+            { color: colors.textMuted, fontSize: baseFont.tiny * fontScale },
+          ]}
+        >
+          Tip: {tip}
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -177,5 +199,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 32,
     fontWeight: '500',
+  },
+  tipLine: {
+    textAlign: 'center',
+    fontStyle: 'italic',
+    opacity: 0.6,
+    marginTop: 8,
   },
 });
