@@ -33,14 +33,15 @@ import {
   BatteryStatus,
   getBatteryStatus,
 } from '../../services/batteryService';
-import {
-  BackgroundRunInfo,
-  BackgroundTaskStatus,
-  getBackgroundTaskStatus,
-  getLastBackgroundRun,
-  registerBackgroundTask,
-  unregisterBackgroundTask,
-} from '../../services/backgroundTaskService';
+// Background task UI commented out — feature not user-facing. Uncomment to restore.
+// import {
+//   BackgroundRunInfo,
+//   BackgroundTaskStatus,
+//   getBackgroundTaskStatus,
+//   getLastBackgroundRun,
+//   registerBackgroundTask,
+//   unregisterBackgroundTask,
+// } from '../../services/backgroundTaskService';
 import type { RootStackParamList } from '../../navigation/RootNavigator';
 
 export default function SettingsScreen() {
@@ -58,65 +59,66 @@ export default function SettingsScreen() {
   const [battery, setBattery] = useState<BatteryStatus | null>(null);
   const [batteryLoading, setBatteryLoading] = useState(false);
   const [batteryError, setBatteryError] = useState<string | null>(null);
-  const [bgStatus, setBgStatus] = useState<BackgroundTaskStatus | null>(null);
-  const [bgRun, setBgRun] = useState<BackgroundRunInfo | null>(null);
-  const [bgLoading, setBgLoading] = useState(false);
-  const [bgError, setBgError] = useState<string | null>(null);
-
-  const refreshBackgroundStatus = useCallback(async () => {
-    try {
-      setBgLoading(true);
-      setBgError(null);
-      const [status, run] = await Promise.all([
-        getBackgroundTaskStatus(),
-        getLastBackgroundRun(),
-      ]);
-      setBgStatus(status);
-      setBgRun(run);
-    } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Could not read background task status.';
-      setBgError(message);
-    } finally {
-      setBgLoading(false);
-    }
-  }, []);
-
-  const handleRegisterBackground = async () => {
-    try {
-      setBgLoading(true);
-      setBgError(null);
-      await registerBackgroundTask();
-      await refreshBackgroundStatus();
-    } catch (err) {
-      const friendly =
-        'Background tasks are not available in this app build. Use a development build to enable this feature.';
-      setBgError(friendly);
-      Alert.alert('Register failed', friendly);
-    } finally {
-      setBgLoading(false);
-    }
-  };
-
-  const handleUnregisterBackground = async () => {
-    try {
-      setBgLoading(true);
-      setBgError(null);
-      await unregisterBackgroundTask();
-      await refreshBackgroundStatus();
-    } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Could not unregister background task.';
-      setBgError(message);
-      Alert.alert('Unregister failed', message);
-    } finally {
-      setBgLoading(false);
-    }
-  };
+  // Background task state + handlers commented out. Uncomment to restore.
+  // const [bgStatus, setBgStatus] = useState<BackgroundTaskStatus | null>(null);
+  // const [bgRun, setBgRun] = useState<BackgroundRunInfo | null>(null);
+  // const [bgLoading, setBgLoading] = useState(false);
+  // const [bgError, setBgError] = useState<string | null>(null);
+  //
+  // const refreshBackgroundStatus = useCallback(async () => {
+  //   try {
+  //     setBgLoading(true);
+  //     setBgError(null);
+  //     const [status, run] = await Promise.all([
+  //       getBackgroundTaskStatus(),
+  //       getLastBackgroundRun(),
+  //     ]);
+  //     setBgStatus(status);
+  //     setBgRun(run);
+  //   } catch (err) {
+  //     const message =
+  //       err instanceof Error
+  //         ? err.message
+  //         : 'Could not read background task status.';
+  //     setBgError(message);
+  //   } finally {
+  //     setBgLoading(false);
+  //   }
+  // }, []);
+  //
+  // const handleRegisterBackground = async () => {
+  //   try {
+  //     setBgLoading(true);
+  //     setBgError(null);
+  //     await registerBackgroundTask();
+  //     await refreshBackgroundStatus();
+  //   } catch (err) {
+  //     const friendly =
+  //       'Background tasks are not available in this app build. Use a development build to enable this feature.';
+  //     setBgError(friendly);
+  //     Alert.alert('Register failed', friendly);
+  //   } finally {
+  //     setBgLoading(false);
+  //   }
+  // };
+  //
+  // const handleUnregisterBackground = async () => {
+  //   try {
+  //     setBgLoading(true);
+  //     setBgError(null);
+  //     await unregisterBackgroundTask();
+  //     await refreshBackgroundStatus();
+  //   } catch (err) {
+  //     const message =
+  //       err instanceof Error
+  //         ? err.message
+  //         : 'Could not unregister background task.';
+  //     setBgError(message);
+  //     Alert.alert('Unregister failed', message);
+  //   } finally {
+  //     setBgLoading(false);
+  //   }
+  // };
 
   const refreshBattery = useCallback(async () => {
     try {
@@ -142,9 +144,9 @@ export default function SettingsScreen() {
     void refreshBattery();
   }, [refreshBattery]);
 
-  useEffect(() => {
-    void refreshBackgroundStatus();
-  }, [refreshBackgroundStatus]);
+  // useEffect(() => {
+  //   void refreshBackgroundStatus();
+  // }, [refreshBackgroundStatus]);
 
   const handleSignOut = async () => {
     try {
@@ -434,183 +436,16 @@ export default function SettingsScreen() {
         </Pressable>
       </Section>
 
+      {/* Background Task Status section commented out — not user-facing.
+          Uncomment the JSX below and the imports/state/handlers above to restore.
       <Section
         title="Background Task Status"
         colors={colors}
         fontScale={fontScale}
       >
-        {bgError ? (
-          <Text
-            style={[
-              styles.helper,
-              {
-                color: colors.dangerText,
-                fontSize: baseFont.small * fontScale,
-              },
-            ]}
-          >
-            {bgError}
-          </Text>
-        ) : null}
-        {bgStatus?.available === false ? (
-          <Text
-            style={[
-              styles.helper,
-              {
-                color: colors.textMuted,
-                fontSize: baseFont.small * fontScale,
-              },
-            ]}
-          >
-            Background tasks require a development build. They are not available
-            in Expo Go.
-          </Text>
-        ) : null}
-        <Row
-          label="Registered"
-          colors={colors}
-          fontScale={fontScale}
-          control={
-            <Text
-              style={[
-                styles.statusValue,
-                { color: colors.text, fontSize: baseFont.body * fontScale },
-              ]}
-            >
-              {bgStatus ? (bgStatus.registered ? 'Yes' : 'No') : '—'}
-            </Text>
-          }
-        />
-        <Divider color={colors.border} />
-        <Row
-          label="OS status"
-          colors={colors}
-          fontScale={fontScale}
-          control={
-            <Text
-              style={[
-                styles.statusValue,
-                { color: colors.text, fontSize: baseFont.body * fontScale },
-              ]}
-            >
-              {bgStatus ? bgStatus.statusLabel : '—'}
-            </Text>
-          }
-        />
-        <Divider color={colors.border} />
-        <Row
-          label="Last run"
-          colors={colors}
-          fontScale={fontScale}
-          control={
-            <Text
-              style={[
-                styles.statusValue,
-                { color: colors.text, fontSize: baseFont.body * fontScale },
-              ]}
-            >
-              {bgRun && bgRun.lastRunAt
-                ? new Date(bgRun.lastRunAt).toLocaleString()
-                : 'Never'}
-            </Text>
-          }
-        />
-        <Divider color={colors.border} />
-        <Row
-          label="Run count"
-          colors={colors}
-          fontScale={fontScale}
-          control={
-            <Text
-              style={[
-                styles.statusValue,
-                { color: colors.text, fontSize: baseFont.body * fontScale },
-              ]}
-            >
-              {bgRun ? String(bgRun.runCount) : '0'}
-            </Text>
-          }
-        />
-        <Pressable
-          onPress={handleRegisterBackground}
-          disabled={
-            bgLoading ||
-            bgStatus?.registered === true ||
-            bgStatus?.available === false
-          }
-          style={({ pressed }) => [
-            styles.primaryBtn,
-            {
-              backgroundColor: pressed
-                ? colors.primaryPressed
-                : colors.primary,
-            },
-            (bgLoading ||
-              bgStatus?.registered === true ||
-              bgStatus?.available === false) &&
-              styles.dangerBtnDisabled,
-          ]}
-        >
-          <Text
-            style={[
-              styles.primaryBtnText,
-              {
-                color: colors.primaryText,
-                fontSize: baseFont.bodySm * fontScale,
-              },
-            ]}
-          >
-            {bgLoading ? 'Working…' : 'Register Task'}
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={handleUnregisterBackground}
-          disabled={bgLoading || bgStatus?.registered === false}
-          style={({ pressed }) => [
-            styles.secondaryBtn,
-            {
-              backgroundColor: pressed
-                ? colors.surfaceMuted
-                : colors.surfaceSubtle,
-              borderColor: colors.border,
-            },
-            (bgLoading || bgStatus?.registered === false) &&
-              styles.dangerBtnDisabled,
-          ]}
-        >
-          <Text
-            style={[
-              styles.secondaryBtnText,
-              { color: colors.text, fontSize: baseFont.bodySm * fontScale },
-            ]}
-          >
-            Unregister Task
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={refreshBackgroundStatus}
-          disabled={bgLoading}
-          style={({ pressed }) => [
-            styles.secondaryBtn,
-            {
-              backgroundColor: pressed
-                ? colors.surfaceMuted
-                : colors.surfaceSubtle,
-              borderColor: colors.border,
-            },
-            bgLoading && styles.dangerBtnDisabled,
-          ]}
-        >
-          <Text
-            style={[
-              styles.secondaryBtnText,
-              { color: colors.text, fontSize: baseFont.bodySm * fontScale },
-            ]}
-          >
-            {bgLoading ? 'Refreshing…' : 'Refresh Status'}
-          </Text>
-        </Pressable>
+        ...
       </Section>
+      */}
 
       <Section
         title={t('settings.section.language')}

@@ -22,6 +22,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { baseFont } from '../../theme/tokens';
 import PerformanceChart from '../../components/PerformanceChart';
+import SavedPhotos from '../../components/SavedPhotos';
 
 type Filter = 'all' | string;
 
@@ -32,6 +33,7 @@ export default function HistoryScreen() {
   const [filter, setFilter] = useState<Filter>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -153,77 +155,133 @@ export default function HistoryScreen() {
           data={filtered}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
-          renderItem={({ item }) => (
-            <View
-              style={[
-                styles.card,
-                { backgroundColor: colors.surface, borderColor: colors.border },
-              ]}
-            >
-              <View style={styles.cardHeader}>
-                <Text
-                  style={[
-                    styles.activityName,
-                    { color: colors.text, fontSize: baseFont.bodySm * fontScale },
-                  ]}
-                >
-                  {t(getActivityTitleKey(item.activityId))}
-                </Text>
-                <Text
-                  style={[
-                    styles.resultValue,
-                    { color: colors.primary, fontSize: baseFont.body * fontScale },
-                  ]}
-                >
-                  {formatResult(item.activityId, item.result)}
-                </Text>
-              </View>
-              <Text
+          renderItem={({ item }) => {
+            const isExpanded = expandedId === item.id;
+            const hasDetails =
+              !!item.rating ||
+              !!item.comment ||
+              !!item.locationName ||
+              item.latitude != null ||
+              (item.images && item.images.length > 0);
+            return (
+              <Pressable
+                onPress={() =>
+                  setExpandedId(isExpanded ? null : item.id)
+                }
                 style={[
-                  styles.meta,
-                  { color: colors.textMuted, fontSize: baseFont.tiny * fontScale },
+                  styles.card,
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: isExpanded
+                      ? colors.primary
+                      : colors.border,
+                  },
                 ]}
               >
-                {item.teamName} · {formatTimestamp(item.timestamp)}
-              </Text>
-              {item.rating ? (
-                <Text
-                  style={[
-                    styles.rating,
-                    { color: colors.star, fontSize: baseFont.bodySm * fontScale },
-                  ]}
-                >
-                  {'★'.repeat(item.rating)}
-                  <Text style={{ color: colors.starDim }}>
-                    {'★'.repeat(5 - item.rating)}
+                <View style={styles.cardHeader}>
+                  <Text
+                    style={[
+                      styles.activityName,
+                      {
+                        color: colors.text,
+                        fontSize: baseFont.bodySm * fontScale,
+                      },
+                    ]}
+                  >
+                    {t(getActivityTitleKey(item.activityId))}
                   </Text>
-                </Text>
-              ) : null}
-                            {item.comment ? (
+                  <View style={styles.cardHeaderRight}>
+                    <Text
+                      style={[
+                        styles.resultValue,
+                        {
+                          color: colors.primary,
+                          fontSize: baseFont.body * fontScale,
+                        },
+                      ]}
+                    >
+                      {formatResult(item.activityId, item.result)}
+                    </Text>
+                    {hasDetails && (
+                      <Text
+                        style={[
+                          styles.expandHint,
+                          {
+                            color: colors.textSubtle,
+                            fontSize: baseFont.micro * fontScale,
+                          },
+                        ]}
+                      >
+                        {isExpanded ? '▲' : '▼'}
+                      </Text>
+                    )}
+                  </View>
+                </View>
                 <Text
                   style={[
-                    styles.comment,
-                    { color: colors.text, fontSize: baseFont.small * fontScale },
+                    styles.meta,
+                    {
+                      color: colors.textMuted,
+                      fontSize: baseFont.tiny * fontScale,
+                    },
                   ]}
                 >
-                  “{item.comment}”
+                  {item.teamName} · {formatTimestamp(item.timestamp)}
                 </Text>
-              ) : null}
-              {item.locationName ||
-              (item.latitude != null && item.longitude != null) ? (
-                <Text
-                  style={[
-                    styles.location,
-                    { color: colors.textMuted, fontSize: baseFont.tiny * fontScale },
-                  ]}
-                >
-                  📍{' '}
-                  {item.locationName ||
-                    `${item.latitude?.toFixed(4)}, ${item.longitude?.toFixed(4)}`}
-                </Text>
-              ) : null}
-            </View>
-          )}
+
+                {isExpanded && (
+                  <View style={[styles.details, { borderTopColor: colors.border }]}>
+                    {item.rating ? (
+                      <Text
+                        style={[
+                          styles.rating,
+                          {
+                            color: colors.star,
+                            fontSize: baseFont.bodySm * fontScale,
+                          },
+                        ]}
+                      >
+                        {'★'.repeat(item.rating)}
+                        <Text style={{ color: colors.starDim }}>
+                          {'★'.repeat(5 - item.rating)}
+                        </Text>
+                      </Text>
+                    ) : null}
+                    {item.comment ? (
+                      <Text
+                        style={[
+                          styles.comment,
+                          {
+                            color: colors.text,
+                            fontSize: baseFont.small * fontScale,
+                          },
+                        ]}
+                      >
+                        “{item.comment}”
+                      </Text>
+                    ) : null}
+                    {item.locationName ||
+                    (item.latitude != null && item.longitude != null) ? (
+                      <Text
+                        style={[
+                          styles.location,
+                          {
+                            color: colors.textMuted,
+                            fontSize: baseFont.tiny * fontScale,
+                          },
+                        ]}
+                      >
+                        📍{' '}
+                        {item.locationName ||
+                          `${item.latitude?.toFixed(4)}, ${item.longitude?.toFixed(4)}`}
+                      </Text>
+                    ) : null}
+                    <SavedPhotos images={item.images ?? []} />
+                  </View>
+                )}
+              </Pressable>
+            );
+          }}
         />
           )}
         </>
@@ -307,12 +365,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
   },
+  cardHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  expandHint: { marginLeft: 2 },
   activityName: { fontWeight: '600', flex: 1, paddingRight: 8 },
   resultValue: { fontWeight: '700' },
   meta: {},
-  rating: { marginTop: 6 },
-  comment: { fontStyle: 'italic', marginTop: 6 },
-  location: { marginTop: 6 },
+  details: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+  },
+  rating: { marginBottom: 6 },
+  comment: { fontStyle: 'italic', marginBottom: 6 },
+  location: { marginBottom: 4 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   empty: {
     flex: 1,
