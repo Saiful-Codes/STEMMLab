@@ -20,7 +20,14 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "package": "com.saifulshihab.stemmlab"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -42,15 +49,17 @@
         "expo-notifications",
         {
           "icon": "./assets/icon.png",
-          "color": "#000000",
-          "sounds": [
-            "default"
-          ]
+          "color": "#000000"
         }
       ],
       "expo-sqlite",
       "expo-font",
       "expo-asset"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6b458af7-ac39-4f4a-ad5f-397f6e922283"
+      }
+    }
   }
 }
