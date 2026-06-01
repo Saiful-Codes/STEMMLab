@@ -27,6 +27,8 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
 import { Colors, baseFont } from '../../theme/tokens';
+import { getCurrentUser } from '../../services/authService';
+import { getGlobalLeaderboardFromFirestore } from '../../services/firestoreService';
 
 export default function LeaderboardScreen() {
   const { colors, fontScale } = useTheme();
@@ -35,6 +37,7 @@ export default function LeaderboardScreen() {
   const [activityId, setActivityId] = useState<string>(RANKED_ACTIVITY_IDS[0]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [isGlobal, setIsGlobal] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -42,11 +45,32 @@ export default function LeaderboardScreen() {
       (async () => {
         setLoading(true);
         setError(false);
+        const user = getCurrentUser();
         try {
-          const stored = await getResults();
-          if (!cancelled) setResults(stored);
+          if (user) {
+            const cloudResults = await getGlobalLeaderboardFromFirestore();
+            if (!cancelled) {
+              setResults(cloudResults);
+              setIsGlobal(true);
+            }
+          } else {
+            const stored = await getResults();
+            if (!cancelled) {
+              setResults(stored);
+              setIsGlobal(false);
+            }
+          }
         } catch {
-          if (!cancelled) setError(true);
+          // Firestore unavailable — fall back to local results
+          try {
+            const stored = await getResults();
+            if (!cancelled) {
+              setResults(stored);
+              setIsGlobal(false);
+            }
+          } catch {
+            if (!cancelled) setError(true);
+          }
         } finally {
           if (!cancelled) setLoading(false);
         }
@@ -90,6 +114,22 @@ export default function LeaderboardScreen() {
       >
         {lower ? t('leaderboard.lowerBetter') : t('leaderboard.higherBetter')}
       </Text>
+
+      {!loading && (
+        <Text
+          style={[
+            styles.sourceBadge,
+            {
+              color: isGlobal ? colors.primary : colors.textMuted,
+              fontSize: baseFont.micro * fontScale,
+            },
+          ]}
+        >
+          {isGlobal
+            ? 'Global ranking — all teams'
+            : 'Local only · Sign in for global rankings'}
+        </Text>
+      )}
 
       <View style={styles.filterRow}>
         {filterChips.map((f) => {
@@ -304,7 +344,8 @@ function EmptyState({
 const styles = StyleSheet.create({
   container: { flex: 1, paddingHorizontal: 16, paddingTop: 16 },
   heading: { fontWeight: '700' },
-  subheading: { marginBottom: 12 },
+  subheading: { marginBottom: 4 },
+  sourceBadge: { fontWeight: '600', marginBottom: 10 },
   filterRow: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 12 },
   chip: {
     paddingHorizontal: 12,
