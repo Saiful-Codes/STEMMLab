@@ -76,10 +76,21 @@ export async function getActivityResultsFromFirestore(
     where('userId', '==', userId)
   );
   const snap = await getDocs(q);
-  // Parse each doc independently so a single malformed record can't take down
-  // the whole list — skip + warn instead of throwing.
+  return parseResultDocs(snap.docs);
+}
+
+// Fetches activity results from all users — used by the global leaderboard.
+// Falls back gracefully if a document is malformed.
+export async function getGlobalLeaderboardFromFirestore(): Promise<Result[]> {
+  const snap = await getDocs(collection(db, 'activityResults'));
+  return parseResultDocs(snap.docs);
+}
+
+function parseResultDocs(
+  docs: Array<{ id: string; data(): Record<string, unknown> }>
+): Result[] {
   const results: Result[] = [];
-  for (const d of snap.docs) {
+  for (const d of docs) {
     try {
       const data = d.data();
       results.push({
@@ -96,6 +107,5 @@ export async function getActivityResultsFromFirestore(
       console.warn('[firestoreService] skipping malformed result doc:', d.id, err);
     }
   }
-  // Sort newest-first client-side to avoid needing a composite index.
   return results.sort((a, b) => b.timestamp - a.timestamp);
 }

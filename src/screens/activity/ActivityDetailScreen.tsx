@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Speech from 'expo-speech';
 import { ActivityStackParamList } from '../../navigation/ActivityStack';
@@ -131,6 +131,10 @@ export default function ActivityDetailScreen({ navigation, route }: Props) {
       onError: (error) => {
         console.warn('TTS error:', error);
         setIsSpeaking(false);
+        Alert.alert(
+          'Read aloud unavailable',
+          'Text-to-speech could not start on this device. Check that a speech engine is enabled in Settings → Accessibility → Text-to-speech.'
+        );
       },
     });
   }, [activity, isSpeaking, language, stopSpeaking, t]);

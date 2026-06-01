@@ -32,6 +32,7 @@ import {
   saveActivityResultToFirestore,
   saveTeamToFirestore,
   getActivityResultsFromFirestore,
+  getGlobalLeaderboardFromFirestore,
 } from './firestoreService';
 
 const mockedDoc = doc as jest.MockedFunction<typeof doc>;
@@ -244,6 +245,76 @@ describe('getActivityResultsFromFirestore', () => {
     expect(warnSpy).toHaveBeenCalledWith(
       expect.stringContaining('[firestoreService]'),
       'bad-1',
+      expect.any(Error)
+    );
+  });
+});
+
+describe('getGlobalLeaderboardFromFirestore', () => {
+  let warnSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    mockedCollection.mockReturnValue('__collection__' as never);
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  it('queries all activityResults without a userId filter, sorted newest-first', async () => {
+    mockedGetDocs.mockResolvedValueOnce({
+      docs: [
+        {
+          id: 'x',
+          data: () => ({
+            id: 'x', activityId: 'reaction', teamName: 'Team X',
+            members: ['Alice'], result: 200, timestamp: 1000,
+          }),
+        },
+        {
+          id: 'y',
+          data: () => ({
+            id: 'y', activityId: 'reaction', teamName: 'Team Y',
+            members: ['Bob'], result: 150, timestamp: 3000,
+          }),
+        },
+      ],
+    } as never);
+
+    const results = await getGlobalLeaderboardFromFirestore();
+
+    expect(mockedCollection).toHaveBeenCalledWith({ __mock: 'db' }, 'activityResults');
+    expect(mockedGetDocs).toHaveBeenCalledWith('__collection__');
+    expect(mockedQuery).not.toHaveBeenCalled();
+    expect(mockedWhere).not.toHaveBeenCalled();
+    expect(results.map((r) => r.id)).toEqual(['y', 'x']);
+    expect(results.map((r) => r.teamName)).toEqual(['Team Y', 'Team X']);
+  });
+
+  it('skips malformed docs and still returns valid ones', async () => {
+    mockedGetDocs.mockResolvedValueOnce({
+      docs: [
+        {
+          id: 'good',
+          data: () => ({
+            id: 'good', activityId: 'reaction', teamName: 'T',
+            members: ['A'], result: 200, timestamp: 1000,
+          }),
+        },
+        {
+          id: 'bad',
+          data: () => { throw new Error('corrupted'); },
+        },
+      ],
+    } as never);
+
+    const results = await getGlobalLeaderboardFromFirestore();
+    expect(results.map((r) => r.id)).toEqual(['good']);
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('[firestoreService]'),
+      'bad',
       expect.any(Error)
     );
   });
