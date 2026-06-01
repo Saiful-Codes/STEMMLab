@@ -43,10 +43,14 @@
         {
           "icon": "./assets/icon.png",
           "color": "#000000",
-          "sounds": ["default"]
+          "sounds": [
+            "default"
+          ]
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-font",
+      "expo-asset"
     ]
   }
 }
