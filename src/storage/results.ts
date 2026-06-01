@@ -34,3 +34,12 @@ export async function clearResults(): Promise<void> {
     throw err;
   }
 }
+
+export async function replaceAllResults(results: Result[]): Promise<void> {
+  try {
+    await AsyncStorage.setItem(RESULTS_KEY, JSON.stringify(results));
+  } catch (err) {
+    console.warn('[storage/results] replaceAllResults failed:', err);
+    throw err;
+  }
+}

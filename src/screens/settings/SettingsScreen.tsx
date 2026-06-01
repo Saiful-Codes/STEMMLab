@@ -14,7 +14,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTeam } from '../../context/TeamContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useTranslation } from '../../context/LanguageContext';
-import { clearResults, getResults } from '../../storage/results';
+import { clearResults, getResults, replaceAllResults } from '../../storage/results';
 import { Colors, baseFont } from '../../theme/tokens';
 import { LANGUAGES, LanguageCode } from '../../i18n/translations';
 import {
@@ -47,7 +47,7 @@ import type { RootStackParamList } from '../../navigation/RootNavigator';
 export default function SettingsScreen() {
   const { mode, colors, largeText, fontScale, toggleMode, toggleLargeText } =
     useTheme();
-  const { team, clearTeam } = useTeam();
+  const { team, clearTeam, saveTeam } = useTeam();
   const { language, setLanguage, t } = useTranslation();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -195,8 +195,12 @@ export default function SettingsScreen() {
       setLoadingCloud(true);
       const cloudTeam = await getTeamFromFirestore(authUser.uid);
       const cloudResults = await getActivityResultsFromFirestore(authUser.uid);
+      if (cloudTeam) {
+        await saveTeam(cloudTeam);
+      }
+      await replaceAllResults(cloudResults);
       Alert.alert(
-        'Loaded from cloud',
+        'Restored from cloud',
         `Team: ${cloudTeam ? cloudTeam.name : '(none)'}\nResults: ${
           cloudResults.length
         }`
