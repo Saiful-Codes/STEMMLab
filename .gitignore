@@ -71,3 +71,9 @@ testing-plan.md
 
 # Assessment artifacts
 *.pptx
+*.docx
+
+# Local doc-generation scripts
+docs/generate-report.js
+docs/generate-user-manual.js
+docs/generate-additional-materials.js
