@@ -101,9 +101,9 @@ npm test               # run all suites
 npm run test:coverage  # run with coverage; writes coverage/lcov-report/index.html
 ```
 
-Current state: **17 test suites, 108 tests passing** (unit, mocked I/O, component, and a root `App.tsx` smoke render). Manual E2E for sensor-driven `*RunScreen` flows is executed in Expo Go on a real device — see [`docs/testing-evidence/manual-checklist-completed.md`](docs/testing-evidence/manual-checklist-completed.md) and the screenshots under [`docs/testing-evidence/manual/`](docs/testing-evidence/manual/). Automated coverage artifacts live in [`docs/testing-evidence/coverage/`](docs/testing-evidence/coverage/) and the passing run transcript in [`docs/testing-evidence/runs/`](docs/testing-evidence/runs/).
+Current state: **18 test suites, 122 tests passing** (unit, mocked I/O, component, and a root `App.tsx` smoke render). Manual E2E for sensor-driven `*RunScreen` flows is executed in Expo Go on a real device — see [`docs/testing-evidence/manual-checklist-completed.md`](docs/testing-evidence/manual-checklist-completed.md). Automated coverage artifacts live in [`docs/testing-evidence/coverage/`](docs/testing-evidence/coverage/) and the passing run transcript in [`docs/testing-evidence/runs/`](docs/testing-evidence/runs/).
 
-For the full testing strategy — what is tested, what is intentionally manual-only, file-by-file inventory, and the rationale — see [`testing-plan.md`](testing-plan.md) (single source of truth) and [`docs/testing-report.md`](docs/testing-report.md) (evidence index).
+For the full testing strategy and evidence index, see [`docs/testing-report.md`](docs/testing-report.md).
 
 ## Author
 
