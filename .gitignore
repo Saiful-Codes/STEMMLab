@@ -76,3 +76,4 @@ testing-plan.md
 # Local doc-generation scripts
 docs/generate-report.js
 docs/generate-user-manual.js
+docs/generate-additional-materials.js
